@@ -17,13 +17,10 @@ function methodNotAllowed(req, res, next) {
 }
 
 function resourceNotFound(req, res, next) {
-    // Handler for unknown URL path.
-    // Call next() to pass to the error handling function.
     return next(new ApiError(404, 'Resource not found'));
 }
 
 function handleError(error, req, res, next) {
-    // Centralized error handling function.
     if (res.headersSent) {
         return next(error); // Delegate to default Express error handler if headers are sent.
     }
@@ -32,7 +29,6 @@ function handleError(error, req, res, next) {
     const message = error.message || 'Internal Server Error';
     const errorCode = error.details?.code;
 
-    // Error-specific responses
     switch (statusCode) {
         case 400:
             if (errorCode === 'INVALID_INPUT') {

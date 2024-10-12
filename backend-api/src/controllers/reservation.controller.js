@@ -48,9 +48,8 @@ async function addReservation(req, res, next) {
 
 async function updateReservationStatus(req, res, next) {
     try {
-        const { reservation_id } = req.params;   // Extract reservation_id from URL params
-        const { status } = req.body;             // Extract status from req.body (handled by multer)
-
+        const { reservation_id } = req.params;   
+        const { status } = req.body;            
         console.log("Received status:", status);  // Debug log
 
         if (!reservation_id || !status) {
@@ -83,7 +82,6 @@ async function updateReservationStatus(req, res, next) {
 async function getReservationByEmail(req, res, next) {
     const { useremail } = req.params; // Get user ID from the URL parameters
 
-    // Validate the user ID
     if (!useremail || typeof useremail !== 'string') {
         return next(new ApiError(400, 'Invalid user mail. It should be a string.'));
     }
@@ -95,20 +93,17 @@ async function getReservationByEmail(req, res, next) {
             firstPage: 1,
             lastPage: 1,
             page: 1,
-            limit: 5, // Default limit, can be adjusted based on the query
+            limit: 5, 
         }
     };
 
     try {
-        // Retrieve favorite items for the specified user ID with pagination support
         result = await reservationService.getReservationByEmail(useremail, req.query);
 
-        // Check if any items were found
         if (result.reservation.length === 0) {
             return res.status(404).json(JSend.fail({ message: 'No reservation found for this user.' }));
         }
 
-        // Return the favorite items with metadata
         return res.status(200).json(JSend.success({
             reservation: result.reservation,
             metadata: result.metadata,
@@ -121,22 +116,18 @@ async function getReservationByEmail(req, res, next) {
 
 async function getReservationByStatus(req, res, next) {
     try {
-        const { status } = req.query; // Extract 'status' from query parameters
+        const { status } = req.query; 
 
-        // Check if status is provided
         if (!status) {
             return res.status(400).json(JSend.fail({ message: 'Status is required.' }));
         }
 
-        // Fetch the reservations by status
         const reservations = await reservationService.getReservationByStatus(status);
 
-        // If no reservations are found, return a 404 response
         if (reservations.length === 0) {
             return res.status(404).json(JSend.fail({ message: 'No reservations found for this status.' }));
         }
 
-        // Return the reservations
         return res.status(200).json(JSend.success({ reservations }));
 
     } catch (error) {

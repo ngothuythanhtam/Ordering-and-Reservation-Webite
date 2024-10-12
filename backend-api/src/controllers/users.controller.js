@@ -4,12 +4,10 @@ const JSend = require('../jsend');
 
 async function getManyUsersByRole(req, res, next) {
     const { role_name } = req.params; 
-
     if (!role_name ) {
         return next(new ApiError(400, 'Invalid user role. It should be a string.'));
     }
     console.log('Received role name: ', role_name)
-
     let result = {
         Users: [],
         metadata: {
@@ -23,11 +21,9 @@ async function getManyUsersByRole(req, res, next) {
 
     try {
         result = await usersService.getManyUsers(role_name, req.query);
-
         if (result.Users.length === 0) {
             return res.status(404).json(JSend.fail({ message: 'No users found for this role.' }));
         }
-
         return res.status(200).json(JSend.success({
             Users: result.Users,
             metadata: result.metadata,
@@ -40,7 +36,6 @@ async function getManyUsersByRole(req, res, next) {
 
 async function getUserByMail(req, res, next) {
   const { useremail } = req.query;  
-
   try {
     const users = await usersService.getUserByMail(useremail); 
     if (!users) {

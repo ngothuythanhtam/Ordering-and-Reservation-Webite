@@ -1,12 +1,6 @@
 const favoriteService = require('../services/favorite.service');
 const ApiError = require('../api-error');
 const JSend = require('../jsend');
-/**
- * Controller to handle getting tables by seating capacity.
- * @param {object} req - Express request object.
- * @param {object} res - Express response object.
- * @param {function} next - Express next middleware function.
- */
 
 // Function to get favorite items by user ID
 async function getFavoriteItems(req, res, next) {

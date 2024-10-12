@@ -1,14 +1,6 @@
 const menu_itemsService = require('../services/menu_items.service');
 const ApiError = require('../api-error');
 const JSend = require('../jsend');
-/**
- * Controller to handle getting tables by seating capacity.
- * @param {object} req - Express request object.
- * @param {object} res - Express response object.
- * @param {function} next - Express next middleware function.
- */
-
-/************************************************************** MENU ITEMS ******************************************************/
 
 // FUNCTION FOR STAF
 async function addMenuItems(req, res, next) {

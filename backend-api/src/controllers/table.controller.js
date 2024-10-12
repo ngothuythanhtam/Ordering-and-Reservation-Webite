@@ -3,18 +3,18 @@ const ApiError = require('../api-error');
 const JSend = require('../jsend');
 
 async function getTableByNumber(req, res, next) {
-    const { table_number } = req.query;  // Retrieve 'table_number' from query parameters
+    const { table_number } = req.query;  
 
     if (!table_number) {
         return next(new ApiError(400, 'Table number is required'));
     }
 
     try {
-        const table = await tableService.getTableByNumber(table_number);  // Use the table_number to find the item
+        const table = await tableService.getTableByNumber(table_number);  
         if (!table) {
             return next(new ApiError(404, 'Table not found'));
         }
-        return res.json(JSend.success({ table_info: table }));  // Return the found table
+        return res.json(JSend.success({ table_info: table }));  
     } catch (error) {
         console.error(error);
         return next(new ApiError(500, `Error retrieving item with table_number=${table_number}`));
@@ -68,7 +68,6 @@ async function getTableByFilter(req, res, next) {
     };
 
     try {
-        // Pass query parameters (e.g., item_name, item_type, item_status) for filtering
         result = await tableService.getManyTableByStatus(req.query);
     } catch (error) {
         console.error(error);
@@ -84,28 +83,23 @@ async function getTableByFilter(req, res, next) {
 }
 
 async function updateTableStatus(req, res, next) {
-    const { table_number } = req.params; // Get table number from path params
-    const { status: newStatus } = req.body; // Get new status from form data
+    const { table_number } = req.params; 
+    const { status: newStatus } = req.body; 
 
-    // Validate inputs
     if (!table_number || !newStatus) {
         return next(new ApiError(400, 'Table number and new status are required'));
     }
 
     try {
-        // Fetch the table by number
         const table = await tableService.getTableByNumber(table_number);
 
-        // Check if table exists
         if (!table) {
             return next(new ApiError(404, 'Table not found'));
         }
 
-        // Update the table's status
         table.status = newStatus;
         await tableService.updateTable(table);
 
-        // Send success response
         return res.json(
             JSend.success({
                 message: `Table ${table_number} status updated to ${newStatus}`,
