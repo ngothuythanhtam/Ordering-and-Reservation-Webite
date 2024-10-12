@@ -2,7 +2,6 @@ const multer = require('multer');
 const path = require('path');
 const ApiError = require('../api-error');
 
-// Setup multer to store files in the 'public/uploads' folder
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './public/uploads/'); // Store uploads in the public/uploads directory
