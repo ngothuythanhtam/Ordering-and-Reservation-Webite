@@ -8,12 +8,12 @@ function success(data = null) {
         data: data,
     };
 }
+
 /**
 * @param {string} message
 * @param {object | null} [data]
 * @returns {{status: 'fail', message: string, data: object | undefined}}
 */
-
 function fail(message, data = null) {
     if (data) {
         return {
@@ -27,12 +27,12 @@ function fail(message, data = null) {
         message,
     };
 }
+
 /**
 * @param {string} message
 * @param {object | null} [data]
 * @returns {{status: 'error', message: string, data: object | undefined}}
 */
-
 function error(message, data = null) {
     if (data) {
         return {
