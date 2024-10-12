@@ -38,10 +38,8 @@ favoriteRouter.setup(app);
 tableRouter.setup(app);
 reservationRouter.setup(app);
 
-//Handle 404    
 app.use(resourceNotFound);
 
-//Define error-handling middleware last, after other app.use() and routes calls
 app.use(handleError);
 
 module.exports = app;
