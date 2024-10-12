@@ -23,5 +23,5 @@ class Paginator {
             limit: this.limit,
         };
     }
-    }
+}
 module.exports = Paginator;

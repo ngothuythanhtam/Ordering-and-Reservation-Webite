@@ -12,7 +12,6 @@ async function getManyUsers(role_name, query) {
     const paginator = new Paginator(page, limit);
     
     try {
-        // Query for users with pagination and role filter
         let Users = await UsersRepository()
             .join('roles as r', 'users.userrole', 'r.role_id')
             .select(

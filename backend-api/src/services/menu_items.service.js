@@ -2,13 +2,7 @@ const knex = require('../database/knex');
 const Paginator = require('./paginator');
 const {unlink} = require('node:fs')
 const ApiError = require('../api-error');
-/**
- * Retrieves tables based on seating capacity with pagination.
- * @param {object} query - Query parameters.
- * @returns {object} - Metadata and tables data.
- */
 
-/************************************************************** MENU ITEMS ******************************************************/
 function ItemRepository() {
     return knex('menu_items'); // table from database
 }

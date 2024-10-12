@@ -47,7 +47,6 @@ async function getTableBySeating(query) {
     if (totalRecords === 0) {
         throw new ApiError(404, 'No tables found for the given seating capacity');
     }
-
     return {
         metadata: paginator.getMetadata(totalRecords),
         tables: results,

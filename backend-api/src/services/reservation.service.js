@@ -76,7 +76,6 @@ async function updateReservationStatus(reservation) {
         await knex('reservation')
             .where({ reservation_id: reservation.reservation_id })
             .update({ status: reservation.status });
-
         return reservation;
 
     } catch (error) {
