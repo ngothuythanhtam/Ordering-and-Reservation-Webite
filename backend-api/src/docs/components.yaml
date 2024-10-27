@@ -1,0 +1,332 @@
+# Common references
+components:
+  schemas:
+    Role:
+      type: object
+      properties:
+        role id: 
+          type: integer
+          readOnly: true
+        role name:
+          type: string
+          enum: ['Admin', 'Staff', 'Customer']
+          description: Role of user
+    
+    Users:
+      type: object
+      properties:
+        userid:
+          type: integer
+          readOnly: true
+          description: The id
+        userrole:
+          type: integer
+          description: The role
+        username:
+          type: string
+          description: Name
+        userbirthday:
+          type: string
+          format: date
+          description: userbirthday
+        userphone:
+          type: string
+          description: userphone
+        useremail:
+          type: string
+          description: useremail
+        useraddress:
+          type: string
+          description: useraddress
+        useravatar:
+          type: string
+          readOnly: true 
+          description: useravatar
+    
+    MenuItem:
+      type: object
+      properties:
+        item_id:
+          type: integer
+          readOnly: true
+          description: The menu items unique identifier
+        item_name:
+          type: string
+          description: The name of the menu item
+        item_type:
+          type: string
+          enum: [
+            'Salad', 
+            'Soup', 
+            'Side Dish',
+            'Dessert',
+            'Beverage', 
+            'Snack', 
+            'Breakfast', 
+            'Lunch', 
+            'Dinner'] # Dropdown values for item_type
+          description: The type or category of the menu item
+        item_description:
+          type: string
+          description: A description of the menu item
+        item_price:
+          type: number
+          format: float
+          description: The price of the menu item
+        item_status:
+          type: integer
+          enum: [0, 1]
+          default: 1
+          description: Whether the item is available (1) or not (0)
+        img_url:
+          type: string
+          readOnly: true # Returned by HTTP GET
+          description: The menu item image file path
+        img_url_file:
+          type: string
+          format: binary
+          writeOnly: true # Used in POST/PUT/PATCH
+          description: The file of the image to upload for the menu item
+    
+    Favorite:
+      type: object
+      required:
+        - userid
+        - item_id
+      properties:
+        fav_id:
+          type: integer
+          description: Unique identifier for the favorite entry
+        userid:
+          type: integer
+          description: ID of the user
+        item_id:
+          type: integer
+          description: ID of the menu item
+      example:
+        fav_id: 1
+        userid: 123
+        item_id: 456
+    
+    Table:
+      type: object
+      properties:
+        table_id:
+          type: integer
+          readOnly: true
+        table_number:
+          type: string
+          description: Tên bàn
+        seating_capacity:
+          type: integer
+          description: Số lượng chỗ ngồi
+        status:
+          type: string
+          enum: ['available', 'reserved', 'occupied']
+          default: 'available'
+          description: Trạng thái bàn
+    
+    TableStatus:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [available, reserved, occupied]
+          description: New status for the table
+    
+    Reservation:
+      type: object
+      properties:
+        reservation_id:
+          type: integer
+          readOnly: true
+          description: ID of the reservation
+        userid:
+          type: integer
+          description: ID of user who create the reservation
+        reservation_date:
+          type: string
+          format: date
+          description: Reservation date
+        party_size:
+          type: integer
+          description: Size of the party
+        special_request:
+          type: string
+          description: Special request os customer
+        create_at:
+          type: time
+          description: The reservation has created at time
+        status:
+          type: string
+          description: useraddress
+    
+    CreateReservation:
+      type: object
+      properties:
+        reservation_date:
+          type: string
+          format: date
+          description: Reservation date
+        party_size:
+          type: integer
+          description: Size of the party
+        special_request:
+          type: string
+          description: Special request os customer
+    
+    PaginationMetadata:
+      type: object
+      properties:
+        totalRecords:
+          type: integer
+          default: 0
+          description: The total number of records
+        firstPage:
+          type: integer
+          default: 1
+          description: The first page
+        lastPage:
+          type: integer
+          default: 1
+          description: The last page
+        page:
+          type: integer
+          default: 1
+          description: The current page
+        limit:
+          type: integer
+          default: 5
+          description: The number of records per page
+  responses:
+    '200NoData':
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: The response status
+                enum:
+                  - success
+              data:
+                type: object
+                nullable: true
+                default: null
+                description: The response data
+    '400BadRequest':
+      description: Invalid request due to incorrect input parameters (Data to update can not be empty)
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: The response status
+                enum:
+                  - error
+              message:
+                type: string
+                description: Detailed error message explaining the invalid input
+    '404NotFound':
+      description: The requested resource could not be found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: The response status
+                enum:
+                  - error
+              message:
+                type: string
+                description: A message indicating that the resource does not exist
+    '500InternalServerError':
+      description: An unexpected error occurred on the server
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: The response status
+                enum:
+                  - error
+              message:
+                type: string
+                description: An error message providing details about the server issue
+  parameters:
+    roleNameParam:
+      name: role_name
+      required: true
+      in: path
+      schema: 
+        type: string
+        enum: ['Admin', 'Staff', 'Customer']
+      description: Filter by role
+
+    useremailParam:
+      name: useremail
+      required: true
+      in: query
+      schema: 
+        type: string
+      description: Filter by menu item name
+
+    tableStatusParam:
+      in: query
+      name: status
+      required: true
+      schema:
+        type: string
+        enum: ['available', 'reserved', 'occupied']
+      description: Filter by table status
+
+    seating_capacity:
+      in: query
+      name: seating_capacity
+      required: true
+      schema:
+        type: integer
+      description: Find table by number
+
+    itemNameParam:
+      name: name
+      description: Menu Item Name
+      required: true
+      in: path
+      schema:
+        type: string
+    
+    useridParam:
+      name: userid
+      required: true
+      in: path
+      schema: 
+        type: string
+
+    limitParam:
+      name: limit
+      description: Number of records per page
+      in: query
+      schema:
+        type: integer
+        default: 5
+        minimum: 1
+        maximum: 100
+      required: false
+    
+    pageParam:
+      name: page
+      description: Page number of records
+      in: query
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+      required: false
