@@ -11,12 +11,12 @@ module.exports.setup = (app) => {
 
 /**
  * @swagger
- * /api/v1/users/user/role/{role_name}:
+ * /api/v1/users/user/role/{userrole}:
  *   get:
- *     summary: Get user by role
+ *     summary: Get user by role id
  *     description: Retrieve users by filter role
  *     parameters:
- *       - $ref: '#/components/parameters/roleNameParam'
+ *       - $ref: '#/components/parameters/userroleParam'
  *     tags:
  *       - User
  *     responses:
@@ -50,7 +50,7 @@ module.exports.setup = (app) => {
  *         description: Internal server error
  *         $ref: '#/components/responses/500InternalServerError'
  */
-    router.get('/user/role/:role_name', usersController.getManyUsersByRole);
+    router.get('/user/role/:userrole', usersController.getManyUsersByRole);
 
 /**
  * @swagger
