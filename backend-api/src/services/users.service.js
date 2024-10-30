@@ -103,6 +103,15 @@ async function deleteUser(userid, payload) {
         });
     }
 }
+const checkRole = async (userid) => {
+    try {
+        const user = await knex('users').where('userid', userid).select('userrole').first(); 
+        return user ? user.userrole : null; 
+    } catch (error) {
+        console.error('Error fetching user by userrole:', error);
+        throw error; 
+    }
+};
 async function updateUserRole(id, requestId, userrole) {
     const requestingUser = await userRepository()
         .where('userid', id)
@@ -113,64 +122,27 @@ async function updateUserRole(id, requestId, userrole) {
         .where('userid', requestId)
         .select('userrole')
         .first();
-
     if (!requestingUser || !targetUser) {
-        return { error: 'User not found.' };
+        return null; 
     }
-
-    console.log(`Requesting User Role: ${requestingUser.userrole}, Target User Role: ${targetUser.userrole}`);
-
-    if (requestingUser.userrole !== 2) {
-        return { error: 'Cảnh báo: Chỉ có Staff mới có thể thực hiện quyền này.' };
-    }
-
     if (userrole == '1' || userrole =='2' ) {
+        if (userrole == targetUser.userrole) {
+            return { error: 'Không có thay đổi khi cập nhật.' };
+        }
         const updatedUser = await userRepository()
             .where('userid', requestId)
             .update('userrole', userrole);
-            
-        if (userrole == requestingUser) {
-            return { error: 'Không có thay đổi khi cập nhập' };
+        if (!updatedUser) {
+            return { error: 'Cập nhật vai trò không thành công.' };
         }
     }
-    return { success: true }; 
-}
-async function updateUserRole(id, requestId, userrole) {
-    const requestingUser = await userRepository()
-        .where('userid', id)
-        .select('userrole')
-        .first();
-
-    const targetUser = await userRepository()
-        .where('userid', requestId)
-        .select('userrole')
-        .first();
-
-    if (!requestingUser || !targetUser) {
-        return { error: 'User not found.' };
-    }
-
-    console.log(`Requesting User Role: ${requestingUser.userrole}, Target User Role: ${targetUser.userrole}`);
-
-    if (requestingUser.userrole !== 2) {
-        return { error: 'Cảnh báo: Chỉ có Staff mới có thể thực hiện quyền này.' };
-    }
-
-    if (userrole == '1' || userrole =='2' ) {
-        const updatedUser = await userRepository()
-            .where('userid', requestId)
-            .update('userrole', userrole);
-            
-        if (userrole == requestingUser) {
-            return { error: 'Không có thay đổi khi cập nhập' };
-        }
-    }
-    return { success: true }; 
+    return { success: true };
 }
 
 module.exports = {
     checkExistEmail,
     checkExistPhone,
+    checkRole,
     createUser,
     getUserById,
     updateUser,

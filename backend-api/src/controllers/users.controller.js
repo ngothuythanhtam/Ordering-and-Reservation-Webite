@@ -70,7 +70,7 @@ async function updateUser(req, res, next) {
         });
 
         if (!updated) {
-            return next(new ApiError(404));
+            return res.status(400).json(JSend.fail({ message: 'Cập nhật thất bại.' }));
         }
 
         return res.json(JSend.success({ user: updated }));
@@ -86,29 +86,31 @@ async function deleteUser(req, res, next) {
     try {
         const deleted = await usersService.deleteUser(id,{ requestId });
         if (!deleted) {
-            return next(new ApiError(404,'Không tìm thấy người dùng'));
+            return res.status(404).json(JSend.fail({ message: 'Không tìm thấy người dùng' }));
         }
         return res.json(JSend.success());
     } catch (error) {
-        console.log(error);
-        return next(new ApiError(500));
+        return res.status(500).json(JSend.fail({ message: 'Lỗi kết nối server.' }));
     }
 }
 async function updateUserToStaff(req, res, next) {
     const { id } = req.params; 
     const { userrole, requestId } = req.body; 
-    console.log('Request body:', req.body);
 
     try {
+        const userRole = await usersService.checkRole(id); 
+        if (userRole !== '3') {
+            return res.status(403).json(JSend.fail({ message: 'Không có quyền thực hiện tác vụ này.' }));
+        }
         const updated = await usersService.updateUserRole(id, requestId, userrole);
         if (updated && updated.success) { 
             return res.json(JSend.success({ message: 'Đã cập nhật vai trò mới của một người dùng.' }));
         } else {
-            return next(new ApiError(404, 'User not found or no changes made.'));
+            return next(new ApiError(404, 'Không tìm thấy người dùng và không có sự thay đổi ở tác vụ vừa rồi.'));
         }
     } catch (error) {
-        console.log(error);
-        return next(new ApiError(500));
+        console.error('Error updating user role:', error);
+        return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
     }
 }
 
