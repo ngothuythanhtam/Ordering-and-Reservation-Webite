@@ -1,112 +1,69 @@
 # Common references
 components:
   schemas:
-    Role:
-      type: object
-      properties:
-        role id: 
-          type: integer
-          readOnly: true
-        role name:
-          type: string
-          enum: ['Admin', 'Staff', 'Customer']
-          description: Role of user
-    
-    Users:
+    User: 
       type: object
       properties:
         userid:
           type: integer
-          readOnly: true
-          description: The id
+          readOnly: true 
         userrole:
-          type: integer
-          description: The role
+          type: string
+          enum: [1,2]
+          description: ID của vai trò người dùng
         username:
           type: string
-          description: Name
+          description: Tên người dùng
         userbirthday:
           type: string
           format: date
-          description: userbirthday
+          description: Ngày sinh của người dùng
         userphone:
           type: string
-          description: userphone
+          description: Số điện thoại của người dùng
         useremail:
           type: string
-          description: useremail
+          format: email
+          description: Email của người dùng
+        userpwd:
+          type: string
+          format: password
+          description: Mật khẩu tài khoản của người dùng
         useraddress:
           type: string
-          description: useraddress
+          description: Địa chỉ của người dùng
         useravatar:
           type: string
-          readOnly: true 
-          description: useravatar
-    
-    MenuItem:
-      type: object
-      properties:
-        item_id:
-          type: integer
           readOnly: true
-          description: The menu items unique identifier
-        item_name:
-          type: string
-          description: The name of the menu item
-        item_type:
-          type: string
-          enum: [
-            'Salad', 
-            'Soup', 
-            'Side Dish',
-            'Dessert',
-            'Beverage', 
-            'Snack', 
-            'Breakfast', 
-            'Lunch', 
-            'Dinner'] # Dropdown values for item_type
-          description: The type or category of the menu item
-        item_description:
-          type: string
-          description: A description of the menu item
-        item_price:
-          type: number
-          format: float
-          description: The price of the menu item
-        item_status:
-          type: integer
-          enum: [0, 1]
-          default: 1
-          description: Whether the item is available (1) or not (0)
-        img_url:
-          type: string
-          readOnly: true # Returned by HTTP GET
-          description: The menu item image file path
-        img_url_file:
+          description: Đường dẫn ảnh đại diện người dùng
+        useravatarFile:
           type: string
           format: binary
-          writeOnly: true # Used in POST/PUT/PATCH
-          description: The file of the image to upload for the menu item
-    
-    Favorite:
+          writeOnly: true
+          description: Ảnh đại diện người dùng
+
+    UserUpdate: 
       type: object
-      required:
-        - userid
-        - item_id
       properties:
-        fav_id:
-          type: integer
-          description: Unique identifier for the favorite entry
-        userid:
-          type: integer
-          description: ID of the user
-        item_id:
-          type: integer
-          description: ID of the menu item
-      example:
-        fav_id: 1
-        userid: 123
-        item_id: 456
+        username:
+          type: string
+          description: Tên người dùng mới
+        userbirthday:
+          type: string
+          format: date
+          description: Ngày sinh mới của người dùng
+        useraddress:
+          type: string
+          description: Địa chỉ mới của người dùng
+        useravatar:
+          type: string
+          readOnly: true
+          description: Đường dẫn ảnh đại diện người dùng
+        useravatarFile:
+          type: string
+          format: binary
+          writeOnly: true
+          description: Ảnh đại diện mới của người dùng
     
     Table:
       type: object
@@ -126,80 +83,132 @@ components:
           default: 'available'
           description: Trạng thái bàn
     
-    TableStatus:
+    Receipt: 
       type: object
       properties:
-        status:
-          type: string
-          enum: [available, reserved, occupied]
-          description: New status for the table
-    
-    Reservation:
-      type: object
-      properties:
+        order_id:
+          type: integer
+          readOnly: true
+          description: Mã đơn hàng
+        userid:
+          type: integer
+          readOnly: true
+          description: Mã người dùng
+        staff_id:
+          type: integer
+          default: 1
+          readOnly: true
+          description: Mã nhân viên
         reservation_id:
           type: integer
           readOnly: true
-          description: ID of the reservation
-        userid:
-          type: integer
-          description: ID of user who create the reservation
-        reservation_date:
+          description: Mã đơn đặt bàn
+        order_date:
           type: string
           format: date
-          description: Reservation date
-        party_size:
+          description: Ngày đặt đơn
+        total_price:
           type: integer
-          description: Size of the party
-        special_request:
-          type: string
-          description: Special request os customer
-        create_at:
-          type: time
-          description: The reservation has created at time
+          readOnly: true
+          description: Tổng số tiền
+          default: 0
         status:
           type: string
-          description: useraddress
-    
-    CreateReservation:
+          readOnly: true
+          enum: ['Pending', 'Ordered', 'Completed', 'Canceled']
+          default: 'Pending'
+          description: Trạng thái đơn
+    Verify: 
       type: object
       properties:
-        reservation_date:
+        order_id:
+          type: integer
+          readOnly: true
+          description: Mã đơn hàng
+        userid:
+          type: integer
+          readOnly: true
+          description: Mã người dùng
+        staff_id:
+          type: integer
+          default: 1
+          readOnly: true
+          description: Mã nhân viên
+        reservation_id:
+          type: integer
+          readOnly: true
+          description: Mã đơn đặt bàn
+        order_date:
           type: string
           format: date
-          description: Reservation date
-        party_size:
+          description: Ngày đặt đơn
+        total_price:
           type: integer
-          description: Size of the party
-        special_request:
+          readOnly: true
+          description: Tổng số tiền
+          default: 0
+        status:
           type: string
-          description: Special request os customer
-    
-    PaginationMetadata:
+          enum: ['Pending', 'Ordered', 'Completed', 'Canceled']
+          default: 'Pending'
+          description: Trạng thái đơn
+    Complete: 
       type: object
       properties:
-        totalRecords:
+        order_id:
           type: integer
+          description: Mã đơn hàng
+        userid:
+          type: integer
+          readOnly: true
+          description: Mã người dùng
+        staff_id:
+          type: integer
+          default: 1
+          description: Mã nhân viên
+        reservation_id:
+          type: integer
+          readOnly: true
+          default: null
+          description: Mã đơn đặt bàn
+        order_date:
+          type: string
+          format: date
+          description: Ngày đặt đơn
+        total_price:
+          type: integer
+          readOnly: true
+          description: Tổng số tiền
           default: 0
-          description: The total number of records
-        firstPage:
+        status:
+          type: string
+          enum: ['Completed']
+          default: 'Pending'
+          description: Trạng thái đơn    
+    OrderItem: 
+      type: object
+      properties:
+        order_item_id:
           type: integer
-          default: 1
-          description: The first page
-        lastPage:
+          readOnly: true
+          description: Mã thêm món
+        order_id:
           type: integer
-          default: 1
-          description: The last page
-        page:
+          readOnly: true
+          description: Mã đơn hàng
+        item_id:
           type: integer
-          default: 1
-          description: The current page
-        limit:
-          type: integer
-          default: 5
-          description: The number of records per page
+          description: Mã món
+        quantity:
+          type: number
+          description: Số lượng
+        price:
+          type: number
+          format: double
+          readOnly: true
+          description: Giá
   responses:
-    '200NoData':
+    200NoData:
       content:
         application/json:
           schema:
@@ -207,16 +216,16 @@ components:
             properties:
               status:
                 type: string
-                description: The response status
+                description: Trạng thái phản hồi
                 enum:
                   - success
               data:
                 type: object
                 nullable: true
                 default: null
-                description: The response data
-    '400BadRequest':
-      description: Invalid request due to incorrect input parameters (Data to update can not be empty)
+                description: Dữ liệu phản hồi
+    '400':
+      description: "Bad Request - ID không hợp lệ"
       content:
         application/json:
           schema:
@@ -224,14 +233,12 @@ components:
             properties:
               status:
                 type: string
-                description: The response status
-                enum:
-                  - error
+                enum: [error]
               message:
                 type: string
-                description: Detailed error message explaining the invalid input
-    '404NotFound':
-      description: The requested resource could not be found
+                description: "Thông điệp lỗi chi tiết"
+    '404':
+      description: "Not Found - Người dùng không tìm thấy"
       content:
         application/json:
           schema:
@@ -239,14 +246,12 @@ components:
             properties:
               status:
                 type: string
-                description: The response status
-                enum:
-                  - error
+                enum: [error]
               message:
                 type: string
-                description: A message indicating that the resource does not exist
-    '500InternalServerError':
-      description: An unexpected error occurred on the server
+                description: "Người dùng với ID chỉ định không được tìm thấy"
+    '500':
+      description: "Internal Server Error - Đã xảy ra lỗi bất ngờ trên máy chủ"
       content:
         application/json:
           schema:
@@ -254,62 +259,25 @@ components:
             properties:
               status:
                 type: string
-                description: The response status
-                enum:
-                  - error
+                enum: [error]
               message:
                 type: string
-                description: An error message providing details about the server issue
+                description: "Thông điệp lỗi máy chủ nội bộ"
   parameters:
-    roleNameParam:
-      name: role_name
+    userIdParam:
+      name: id
+      description: User ID
       required: true
       in: path
-      schema: 
-        type: string
-        enum: ['Admin', 'Staff', 'Customer']
-      description: Filter by role
-
-    useremailParam:
-      name: useremail
-      required: true
-      in: query
-      schema: 
-        type: string
-      description: Filter by menu item name
-
-    tableStatusParam:
-      in: query
-      name: status
-      required: true
-      schema:
-        type: string
-        enum: ['available', 'reserved', 'occupied']
-      description: Filter by table status
-
-    seating_capacity:
-      in: query
-      name: seating_capacity
-      required: true
       schema:
         type: integer
-      description: Find table by number
-
-    itemNameParam:
-      name: name
-      description: Menu Item Name
+    requestId:
+      name: requestId
+      description: ID request
       required: true
       in: path
       schema:
-        type: string
-    
-    useridParam:
-      name: userid
-      required: true
-      in: path
-      schema: 
-        type: string
-
+        type: integer
     limitParam:
       name: limit
       description: Number of records per page
@@ -320,13 +288,12 @@ components:
         minimum: 1
         maximum: 100
       required: false
-    
-    pageParam:
-      name: page
-      description: Page number of records
-      in: query
-      schema:
-        type: integer
-        default: 1
-        minimum: 1
-      required: false
+  pageParam:
+    name: page
+    description: Page number of records
+    in: query
+    schema:
+      type: integer
+      default: 1
+      minimum: 1
+    required: false

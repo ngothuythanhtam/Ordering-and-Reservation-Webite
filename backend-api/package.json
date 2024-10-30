@@ -4,30 +4,31 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "dev": "node --watch swagger.js",
+    "openapi:json": "swagger-jsdoc -d src/docs/swagger.js -o src/docs/swaggerSpec.json src/routes/users.router.js src/docs/components.yaml"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
+  "devDependencies": {
+    "@faker-js/faker": "^9.0.3",
+    "@types/cors": "^2.8.17",
+    "eslint": "^9.12.0",
+    "eslint-config-prettier": "^9.1.0",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3"
+  },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
+    "fs": "^0.0.1-security",
     "knex": "^3.1.0",
-    "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.12.0",
-    "eslint": "^9.12.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-vue": "^9.28.0",
-    "globals": "^15.10.0",
-    "nodemon": "^3.1.7",
-    "prettier": "^3.3.3"
+    "swagger-ui-express": "^4.1.2"
   }
 }
