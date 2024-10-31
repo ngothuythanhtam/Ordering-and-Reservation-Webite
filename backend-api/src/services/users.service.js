@@ -1,21 +1,9 @@
 const knex = require('../database/knex');
 const { unlink } = require('node:fs');
+const bcrypt = require('bcrypt'); 
 
 function userRepository() {
     return knex('users');
-}
-
-function readUser(payload) {
-    return {
-        userrole: payload.userrole,
-        username: payload.username,
-        userbirthday: payload.userbirthday,
-        userphone: payload.userphone,
-        useremail: payload.useremail,
-        userpwd: payload.userpwd,
-        useraddress: payload.useraddress,
-        useravatar: payload.useravatar,
-    };
 }
 const checkExistEmail = async (email) => {
     try {
@@ -35,6 +23,33 @@ const checkExistPhone = async (phone) => {
         throw error;
     }
 };
+async function login(email, password) {
+    const user = await knex('users').where({ useremail: email }).first();
+    if (!user) {
+        return null;
+    }
+    const isMatch = await bcrypt.compare(password, user.userpwd);
+    if (!isMatch) {
+        return null;
+    }
+    return {
+        userid: user.userid,
+        useremail: user.useremail,
+        userrole: user.userrole,
+    };
+}
+function readUser(payload) {
+    return {
+        userrole: payload.userrole,
+        username: payload.username,
+        userbirthday: payload.userbirthday,
+        userphone: payload.userphone,
+        useremail: payload.useremail,
+        userpwd: payload.userpwd,
+        useraddress: payload.useraddress,
+        useravatar: payload.useravatar,
+    };
+}
 async function createUser(payload) {
     const user = readUser(payload);
     return await knex.transaction(async trx => {
@@ -117,21 +132,28 @@ async function updateUserRole(id, requestId, userrole) {
         .where('userid', id)
         .select('userrole')
         .first();
-
     const targetUser = await userRepository()
         .where('userid', requestId)
         .select('userrole')
         .first();
     if (!requestingUser || !targetUser) {
+        console.log('User not found: ', { requestingUser, targetUser });
         return null; 
     }
-    if (userrole == '1' || userrole =='2' ) {
+
+    console.log('Requesting user role:', requestingUser.userrole);
+    console.log('Target user role:', targetUser.userrole);
+
+    if (userrole == '1' || userrole == '2') {
         if (userrole == targetUser.userrole) {
+            console.log('No change in role.');
             return { error: 'Không có thay đổi khi cập nhật.' };
         }
+
         const updatedUser = await userRepository()
             .where('userid', requestId)
             .update('userrole', userrole);
+
         if (!updatedUser) {
             return { error: 'Cập nhật vai trò không thành công.' };
         }
@@ -142,6 +164,7 @@ async function updateUserRole(id, requestId, userrole) {
 module.exports = {
     checkExistEmail,
     checkExistPhone,
+    login,
     checkRole,
     createUser,
     getUserById,

@@ -43,7 +43,7 @@ async function deleteTable(id, requestId) {
         .where('userid', id)
         .select('userrole')
         .first();
-    if (user == 1 || !user ) {
+    if (user.userrole == 1 || !user ) {
         return null;
     }
     console.log(user.userrole);

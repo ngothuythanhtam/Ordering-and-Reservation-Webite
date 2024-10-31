@@ -6,7 +6,55 @@ const router = express.Router();
 
 module.exports.setup = (app) => { 
     app.use('/api/receipts', router); 
-
+/**
+ * @swagger
+ * /api/receipts/filterreceipt/{id}:
+ *   get:
+ *     summary: Get receipts by filter
+ *     description: Get receipts by filter
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: ['Pending', 'Ordered', 'Completed', 'Canceled']
+ *         description: Filter by receipt status
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID
+ *       - $ref: '#/components/parameters/limitParam'
+ *       - $ref: '#/components/parameters/pageParam'
+ *     tags:
+ *       - receipts
+ *     responses:
+ *       200:
+ *         description: A list of receipts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: The response status
+ *                   enum: [success]
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     contacts:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Receipt'
+ *                     metadata:
+ *                       $ref: '#/components/schemas/PaginationMetadata'
+ *       500:
+ *         description: Internal Server Error - Unexpected error on the server
+ *         $ref: '#/components/responses/500'
+ */
+    router.get('/filterreceipt/:id', receiptsController.getReceiptsByFilter);
 /**
  * @swagger
  * /api/receipts/cart/{id}:

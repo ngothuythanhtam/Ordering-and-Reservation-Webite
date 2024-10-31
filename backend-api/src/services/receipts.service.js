@@ -1,6 +1,7 @@
 const knex = require('../database/knex');
 const { fail } = require('../jsend');
-
+const Paginator = require('./paginator');
+const bcrypt = require('bcrypt');
 function receiptRepository() {
     return knex('receipt');
 }
@@ -42,13 +43,17 @@ async function createReceipt(id, payload) {
             .first();
         if (existingOrder) return existingOrder;
         
-        // Nếu chưa có, tạo một hóa đơn chưa thanh toán hoặc gọi là giỏ hàng mới
+        // Nếu chưa có thì tạo một hóa đơn chưa thanh toán hoặc gọi là giỏ hàng mới
         const [newReceiptId] = await trx('receipt').insert(receipt);
         const newReceipt = await trx('receipt').where({ order_id: newReceiptId }).first();
         return newReceipt;
     });
 }
 
+const checkExistItem = async (id) => {
+    const item = await knex('menu_items').where({ item_id: id }).select('item_id').first();
+    return item ? item.item_id : null;
+};
 async function addItemToReceipt(id, payload) {
     const { item_id, quantity } = payload;
     return await knex.transaction(async trx => {
@@ -58,17 +63,12 @@ async function addItemToReceipt(id, payload) {
                 status: 'Pending'
             })
             .first();
-        if (!user) user = await createReceipt(id, payload); // This will now work
-
+        if (!user) user = await createReceipt(id, payload);
         const item = await trx('menu_items')
             .where({ 
                 item_id: item_id,
             })
             .first();
-            
-        if (!item) {
-            throw new Error("Item not found");
-        }
         const item_price = item.item_price;
         const existingOrderItem = await trx('Order_Item')
             .where({ order_id: user.order_id, item_id: item_id })
@@ -94,7 +94,6 @@ async function addItemToReceipt(id, payload) {
                 price: item_price * quantity
             });
         }
-
         const total_price = await trx('Order_Item')
             .where('order_id', user.order_id) 
             .sum('price as total')
@@ -107,12 +106,24 @@ async function addItemToReceipt(id, payload) {
         return { success: true, message: 'Thêm vào giỏ hàng thành công!' };
     });
 }
+const getIDReceipt_Pending = async (userid) => {
+    const order = await knex('receipt')
+        .where({ 
+            userid: userid,
+            status: 'Pending'
+        })
+        .select('order_id')
+        .first();
+    return order ? order.order_id : null;
+};
+const checkExistIteminCart = async (order_id,id) => {
+    const exist = await knex('order_item')
+        .where({order_id: order_id, item_id: id })
+        .first();
+    return exist;
+};
 async function deleteItemFromReceipt(id, payload) {
     const { item_id, quantity } = payload;
-    if (!item_id || !quantity) {
-        throw new Error('Invalid payload: Missing item or quantity');
-    }
-
     const updatedItem = await knex.transaction(async trx => {
         const receipt = await trx('receipt')
             .select('order_id', 'reservation_id')
@@ -121,23 +132,14 @@ async function deleteItemFromReceipt(id, payload) {
                 status: 'Pending'
             })
             .first();
-
         if (!receipt) {
-            throw new Error('No pending receipt found for this user');
+            return null;
         }
-
         const order_id = receipt.order_id;
         console.log('Order ID:', order_id);
-
         const existingItem = await trx('order_item')
             .where({ order_id: order_id, item_id: item_id })
             .first();
-
-        if (!existingItem) {
-            throw new Error('Item not found in your receipt!!!');
-        }
-
-        console.log('Existing Item:', existingItem);
 
         const newQuantity = existingItem.quantity - quantity;
 
@@ -162,7 +164,7 @@ async function deleteItemFromReceipt(id, payload) {
 
         if (itemCount.count === 0 && receipt.reservation_id === null) {
             await trx('receipt').where('order_id', order_id).del();
-            return { success: true, message: 'Receipt deleted as there are no items left.' };
+            return { success: true, message: 'Không có mặt hàng nào trong giỏ hàng.' };
         }
 
         const total_price = await trx('order_item')
@@ -174,9 +176,8 @@ async function deleteItemFromReceipt(id, payload) {
             .where('order_id', order_id)
             .update({ total_price: total_price.total });
 
-        return { success: true, message: 'Item updated or deleted from receipt successfully' };
+        return { success: true, message: 'Cập nhật thành công' };
     });
-
     return updatedItem;
 }
 
@@ -237,6 +238,46 @@ async function sttCancelCustomer(id, payload) {
     });
     return updatedStatus;
 }
+async function getManyReceipts(id, query) {
+    const { status, page = 1, limit = 5 } = query;
+    const { userid }= id;
+    const paginator = new Paginator(page, limit);
+    
+    if (!userid) {
+        return null;
+    }
+    let results = await receiptRepository()
+        .where((builder) => {
+            if (['Pending', 'Ordered', 'Completed', 'Canceled'].includes(status)) {
+                builder.where('status', status);
+            }
+            if (userid) {
+                builder.where('userid', userid);
+            }
+        })
+        .select(
+            knex.raw('count(order_id) OVER() AS recordCount'),
+            'order_id',
+            'userid',
+            'staff_id',
+            'reservation_id',
+            'order_date',
+            'total_price',
+            'status'
+        )
+        .limit(paginator.limit)
+        .offset(paginator.offset);
+    let totalRecords = 0;
+    results = results.map((result) => {
+        totalRecords = result.recordCount;
+        delete result.recordCount;
+        return result;
+    });
+    return {
+        metadata: paginator.getMetadata(totalRecords),
+        receipts: results,
+    };
+}
 // async function sttCompleteCustomer(id, payload) {
 //     const { status, order_id, date } = payload;
 //     const updatedStatus = await knex.transaction(async trx => {
@@ -270,10 +311,14 @@ async function sttCancelCustomer(id, payload) {
 //     return updatedStatus;
 // }
 module.exports = {
+    getIDReceipt_Pending,
+    checkExistIteminCart,
+    checkExistItem,
     createReceipt,
     addItemToReceipt,
     deleteItemFromReceipt,
     sttOrderCustomer,
     sttCancelCustomer,
+    getManyReceipts
     // sttCompleteCustomer
 }

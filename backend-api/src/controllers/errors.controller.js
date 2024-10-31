@@ -25,18 +25,11 @@ function handleError(error, req, res, next) {
 
     const statusCode = error.statusCode || 500;
     const headers = error.headers || {};
-    let message = error.message || 'Lỗi server';
-
-    const errorMessages = {
-        400: 'Bad Request',
-        404: 'Not Found',
-        500: 'Internal Server Error'
-    };
-
-    message = errorMessages[statusCode] || message;
+    let message = error.message || 'Internal Server Error';
     res.set(headers);
     return res
         .status(statusCode)
+        .set(error.headers || {})
         .json(
             statusCode >= 500 ? JSend.error(message) : JSend.fail(message)
         );
