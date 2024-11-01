@@ -19,6 +19,7 @@ app.use(session({
     secret: secretKey,
     resave: false,
     saveUninitialized: true,
+    cookie: { secure: false },
 }));
 app.use('/public', express.static('public'));
 app.use(cors());

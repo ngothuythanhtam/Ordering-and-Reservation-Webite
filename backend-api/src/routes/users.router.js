@@ -1,12 +1,83 @@
 const express = require('express'); 
 const usersController = require('../controllers/users.controller'); 
 const { methodNotAllowed } = require('../controllers/errors.controller'); 
-const avatarUpload = require('../middlewares/avatar-upload.middleware'); 
+const avatarUpload = require('../middlewares/avatar-upload.middleware');
+const authMiddleware = require('../middlewares/authMiddleware');  
 const router = express.Router(); 
 
 module.exports.setup = (app) => { 
     app.use('/api/users', router); 
-
+/**
+ * @swagger
+ * /api/users/login/:
+ *   post:
+ *     summary: Login
+ *     description: Login into System
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               useremail:
+ *                 type: string
+ *                 format: email
+ *                 description: Email của người dùng
+ *               userpwd:
+ *                 type: string
+ *                 format: password
+ *                 description: Mật khẩu tài khoản của người dùng
+ *     tags:
+ *       - users
+ *     responses:
+ *       200:
+ *         description: Login success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: The response status
+ *                   enum: [success]
+ *       500:
+ *         description: Internal Server Error - Unexpected error on the server
+ *         $ref: '#/components/responses/500'
+ *       400:
+ *         description: Bad Request - Invalid input or missing parameters
+ *         $ref: '#/components/responses/400' 
+ */
+    router.post('/login/', avatarUpload,usersController.login);
+/**
+ * @swagger
+ * /api/users/logout/:
+ *   post:
+ *     summary: Logout
+ *     description: Logout into System
+ *     tags:
+ *       - users
+ *     responses:
+ *       200:
+ *         description: Logout success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: The response status
+ *                   enum: [success]
+ *       500:
+ *         description: Internal Server Error - Unexpected error on the server
+ *         $ref: '#/components/responses/500'
+ *       400:
+ *         description: Bad Request - Invalid input or missing parameters
+ *         $ref: '#/components/responses/400' 
+ */
+    router.post('/logout/',usersController.logout);
 /**
  * @swagger
  * /api/users/registration/:
@@ -84,12 +155,10 @@ router.post('/registration/', avatarUpload, usersController.createUser);
 router.all('/',methodNotAllowed);
 /** 
  * @swagger
- * /api/users/{id}:
+ * /api/users/info/:
  *   get:
  *     summary: Get user by ID
  *     description: Get user by ID
- *     parameters:
- *       - $ref: '#/components/parameters/userIdParam'
  *     tags:
  *       - users
  *     responses:
@@ -116,7 +185,7 @@ router.all('/',methodNotAllowed);
  *         description: Internal Server Error - Unexpected error on the server
  *         $ref: '#/components/responses/500'
  */
-router.get('/:id', usersController.getUser);
+router.get('/info/', usersController.getUser);
 /**
  * @swagger
  * /api/users/updateProfile/{id}:

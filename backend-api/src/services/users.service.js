@@ -2,35 +2,28 @@ const knex = require('../database/knex');
 const { unlink } = require('node:fs');
 const bcrypt = require('bcrypt'); 
 
+const checkExistEmail = async (email) => {
+    const user = await knex('users').where({ useremail: email }).first();
+    return user;
+};
+const checkExistPhone = async (phone) => {
+    const user = await knex('users').where({ userphone: phone }).first();
+    return user;
+
+};
+const checkExistUser= async (id) => {
+    const user = await knex('users').where({ userid: id }).first();
+    return user;
+};
 function userRepository() {
     return knex('users');
 }
-const checkExistEmail = async (email) => {
-    try {
-        const user = await knex('users').where({ useremail: email }).first();
-        return user;
-    } catch (error) {
-        console.error('Error fetching user by email:', error);
-        throw error;
-    }
-};
-const checkExistPhone = async (phone) => {
-    try {
-        const user = await knex('users').where({ userphone: phone }).first();
-        return user;
-    } catch (error) {
-        console.error('Error fetching user by phone:', error);
-        throw error;
-    }
-};
 async function login(email, password) {
     const user = await knex('users').where({ useremail: email }).first();
-    if (!user) {
-        return null;
-    }
     const isMatch = await bcrypt.compare(password, user.userpwd);
+
     if (!isMatch) {
-        return null;
+        throw new Error('Mật khẩu không chính xác.');
     }
     return {
         userid: user.userid,
@@ -52,6 +45,10 @@ function readUser(payload) {
 }
 async function createUser(payload) {
     const user = readUser(payload);
+    // Hash mật khẩu trước khi lưu vào cơ sở dữ liệu
+    const saltRounds = 10; // Số lượng rounds để tạo salt
+     // Mã hóa mật khẩu
+    user.userpwd = await bcrypt.hash(payload.userpwd, saltRounds);
     return await knex.transaction(async trx => {
         const [userId] = await trx('users').insert(user);
         const newuser = await trx('users').where({ userid: userId }).first();
@@ -162,6 +159,7 @@ async function updateUserRole(id, requestId, userrole) {
 }
 
 module.exports = {
+    checkExistUser,
     checkExistEmail,
     checkExistPhone,
     login,

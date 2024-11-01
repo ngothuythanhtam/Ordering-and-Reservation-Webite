@@ -2,23 +2,40 @@ const usersService = require('../services/users.service');
 const ApiError = require('../api-error');
 const JSend = require('../jsend');
 
-// async function login(req, res, next) {
-//     try {
-//         const { email, password } = req.body;
+async function login(req, res, next) {
+    const { useremail, userpwd } = req.body;
+    try {
+        if (req.session && req.session.user && req.session.user.userid) {
+            return res.json(JSend.success('Đã đăng nhập!'));
+        }
+        const checkExistEmail = await usersService.checkExistEmail(req.body.useremail);
+        if (!checkExistEmail) {
+            return next(new ApiError(404,'Bạn chưa có tài khoản. Vui lòng nhấn đăng ký.'));
+        } 
+        const user = await usersService.login(useremail, userpwd);
+        req.session.user = {
+            userid: user.userid,
+            useremail: user.useremail,
+            userrole: user.userrole,
+        };
+        return res.status(200).json(JSend.success({ message: 'Đăng nhập thành công!' }));
+    } catch (error) {
+        return next(new ApiError(500, error.message));
+    }
+}
+async function logout(req, res, next) {
+    if (!req.session.user) {
+        return res.json(JSend.success('Bạn chưa đăng nhập!'));
+    }
+    req.session.destroy((err) => {
+        if (err) {
+            return next(new ApiError(500, 'Lỗi khi đăng xuất, vui lòng thử lại.'));
+        }
+        res.clearCookie('connect.sid');
 
-//         const user = await usersService.login(email, password);
-//         req.session.userid = user.userid;
-
-//         return res.json({
-//             status: 'success',
-//             data: user,
-//         });
-//     } catch (error) {
-//         console.log(error);
-//         // Gọi next với lỗi nếu có
-//         return next(new ApiError(401, error.message)); // Trả về lỗi 401 nếu đăng nhập thất bại
-//     }
-// }
+        return res.status(200).json(JSend.success({ message: 'Đăng xuất thành công!' }));
+    });
+}
 async function createUser(req, res, next) {
     if (!req.body.userrole || !req.body.username || !req.body.userbirthday || !req.body.userphone || !req.body.useremail) {
         return next(new ApiError(400, 'Dữ liệu không hợp lệ' ));
@@ -59,18 +76,40 @@ async function createUser(req, res, next) {
     }
 }
 
+// async function getUser(req, res, next) {
+//     const { id } = req.params;
+//     try {
+//         const user = await usersService.getUserById(id);
+//         if (!user) {
+//             return next(new ApiError(404,'Không tìm thấy người dùng.'));
+//         }
+//         return res.json(JSend.success({ user }));
+//     } catch (error) {
+//         return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
+//     }
+// }
+
 async function getUser(req, res, next) {
-    const { id } = req.params;
+    console.log(req.session.user);
     try {
+        // Lấy userid từ session
+        const id = req.session.user.userid;
+        // Kiểm tra xem userid có tồn tại không
+        if (!id) {
+            return next(new ApiError(401, 'Bạn cần đăng nhập để xem thông tin người dùng.'));
+        }
+
+        // Lấy thông tin người dùng từ database
         const user = await usersService.getUserById(id);
         if (!user) {
-            return next(new ApiError(404,'Không tìm thấy người dùng.'));
+            return next(new ApiError(404, 'Không tìm thấy người dùng.'));
         }
         return res.json(JSend.success({ user }));
     } catch (error) {
         return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
     }
 }
+
 
 async function updateUser(req, res, next) {
     if (Object.keys(req.body).length === 0 && !req.file) {
@@ -124,12 +163,13 @@ async function updateUserToStaff(req, res, next) {
             return next(new ApiError(404,'Không có sự thay đổi ở tác vụ vừa rồi.'));
         }
     } catch (error) {
-        console.error('Error updating user role:', error);
         return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
     }
 }
 
 module.exports = {
+    login,
+    logout,
     createUser,
     getUser,
     updateUser,
