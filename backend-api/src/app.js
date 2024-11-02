@@ -17,9 +17,11 @@ const multer = require('multer');
 const secretKey = crypto.randomBytes(32).toString('hex');
 app.use(session({
     secret: secretKey,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false },
+    resave: false,              // Không lưu session nếu không thay đổi
+    saveUninitialized: false,   // Không lưu session nếu chưa khởi tạo
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24 // Session tồn tại trong 1 ngày
+    }
 }));
 app.use('/public', express.static('public'));
 app.use(cors());

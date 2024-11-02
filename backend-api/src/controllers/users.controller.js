@@ -18,7 +18,11 @@ async function login(req, res, next) {
             useremail: user.useremail,
             userrole: user.userrole,
         };
-        return res.status(200).json(JSend.success({ message: 'Đăng nhập thành công!' }));
+        console.log(req.session.user.userid);
+        req.session.save(err => {
+            if (err) return next(err);
+            return res.status(200).json(JSend.success({ message: 'Đăng nhập thành công!' }));
+        });
     } catch (error) {
         return next(new ApiError(500, error.message));
     }
@@ -90,24 +94,21 @@ async function createUser(req, res, next) {
 // }
 
 async function getUser(req, res, next) {
-    console.log(req.session.user);
-    try {
-        // Lấy userid từ session
-        const id = req.session.user.userid;
-        // Kiểm tra xem userid có tồn tại không
-        if (!id) {
-            return next(new ApiError(401, 'Bạn cần đăng nhập để xem thông tin người dùng.'));
-        }
-
-        // Lấy thông tin người dùng từ database
-        const user = await usersService.getUserById(id);
-        if (!user) {
-            return next(new ApiError(404, 'Không tìm thấy người dùng.'));
-        }
-        return res.json(JSend.success({ user }));
-    } catch (error) {
-        return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
+    if (!req.session.user) {
+        return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
     }
+    console.log(req.session.user.userid);
+    const id = req.session.user.userid;
+    // Kiểm tra xem userid có tồn tại không
+    if (!id) {
+        return next(new ApiError(401, 'Bạn cần đăng nhập để xem thông tin người dùng.'));
+    }
+        // Lấy thông tin người dùng từ database
+    const user = await usersService.getUserById(id);
+    if (!user) {
+        return next(new ApiError(404, 'Không tìm thấy người dùng.'));
+    }
+    return res.json(JSend.success({ user }));
 }
 
 
@@ -115,7 +116,10 @@ async function updateUser(req, res, next) {
     if (Object.keys(req.body).length === 0 && !req.file) {
         return next(new ApiError(400, 'Thông tin cập nhật không hợp lệ.'));
     }
-    const { id } = req.params;
+    if (!req.session.user) {
+        return res.json(JSend.success('Vui lòng đăng nhập để thực hiện tác vụ này!'));
+    }
+    const { id } = req.session.user.userid;
     try {
         const updated = await usersService.updateUser(id, {
             ...req.body,
