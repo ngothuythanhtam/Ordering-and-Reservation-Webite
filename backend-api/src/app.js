@@ -8,7 +8,6 @@ const crypto = require('crypto');
 const session = require('express-session');
 const cors = require('cors');
 const menu_itemsRouter = require('./routes/menu_items.router');
-const favoriteRouter = require('./routes/favorite.router');
 const tableRouter = require('./routes/table.router');
 const reservationRouter = require('./routes/reservation.router');
 
@@ -41,7 +40,6 @@ usersRouter.setup(app);
 tablesRouter.setup(app);
 receiptsRouter.setup(app);
 menu_itemsRouter.setup(app);
-favoriteRouter.setup(app);
 tableRouter.setup(app);
 reservationRouter.setup(app);
 
