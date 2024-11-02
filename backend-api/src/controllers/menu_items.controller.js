@@ -1,14 +1,30 @@
 const menu_itemsService = require('../services/menu_items.service');
+const usersService = require('../services/users.service');
 const ApiError = require('../api-error');
 const JSend = require('../jsend');
 
-// FUNCTION FOR STAF
+// FUNCTION FOR STAFF
 async function addMenuItems(req, res, next) {
-    if (!req.body?.item_name || typeof req.body.item_name !== 'string') {
-        return next(new ApiError(400, 'Invalid input', { code: 'INVALID_INPUT' }));
+    // Kiểm tra nếu session không tồn tại hoặc không có userid
+    if (!req.session.user) {
+        return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
     }
+    console.log(req.session.user.userid);
 
+    // Lấy userID từ session
+    const userId  = req.session.user.userid;
     try {
+
+        // Kiểm tra vai trò người dùng
+        const userRole = await usersService.checkRole(userId);
+        if (userRole !== 2  ) {
+            return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
+        }
+
+        if (!req.body?.item_name || typeof req.body.item_name !== 'string') {
+            return next(new ApiError(400, 'Invalid input', { code: 'INVALID_INPUT' }));
+        }
+
         // Kiểm tra tên món đã tồn tại hay chưa
         const existingItem = await menu_itemsService.getItemByName(req.body.item_name);
         if (existingItem) {
@@ -37,11 +53,26 @@ async function addMenuItems(req, res, next) {
 }
 
 async function updateMenuItemsByName(req, res, next) {
-    if (Object.keys(req.body).length === 0 && !req.file) {
-        return next(new ApiError(400, 'Data to update cannot be empty'));
+    // Kiểm tra nếu session không tồn tại hoặc không có userid
+    if (!req.session.user) {
+        return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
     }
-    
+    console.log(req.session.user.userid);
+
+    // Lấy userID từ session
+    const userId  = req.session.user.userid;
     try {
+
+        // Kiểm tra vai trò người dùng
+        const userRole = await usersService.checkRole(userId);
+        if (userRole !== 2  ) {
+            return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
+        }
+
+        if (Object.keys(req.body).length === 0 && !req.file) {
+            return next(new ApiError(400, 'Data to update cannot be empty'));
+        }
+
         // Kiểm tra tên món đã tồn tại hay chưa
         const existingItem = await menu_itemsService.getItemByName(req.body.item_name);
         if (existingItem) {
@@ -67,9 +98,22 @@ async function updateMenuItemsByName(req, res, next) {
 }
 
 async function deleteMenuItemByName(req, res, next) {
-    const { name } = req.params;  // Use name from params
+    // Kiểm tra nếu session không tồn tại hoặc không có userid
+    if (!req.session.user) {
+        return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
+    }
+    console.log(req.session.user.userid);
 
+    // Lấy userID từ session
+    const userId  = req.session.user.userid;
+    
     try {
+        // Kiểm tra vai trò người dùng
+        const userRole = await usersService.checkRole(userId);
+        if (userRole !== 2  ) {
+            return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
+        }
+        const { name } = req.params;  // Use name from params
         const deletedItem  = await menu_itemsService.deleteMenuItemByName(name);
         if (!deletedItem ){
             return next(new ApiError(404, `Menu item with name=${name} not found`));
@@ -85,20 +129,6 @@ async function deleteMenuItemByName(req, res, next) {
 }
 
 // FUNCTION FOR USER (STAFF & CUSTOMER)
-async function getItemByName(req, res, next) {
-  const { name } = req.query;  // get the 'name' from query parameters
-
-  try {
-    const menu_items = await menu_itemsService.getItemByName(name);  // use name to find item
-    if (!menu_items) {
-      return next(new ApiError(404, 'Item not found'));
-    }
-    return res.json(JSend.success({ menu_items }));
-  } catch (error) {
-    console.log(error);
-    return next(new ApiError(500, `Error retrieving item with name=${name}`));
-  }
-}
 
 async function getItemsByFilter(req, res, next) {
     let result = {
@@ -209,7 +239,6 @@ module.exports = {
     addMenuItems,
     updateMenuItemsByName,
     deleteMenuItemByName,
-    getItemByName,
     getItemsByFilter,
     getTypeItemsByFilter,
     getManyMenuItemsByPrice,

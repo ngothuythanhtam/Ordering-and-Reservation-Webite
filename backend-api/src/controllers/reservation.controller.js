@@ -79,41 +79,6 @@ async function updateReservationStatus(req, res, next) {
     }
 }
 
-async function getReservationByEmail(req, res, next) {
-    const { useremail } = req.params; // Get user ID from the URL parameters
-
-    if (!useremail || typeof useremail !== 'string') {
-        return next(new ApiError(400, 'Invalid user mail. It should be a string.'));
-    }
-
-    let result = {
-        reservation: [],
-        metadata: {
-            totalRecords: 0,
-            firstPage: 1,
-            lastPage: 1,
-            page: 1,
-            limit: 5, 
-        }
-    };
-
-    try {
-        result = await reservationService.getReservationByEmail(useremail, req.query);
-
-        if (result.reservation.length === 0) {
-            return res.status(404).json(JSend.fail({ message: 'No reservation found for this user.' }));
-        }
-
-        return res.status(200).json(JSend.success({
-            reservation: result.reservation,
-            metadata: result.metadata,
-        }));
-    } catch (error) {
-        console.error(error);
-        return next(new ApiError(500, 'An error occurred while fetching reservation.'));
-    }
-}
-
 async function getReservationByStatus(req, res, next) {
     try {
         const { status } = req.query; 
@@ -141,6 +106,5 @@ async function getReservationByStatus(req, res, next) {
 module.exports = {
     addReservation,
     updateReservationStatus,
-    getReservationByEmail,
     getReservationByStatus
 };

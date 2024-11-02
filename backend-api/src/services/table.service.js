@@ -98,9 +98,47 @@ async function updateTable(table) {
     }
 }
 
+function readTable(payload) {
+    return {
+        table_number: payload.table_number,
+        seating_capacity: payload.seating_capacity,
+        status: payload.status,
+    };
+}
+async function createTable(payload) { 
+    const table = readTable(payload);
+    return await knex.transaction(async trx => {
+        const existingTable = await trx('restaurant_table')
+            .where('table_number', table.table_number)
+            .first();
+        if (existingTable) {
+            return {
+                message: 'Bàn này đã tồn tại, không thể insert!'
+            };
+        }
+        const [tableId] = await trx('restaurant_table').insert(table);
+        return {
+            message: 'Bàn đã được tạo thành công!',
+            data: { tableId, ...table }
+        };
+    });
+}
+async function deleteTable(requestId) {
+    const deleteTable = await TableRepository()
+        .where('table_id', requestId)
+        .first();
+
+    if (!deleteTable) return null;
+
+    await TableRepository().where('table_id', requestId).del();
+    return deleteTable;
+}
+
 module.exports = {
     getTableByNumber,
     getTableBySeating,
     getManyTableByStatus,
     updateTable,
+    createTable,
+    deleteTable,
 };

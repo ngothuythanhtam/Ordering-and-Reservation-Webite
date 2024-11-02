@@ -106,6 +106,7 @@ async function cancelCustomer(req, res, next) {
         return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
     }
 } 
+
 async function getReceiptsByFilter(req, res, next) {
     let result = {
         receipts: [],

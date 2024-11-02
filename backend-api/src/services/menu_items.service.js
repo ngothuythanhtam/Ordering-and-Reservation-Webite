@@ -78,26 +78,20 @@ async function deleteMenuItemByName(item_name) {
 
     return itemToDelete;
 }
-
-// FUNCTION FOR USER (STAFF & CUSTOMER)
 async function getItemByName(item_name) {
     return ItemRepository().where('item_name', item_name).select('*').first();
 }
 
+// FUNCTION FOR USER (STAFF & CUSTOMER)
+
 async function getManyItems(query) {
-    const { item_name, item_type, item_status, page = 1, limit = 5 } = query;
+    const { item_name, page = 1, limit = 5 } = query;
     const paginator = new Paginator(page, limit);
     
     let results = await ItemRepository()
         .where((builder) => {
             if (item_name) {
                 builder.where('item_name', 'like', `%${item_name}%`);
-            }
-            if (item_type) {
-                builder.where('item_type', 'like', `%${item_type}%`);
-            }
-            if (item_status !== undefined) {
-                builder.where('item_status', item_status);
             }
         })
         .select(
@@ -256,9 +250,9 @@ module.exports = {
     addMenuItems,
     updateMenuItemsByName,
     deleteMenuItemByName,
-    getItemByName,
     getManyItems,
     getManyItemsByType,
     getManyMenuItemsByPrice,
     getManyMenuItemsByType_Price,
+    getItemByName,
 };

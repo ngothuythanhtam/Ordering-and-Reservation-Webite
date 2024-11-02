@@ -2,16 +2,17 @@ const express = require('express');
 const tableController = require('../controllers/table.controller');
 const { methodNotAllowed } = require('../controllers/errors.controller');
 const imgUpload = require('../middlewares/img-upload.middleware');
+const avatarUpload = require('../middlewares/avatar-upload.middleware'); 
 
 const multer = require('multer');
 const upload = multer();
 const router = express.Router();
 module.exports.setup = (app) => {
-    app.use('/api/v1/table', router);
+    app.use('/api/table', router);
 
 /**
  * @swagger
- * /api/v1/table/table_number:
+ * /api/table/table_number:
  *   get:
  *     summary: Get table by number
  *     description: Get table by number
@@ -23,7 +24,7 @@ module.exports.setup = (app) => {
  *           type: string
  *         description: Find table by number
  *     tags:
- *       - Table
+ *       - Table (staff)
  *     responses:
  *       200:
  *         description: Found table with number
@@ -56,7 +57,7 @@ module.exports.setup = (app) => {
 
 /**
  * @swagger
- * /api/v1/table/seating_capacity:
+ * /api/table/seating_capacity:
  *   get:
  *     summary: Get table by seating capacity
  *     description: Get table by seating capacity
@@ -65,7 +66,7 @@ module.exports.setup = (app) => {
  *       - $ref: '#/components/parameters/limitParam'
  *       - $ref: '#/components/parameters/pageParam'
  *     tags:
- *       - Table
+ *       - Table (staff)
  *     responses:
  *       200:
  *         description: Found table with seating capacity
@@ -98,7 +99,7 @@ module.exports.setup = (app) => {
 
 /**
  * @swagger
- * /api/v1/table/table_status:
+ * /api/table/table_status:
  *   get:
  *     summary: Get many tables by filter status
  *     description: Retrieve tables by filtering status
@@ -107,7 +108,7 @@ module.exports.setup = (app) => {
  *       - $ref: '#/components/parameters/limitParam'
  *       - $ref: '#/components/parameters/pageParam'
  *     tags:
- *       - Table
+ *       - Table (staff)
  *     responses:
  *       200:
  *         description: A list of filtered table
@@ -143,7 +144,7 @@ module.exports.setup = (app) => {
 
 /** 
  * @swagger
- * /api/v1/table/update/table-status/{table_number}:
+ * /api/table/update/table-status/{table_number}:
  *   put:
  *     summary: Update the status of a restaurant table
  *     description: Update the status of a table using form-data
@@ -166,7 +167,7 @@ module.exports.setup = (app) => {
  *                 description: The new status of the table
  *                 enum: ['available', 'reserved', 'occupied']
  *     tags:
- *       - Table
+ *       - Table (staff)
  *     responses:
  *       200:
  *         description: Table status updated successfully
@@ -204,7 +205,74 @@ module.exports.setup = (app) => {
  *               $ref: '#/components/responses/500'
  */
     router.put('/update/table-status/:table_number', upload.none(), tableController.updateTableStatus);
+/**
+ * @swagger
+ * /api/table/create_table:
+ *   post:
+ *     summary: Create a new table
+ *     description: Chỉ có Staff mới có thể thực hiện tác vụ này!!!
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             $ref: '#/components/schemas/Table'
+ *     tags:
+ *       - Table (staff)
+ *     responses:
+ *       201:
+ *         description: A new table
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: The response status
+ *                   enum: [success]
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     table:
+ *                         $ref: '#/components/schemas/Table'
+ *       500:
+ *         description: Internal Server Error - Unexpected error on the server
+ *       400:
+ *         description: Bad Request - Invalid input or missing parameters
+ */
+    router.post('/create_table', avatarUpload,tableController.createTable);
 
+/**
+ * @swagger
+ * /api/table/remove_table:
+ *   delete:
+ *     summary: Delete table by ID
+ *     description: Delete table by ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               requestId:
+ *                 type: integer
+ *                 description: Mã bàn cần xóa
+ *     tags:
+ *       - Table (staff)
+ *     responses:
+ *       200:
+ *         description: Table deleted
+ *         $ref: '#/components/responses/200NoData'
+ *       404:
+ *         description: Không tìm thấy bàn!
+ *         $ref: '#/components/responses/404'
+ *       500:
+ *         description: Internal Server Error - Unexpected error on the server
+ *         $ref: '#/components/responses/500'
+ */    
+    router.delete('/remove_table', avatarUpload, tableController.deleteTable);
     // Catch all methods that are not allowed for these routes and return 405 error
-    router.all('/', methodNotAllowed);
+
 };

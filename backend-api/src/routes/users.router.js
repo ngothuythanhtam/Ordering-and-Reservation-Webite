@@ -12,47 +12,6 @@ const upload = multer();
 
 module.exports.setup = (app) => { 
     app.use('/api/users', router);
-
-/**
- * @swagger
- * /api/users/email:
- *   get:
- *     summary: Get user by email
- *     description: Get user by email
- *     parameters:
- *       - $ref: '#/components/parameters/useremailParam'
- *     tags:
- *       - User
- *     responses:
- *       200:
- *         description: Get user by email
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   description: The response status
- *                   enum: [success]
- *                 data:
- *                   type: object
- *                   properties:
- *                     user_by_mail:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/Users'
- *       400:
- *         description: Invalid request, missing or invalid fields
- *         $ref: '#/components/responses/400'
- *       404:
- *         description: Not Found
- *         $ref: '#/components/responses/404'
- *       500:
- *         description: Internal server error
- *         $ref: '#/components/responses/500'
- */
-    router.get('/email', usersController.getUserByMail);
   
   /**
  * @swagger
@@ -77,6 +36,7 @@ module.exports.setup = (app) => {
  *                 description: Mật khẩu tài khoản của người dùng
  *     tags:
  *       - users
+ *       - Users (staff)
  *     responses:
  *       200:
  *         description: Login success
@@ -105,6 +65,7 @@ module.exports.setup = (app) => {
  *     description: Logout into System
  *     tags:
  *       - users
+ *       - Users (staff)
  *     responses:
  *       200:
  *         description: Logout success
@@ -174,6 +135,7 @@ module.exports.setup = (app) => {
  *                 description: Ảnh đại diện người dùng
  *     tags:
  *       - users
+ *       - Users (staff)
  *     responses:
  *       201:
  *         description: A new user
@@ -208,6 +170,7 @@ router.all('/',methodNotAllowed);
  *     description: Get user by ID
  *     tags:
  *       - users
+ *       - Users (staff)
  *     responses:
  *       200:
  *         description: A user
@@ -249,6 +212,7 @@ router.get('/info/', usersController.getUser);
  *             $ref: '#/components/schemas/UserUpdate'
  *     tags:
  *       - users
+ *       - Users (staff)
  *     responses:
  *       200:
  *         description: An updated user
@@ -300,6 +264,7 @@ router.put('/updateProfile/:id/',avatarUpload, usersController.updateUser);
  *                 description: Mã người dùng
  *     tags:
  *       - users
+ *       - Users (staff)
  *     responses:
  *       200:
  *         description: User deleted

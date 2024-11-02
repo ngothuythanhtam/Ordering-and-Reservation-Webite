@@ -10,7 +10,7 @@ module.exports.setup = (app) => {
  * @swagger
  * /api/receipts/filterreceipt/{id}:
  *   get:
- *     summary: Get receipts by filter
+ *     summary: User get receipts by filter
  *     description: Get receipts by filter
  *     parameters:
  *       - in: query
@@ -236,6 +236,7 @@ module.exports.setup = (app) => {
  *                 enum: ['Canceled']
  *                 description: Trạng thái đơn hàng
  *     tags:
+ *       - Receipts (staff)
  *       - receipts
  *     responses:
  *       200:
@@ -282,7 +283,7 @@ module.exports.setup = (app) => {
 //  *           schema:
 //  *             $ref: '#/components/schemas/Complete'
 //  *     tags:
-//  *       - receipts
+//  *       - Receipts (staff)
 //  *     responses:
 //  *       200:
 //  *         description: Complete Ordering

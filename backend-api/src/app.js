@@ -1,7 +1,6 @@
 const express = require('express');
 const JSend = require('./jsend');
 const usersRouter = require('./routes/users.router');
-const tablesRouter = require('./routes/tables.router');
 const receiptsRouter = require('./routes/receipts.router');
 const { serve } = require('swagger-ui-express');
 const crypto = require('crypto');
@@ -37,7 +36,6 @@ app.get('/', (req, res) => {
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 usersRouter.setup(app);
-tablesRouter.setup(app);
 receiptsRouter.setup(app);
 menu_itemsRouter.setup(app);
 tableRouter.setup(app);

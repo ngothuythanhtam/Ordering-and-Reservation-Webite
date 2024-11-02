@@ -7,13 +7,13 @@ const multer = require('multer');
 const upload = multer();
 const router = express.Router();
 module.exports.setup = (app) => {
-    app.use('/api/v1/reservation', router);
+    app.use('/api/reservation', router);
 
 /**
  * @swagger
- * /api/v1/reservation/add:
+ * /api/reservation/add:
  *   post:
- *     summary: Add a new reservation
+ *     summary: User create a new reservation
  *     description: Create a reservation by providing useremail, reservation_date, party_size, and optional special_request.
  *     requestBody:
  *       required: true
@@ -135,10 +135,10 @@ module.exports.setup = (app) => {
 
 /**
  * @swagger
- * /api/v1/reservation/update/{reservation_id}:
+ * /api/reservation/update/{reservation_id}:
  *   put:
- *     summary: Update the status of a reservation
- *     tags: [Reservation]
+ *     summary: Staff update the status of a reservation
+ *     tags: [Reservation (staff)]
  *     description: Update the status of a reservation.
  *     parameters:
  *       - name: reservation_id
@@ -170,121 +170,12 @@ module.exports.setup = (app) => {
 
 /**
  * @swagger
- * /api/v1/reservation/get/{useremail}:
+ * /api/reservation/status:
  *   get:
- *     summary: Get reservation by user mail
- *     description: Get reservation by user mail
- *     tags:
- *       - Reservation
- *     parameters:
- *       - name: useremail
- *         in: path
- *         required: true
- *         description: The ID of the user whose favorite items are being retrieved.
- *         schema:
- *           type: string
- *       - $ref: '#/components/parameters/limitParam'
- *       - $ref: '#/components/parameters/pageParam'
- *     responses:
- *       '200':
- *         description: Successfully retrieved favorite items
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   enum: [success]
- *                   description: The response status
- *                 items:
- *                   type: array
- *                   reservation:
- *                     type: object
- *                     properties:
- *                       reservation_id:
- *                         type: integer
- *                         description: 
- *                       userid:
- *                         type: integer
- *                         description: The ID of the user.             
- *                       username:
- *                         type: string
- *                         description: The username of the user.
- *                       useremail:
- *                         type: integer
- *                         description: The ID of the menu item.
- *                       userphone:
- *                         type: string
- *                         description: The name of the menu item.
- *                       reservation_date:
- *                         type: string
- *                         fortmat: date
- *                         description: The date of reservation
- *                       special_request:
- *                         type: string
- *                         description: A brief request of user.
- *                       create_at:
- *                         type: string
- *                         description: The date time that reservation created.
- *                       status:
- *                         type: string
- *                         description: Status of reservation.
- *                 metadata:
- *                   $ref: '#/components/schemas/PaginationMetadata'
- *       '400':
- *         description: Invalid user email supplied
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   enum: [fail]
- *                   description: The response status
- *                 message:
- *                   type: string
- *                   description: Error message.
- *       '404':
- *         description: No reservation found for the specified user
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   enum: [fail]
- *                   description: The response status
- *                 message:
- *                   type: string
- *                   description: Error message.
- *       '500':
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   enum: [fail]
- *                   description: The response status
- *                 message:
- *                   type: string
- *                   description: Error message.
- */
-    router.get('/get/:useremail', reservationController.getReservationByEmail);
-
-/**
- * @swagger
- * /api/v1/reservation/status:
- *   get:
- *     summary: Get reservations by status
+ *     summary: Staff get reservations by status
  *     description: Retrieve reservations by status.
  *     tags:
- *       - Reservation
+ *       - Reservation (staff)
  *     parameters:
  *       - in: query
  *         name: status
