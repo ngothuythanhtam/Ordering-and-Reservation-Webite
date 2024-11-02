@@ -18,10 +18,10 @@ components:
         userid:
           type: integer
           readOnly: true
-          description: The id
+          description: The id of user
         userrole:
           type: integer
-          description: The role
+          description: The role id
         username:
           type: string
           description: Name
@@ -261,14 +261,14 @@ components:
                 type: string
                 description: An error message providing details about the server issue
   parameters:
-    roleNameParam:
-      name: role_name
+    userroleParam:
+      name: userrole
       required: true
       in: path
       schema: 
-        type: string
-        enum: ['Admin', 'Staff', 'Customer']
-      description: Filter by role
+        type: integer
+        enum: ['1', '2', '3']
+      description: Filter by role id
 
     useremailParam:
       name: useremail

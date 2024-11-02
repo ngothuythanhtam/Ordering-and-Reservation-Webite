@@ -7,26 +7,24 @@ function UsersRepository() {
     return knex('users'); 
 }
 
-async function getManyUsers(role_name, query) {  
+async function getManyUsersByRole(userrole, query) {  
     const { page = 1, limit = 5 } = query;  
     const paginator = new Paginator(page, limit);
     
     try {
         let Users = await UsersRepository()
-            .join('roles as r', 'users.userrole', 'r.role_id')
             .select(
-                knex.raw('count(users.userid) OVER() AS recordCount'), 
-                'r.role_id',
-                'r.role_name',
-                'users.userid',
-                'users.username',
-                'users.userbirthday',
-                'users.userphone',
-                'users.useremail',
-                'users.useraddress',
-                'users.useravatar'
+                knex.raw('count(userid) OVER() AS recordCount'), 
+                'userid',
+                'userrole',
+                'username',
+                'userbirthday',
+                'userphone',
+                'useremail',
+                'useraddress',
+                'useravatar'
             )
-            .where('r.role_name', role_name) 
+            .where('userrole', userrole) 
             .limit(paginator.limit)  
             .offset(paginator.offset);  
 
@@ -50,11 +48,20 @@ async function getManyUsers(role_name, query) {
 async function getUserByMail(useremail) {
     return UsersRepository()
         .where('useremail', useremail)
-        .select('*')
+        .select(
+            'userid',
+            'userrole',
+            'username',
+            'userbirthday',
+            'userphone',
+            'useremail',
+            'useraddress',
+            'useravatar'
+        )
         .first();
 }
 
 module.exports = {
-    getManyUsers,
+    getManyUsersByRole,
     getUserByMail,
 };
