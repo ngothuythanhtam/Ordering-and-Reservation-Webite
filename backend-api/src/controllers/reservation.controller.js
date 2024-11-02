@@ -101,8 +101,6 @@ async function getReservationByStatus(req, res, next) {
     }
 }
 
-
-
 module.exports = {
     addReservation,
     updateReservationStatus,

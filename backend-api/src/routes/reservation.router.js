@@ -260,6 +260,7 @@ module.exports.setup = (app) => {
  *                   description: Error message
  */
     router.get('/status', reservationController.getReservationByStatus);
+    
     // Catch all methods that are not allowed for these routes and return 405 error
     router.all('/', methodNotAllowed);
 };

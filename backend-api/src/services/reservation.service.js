@@ -97,7 +97,6 @@ async function getReservationByStatus(status) {
         throw new Error('Could not fetch reservations by status.');
     }
 }
-
 module.exports = {
     createReservation,
     updateReservationStatus,
