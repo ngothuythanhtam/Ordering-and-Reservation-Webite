@@ -94,6 +94,7 @@ async function addItemToReceipt(id, payload) {
                 price: item_price * quantity
             });
         }
+        
         const total_price = await trx('Order_Item')
             .where('order_id', user.order_id) 
             .sum('price as total')

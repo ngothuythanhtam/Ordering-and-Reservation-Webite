@@ -6,6 +6,7 @@ const router = express.Router();
 
 module.exports.setup = (app) => { 
     app.use('/api/receipts', router); 
+    
 /**
  * @swagger
  * /api/receipts/filterreceipt/{id}:

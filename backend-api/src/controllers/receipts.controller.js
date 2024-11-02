@@ -22,6 +22,7 @@ async function createReceipt(req, res, next) {
         return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
     }
 }
+
 async function addItemToReceipt(req, res, next) {
     if (!req.body.item_id ||
         !req.body.quantity || !req.params.id) {
