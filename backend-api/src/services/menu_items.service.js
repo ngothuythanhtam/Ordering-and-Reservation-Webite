@@ -83,7 +83,6 @@ async function getItemByName(item_name) {
 }
 
 // FUNCTION FOR USER (STAFF & CUSTOMER)
-
 async function getManyItems(query) {
     const { item_name, page = 1, limit = 5 } = query;
     const paginator = new Paginator(page, limit);

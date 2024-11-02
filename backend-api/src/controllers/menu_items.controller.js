@@ -35,7 +35,6 @@ async function addMenuItems(req, res, next) {
             ...req.body,
             img_url: req.file ? `/public/uploads/${req.file.filename}` : null,
         });
-
         return res
           .status(201)
           .set({

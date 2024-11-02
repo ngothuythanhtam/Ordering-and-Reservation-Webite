@@ -9,8 +9,6 @@ const router = express.Router();
 module.exports.setup = (app) => {
     app.use('/api/menu_items', router);
 
-/************************************************************** MENU ITEMS ******************************************************/
-
 // ROUTER FOR STAFF
 /**
  * @swagger
