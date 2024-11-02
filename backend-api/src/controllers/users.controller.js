@@ -164,26 +164,6 @@ async function deleteUser(req, res, next) {
         return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
     }
 }
-async function updateUserToStaff(req, res, next) {
-    const { id } = req.params; 
-    const { userrole, requestId } = req.body; 
-
-    try {
-        const checkrole = await usersService.checkRole(id); 
-        console.log('User role:', checkrole);
-        if (checkrole != '3') {
-            return next(new ApiError(403, 'Không có quyền thực hiện tác vụ này.' ));
-        }
-        const updated = await usersService.updateUserRole(id, requestId, userrole);
-        if (updated && updated.success) { 
-            return res.json(JSend.success(`Cập nhật thành công vai trò mới của người dùng có ID ${id}`));
-        } else {
-            return next(new ApiError(404,'Không có sự thay đổi ở tác vụ vừa rồi.'));
-        }
-    } catch (error) {
-        return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
-    }
-}
 
 module.exports = {
     getUserByMail,
@@ -193,5 +173,4 @@ module.exports = {
     getUser,
     updateUser,
     deleteUser,
-    updateUserToStaff,
 }

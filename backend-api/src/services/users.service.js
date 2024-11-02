@@ -182,39 +182,6 @@ const checkRole = async (userid) => {
         throw error; 
     }
 };
-async function updateUserRole(id, requestId, userrole) {
-    const requestingUser = await userRepository()
-        .where('userid', id)
-        .select('userrole')
-        .first();
-    const targetUser = await userRepository()
-        .where('userid', requestId)
-        .select('userrole')
-        .first();
-    if (!requestingUser || !targetUser) {
-        console.log('User not found: ', { requestingUser, targetUser });
-        return null; 
-    }
-
-    console.log('Requesting user role:', requestingUser.userrole);
-    console.log('Target user role:', targetUser.userrole);
-
-    if (userrole == '1' || userrole == '2') {
-        if (userrole == targetUser.userrole) {
-            console.log('No change in role.');
-            return { error: 'Không có thay đổi khi cập nhật.' };
-        }
-
-        const updatedUser = await userRepository()
-            .where('userid', requestId)
-            .update('userrole', userrole);
-
-        if (!updatedUser) {
-            return { error: 'Cập nhật vai trò không thành công.' };
-        }
-    }
-    return { success: true };
-}
 
 module.exports = {
     getManyUsersByRole,
@@ -227,6 +194,5 @@ module.exports = {
     createUser,
     getUserById,
     updateUser,
-    deleteUser,
-    updateUserRole
+    deleteUser
 };
