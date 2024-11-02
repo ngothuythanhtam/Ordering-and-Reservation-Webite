@@ -94,19 +94,6 @@ async function createUser(req, res, next) {
     }
 }
 
-// async function getUser(req, res, next) {
-//     const { id } = req.params;
-//     try {
-//         const user = await usersService.getUserById(id);
-//         if (!user) {
-//             return next(new ApiError(404,'Không tìm thấy người dùng.'));
-//         }
-//         return res.json(JSend.success({ user }));
-//     } catch (error) {
-//         return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
-//     }
-// }
-
 async function getUser(req, res, next) {
     if (!req.session.user) {
         return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
@@ -133,7 +120,7 @@ async function updateUser(req, res, next) {
     if (!req.session.user) {
         return res.json(JSend.success('Vui lòng đăng nhập để thực hiện tác vụ này!'));
     }
-    const { id } = req.session.user.userid;
+    const id = req.session.user.userid;
     try {
         const updated = await usersService.updateUser(id, {
             ...req.body,
@@ -151,15 +138,15 @@ async function updateUser(req, res, next) {
     }
 }
 async function deleteUser(req, res, next) {
-    const { id } = req.params;
-    const { requestId } = req.body; 
-
+    if (!req.session.user) {
+        return next(new ApiError(401, 'Vui lòng đăng nhập để thực hiện tác vụ này!'));
+    }
     try {
-        const deleted = await usersService.deleteUser(id,{ requestId });
+        const deleted = await usersService.deleteUser(req.session.user.userid);
         if (!deleted) {
             return next(new ApiError(404, 'Không thể xóa người dùng.'));
         }
-        return res.json(JSend.success(`Thành công xóa người dùng ${id}`));
+        return res.json(JSend.success(`Thành công xóa người dùng ${req.session.user.userid}`));
     } catch (error) {
         return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
     }

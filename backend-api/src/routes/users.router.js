@@ -235,12 +235,10 @@ router.all('/',methodNotAllowed);
 router.get('/info/', usersController.getUser);
 /**
  * @swagger
- * /api/users/updateProfile/{id}:
+ * /api/users/updateProfile/:
  *   put:
  *     summary: Update user by ID 
  *     description: Update user by ID
- *     parameters:
- *       - $ref: '#/components/parameters/userIdParam'
  *     requestBody:
  *       required: true
  *       content:
@@ -278,26 +276,14 @@ router.get('/info/', usersController.getUser);
  *         description: Internal Server Error - Unexpected error on the server
  *         $ref: '#/components/responses/500'
  */
-router.put('/updateProfile/:id/',avatarUpload, usersController.updateUser); 
+router.put('/updateProfile/',avatarUpload, usersController.updateUser); 
 
 /**
  * @swagger
- * /api/users/deleteAccount/{id}:
+ * /api/users/deleteAccount/:
  *   delete:
  *     summary: Delete user by ID
  *     description: Delete user by ID
- *     parameters:
- *       - $ref: '#/components/parameters/userIdParam'
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               requestId:
- *                 type: integer
- *                 description: Mã người dùng
  *     tags:
  *       - users
  *     responses:
@@ -312,6 +298,6 @@ router.put('/updateProfile/:id/',avatarUpload, usersController.updateUser);
  *         $ref: '#/components/responses/500'
  * 
  */    
-router.delete('/deleteAccount/:id',avatarUpload, usersController.deleteUser);
+router.delete('/deleteAccount/',avatarUpload, usersController.deleteUser);
 router.all('/:id',methodNotAllowed);
 };

@@ -237,8 +237,7 @@ components:
           type: string
           format: binary
           writeOnly: true
-          description: Ảnh đại diện người dùng
-
+          description: Ảnh đại diện người dùng 
     UserUpdate: 
       type: object
       properties:
