@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const JSend = require('./jsend');
 const usersRouter = require('./routes/users.router');
 const tablesRouter = require('./routes/tables.router');
@@ -7,6 +6,12 @@ const receiptsRouter = require('./routes/receipts.router');
 const { serve } = require('swagger-ui-express');
 const crypto = require('crypto');
 const session = require('express-session');
+const cors = require('cors');
+const menu_itemsRouter = require('./routes/menu_items.router');
+const favoriteRouter = require('./routes/favorite.router');
+const tableRouter = require('./routes/table.router');
+const reservationRouter = require('./routes/reservation.router');
+
 const{
     resourceNotFound,
     handleError,
@@ -35,6 +40,10 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 usersRouter.setup(app);
 tablesRouter.setup(app);
 receiptsRouter.setup(app);
+menu_itemsRouter.setup(app);
+favoriteRouter.setup(app);
+tableRouter.setup(app);
+reservationRouter.setup(app);
 
 app.use(resourceNotFound);
 app.use(handleError);

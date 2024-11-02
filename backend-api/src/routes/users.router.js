@@ -15,49 +15,6 @@ module.exports.setup = (app) => {
 
 /**
  * @swagger
- * /api/users/user/role/{userrole}:
- *   get:
- *     summary: Get user by role id
- *     description: Retrieve users by filter role
- *     parameters:
- *       - $ref: '#/components/parameters/userroleParam'
- *     tags:
- *       - User
- *     responses:
- *       200:
- *         description: A list of filtered users
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   description: The response status
- *                   enum: [success]
- *                 data:
- *                   type: object
- *                   properties:
- *                     users_by_role:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/Users'
- *                     metadata:
- *                       $ref: '#/components/schemas/PaginationMetadata'
- *       400:
- *         description: Invalid request, missing or invalid fields
- *         $ref: '#/components/responses/400BadRequest'
- *       404:
- *         description: Not Found
- *         $ref: '#/components/responses/404NotFound'
- *       500:
- *         description: Internal server error
- *         $ref: '#/components/responses/500InternalServerError'
- */
-    router.get('/user/role/:userrole', usersController.getManyUsersByRole);
-
-/**
- * @swagger
  * /api/users/email:
  *   get:
  *     summary: Get user by email
@@ -87,13 +44,13 @@ module.exports.setup = (app) => {
  *                         $ref: '#/components/schemas/Users'
  *       400:
  *         description: Invalid request, missing or invalid fields
- *         $ref: '#/components/responses/400BadRequest'
+ *         $ref: '#/components/responses/400'
  *       404:
  *         description: Not Found
- *         $ref: '#/components/responses/404NotFound'
+ *         $ref: '#/components/responses/404'
  *       500:
  *         description: Internal server error
- *         $ref: '#/components/responses/500InternalServerError'
+ *         $ref: '#/components/responses/500'
  */
     router.get('/email', usersController.getUserByMail);
   
