@@ -8,7 +8,7 @@ class Paginator {
         if (isNaN(this.limit) || this.page < 1) {
             this.page = 1;
         }
-            this.offset = (this.page - 1) * this.limit;
+        this.offset = (this.page - 1) * this.limit;
     }
     getMetadata(totalRecords) {
         if (totalRecords === 0) {

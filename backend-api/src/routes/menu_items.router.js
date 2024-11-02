@@ -45,10 +45,10 @@ module.exports.setup = (app) => {
  *                       $ref: '#/components/schemas/MenuItem'
  *       400:
  *         description: Bad request, either invalid input or the item name already exists
- *         $ref: '#/components/responses/400BadRequest'
+ *         $ref: '#/components/responses/400'
  *       500:
  *         description: Internal server error
- *         $ref: '#/components/responses/500InternalServerError'
+ *         $ref: '#/components/responses/500'
  */
     router.post('/:addItem',imgUpload, menu_itemsController.addMenuItems);
 
@@ -87,13 +87,13 @@ module.exports.setup = (app) => {
  *                       $ref: '#/components/schemas/MenuItem'
  *       400:
  *         description: Bad request
- *         $ref: '#/components/responses/400BadRequest'
+ *         $ref: '#/components/responses/400'
  *       404:
  *         description: Item not found
- *         $ref: '#/components/responses/404NotFound'
+ *         $ref: '#/components/responses/404'
  *       500:
  *         description: Internal server error
- *         $ref: '#/components/responses/500InternalServerError'
+ *         $ref: '#/components/responses/500'
  */
     router.put('/:name', imgUpload, menu_itemsController.updateMenuItemsByName);
 
@@ -113,13 +113,13 @@ module.exports.setup = (app) => {
  *         $ref: '#/components/responses/200NoData'
  *       400:
  *         description: Bad request
- *         $ref: '#/components/responses/400BadRequest'
+ *         $ref: '#/components/responses/400'
  *       404:
  *         description: Item not found
- *         $ref: '#/components/responses/404NotFound'
+ *         $ref: '#/components/responses/404'
  *       500:
  *         description: Internal server error
- *         $ref: '#/components/responses/500InternalServerError'
+ *         $ref: '#/components/responses/500'
  */
     router.delete('/:name', menu_itemsController.deleteMenuItemByName);
 
@@ -160,13 +160,13 @@ module.exports.setup = (app) => {
  *                         $ref: '#/components/schemas/MenuItem'
  *       400:
  *         description: Invalid request, missing or invalid fields
- *         $ref: '#/components/responses/400BadRequest'
+ *         $ref: '#/components/responses/400'
  *       404:
  *         description: Not Found
- *         $ref: '#/components/responses/404NotFound'
+ *         $ref: '#/components/responses/404'
  *       500:
  *         description: Internal server error
- *         $ref: '#/components/responses/500InternalServerError'
+ *         $ref: '#/components/responses/500'
  */
     router.get('/name', menu_itemsController.getItemByName);  // using GET with a query parameter
 
@@ -224,13 +224,13 @@ module.exports.setup = (app) => {
  *                       $ref: '#/components/schemas/PaginationMetadata'
  *       400:
  *         description: Invalid request, missing or invalid fields
- *         $ref: '#/components/responses/400BadRequest'
+ *         $ref: '#/components/responses/400'
  *       404:
  *         description: Not Found
- *         $ref: '#/components/responses/404NotFound'
+ *         $ref: '#/components/responses/404'
  *       500:
  *         description: Internal server error
- *         $ref: '#/components/responses/500InternalServerError'
+ *         $ref: '#/components/responses/500'
  */
     router.get('/items', menu_itemsController.getItemsByFilter);
 
@@ -281,13 +281,13 @@ module.exports.setup = (app) => {
  *                       $ref: '#/components/schemas/PaginationMetadata'
  *       400:
  *         description: Invalid request, missing or invalid fields
- *         $ref: '#/components/responses/400BadRequest'
+ *         $ref: '#/components/responses/400'
  *       404:
  *         description: Not Found
- *         $ref: '#/components/responses/404NotFound'
+ *         $ref: '#/components/responses/404'
  *       500:
  *         description: Internal server error
- *         $ref: '#/components/responses/500InternalServerError'
+ *         $ref: '#/components/responses/500'
  */
     router.get('/type', menu_itemsController.getTypeItemsByFilter);
 
@@ -339,13 +339,13 @@ module.exports.setup = (app) => {
  *                       $ref: '#/components/schemas/PaginationMetadata'
  *       400:
  *         description: Invalid request, missing or invalid fields
- *         $ref: '#/components/responses/400BadRequest'
+ *         $ref: '#/components/responses/400'
  *       404:
  *         description: Not Found
- *         $ref: '#/components/responses/404NotFound'
+ *         $ref: '#/components/responses/404'
  *       500:
  *         description: Internal server error
- *         $ref: '#/components/responses/500InternalServerError'
+ *         $ref: '#/components/responses/500'
  */
     router.get('/price', menu_itemsController.getManyMenuItemsByPrice);
 
@@ -411,13 +411,13 @@ module.exports.setup = (app) => {
  *                       $ref: '#/components/schemas/PaginationMetadata'
  *       400:
  *         description: Invalid request, missing or invalid fields
- *         $ref: '#/components/responses/400BadRequest'
+ *         $ref: '#/components/responses/400'
  *       404:
  *         description: Not Found
- *         $ref: '#/components/responses/404NotFound'
+ *         $ref: '#/components/responses/404'
  *       500:
  *         description: Internal server error
- *         $ref: '#/components/responses/500InternalServerError'
+ *         $ref: '#/components/responses/500'
  */
     router.get('/type/price', menu_itemsController.getManyMenuItemsByType_Price);
 

@@ -44,13 +44,13 @@ module.exports.setup = (app) => {
  *                       $ref: '#/components/schemas/Table'
  *       400:
  *         description: Invalid request, missing or invalid fields
- *         $ref: '#/components/responses/400BadRequest'
+ *         $ref: '#/components/responses/400'
  *       404:
  *         description: Not Found
- *         $ref: '#/components/responses/404NotFound'
+ *         $ref: '#/components/responses/404'
  *       500:
  *         description: Internal server error
- *         $ref: '#/components/responses/500InternalServerError'
+ *         $ref: '#/components/responses/500'
  */
     router.get('/table_number', tableController.getTableByNumber);  // using GET with a query parameter
 
@@ -86,13 +86,13 @@ module.exports.setup = (app) => {
  *                       $ref: '#/components/schemas/Table'
  *       400:
  *         description: Invalid request, missing or invalid fields
- *         $ref: '#/components/responses/400BadRequest'
+ *         $ref: '#/components/responses/400'
  *       404:
  *         description: Not Found
- *         $ref: '#/components/responses/404NotFound'
+ *         $ref: '#/components/responses/404'
  *       500:
  *         description: Internal server error
- *         $ref: '#/components/responses/500InternalServerError'
+ *         $ref: '#/components/responses/500'
  */
     router.get('/seating_capacity', tableController.getTableBySeating);  // using GET with a query parameter
 
@@ -131,13 +131,13 @@ module.exports.setup = (app) => {
  *                       $ref: '#/components/schemas/PaginationMetadata'
  *       400:
  *         description: Invalid request, missing or invalid fields
- *         $ref: '#/components/responses/400BadRequest'
+ *         $ref: '#/components/responses/400'
  *       404:
  *         description: Not Found
- *         $ref: '#/components/responses/404NotFound'
+ *         $ref: '#/components/responses/404'
  *       500:
  *         description: Internal server error
- *         $ref: '#/components/responses/500InternalServerError'
+ *         $ref: '#/components/responses/500'
  */
     router.get('/table_status', tableController.getTableByFilter);
 
@@ -189,19 +189,19 @@ module.exports.setup = (app) => {
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/responses/400BadRequest'
+ *               $ref: '#/components/responses/400'
  *       404:
  *         description: Table not found
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/responses/404NotFound'
+ *               $ref: '#/components/responses/404'
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/responses/500InternalServerError'
+ *               $ref: '#/components/responses/500'
  */
     router.put('/update/table-status/:table_number', upload.none(), tableController.updateTableStatus);
 
