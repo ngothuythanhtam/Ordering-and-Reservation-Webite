@@ -278,5 +278,6 @@ router.put('/updateProfile/:id/',avatarUpload, usersController.updateUser);
  * 
  */    
 router.delete('/deleteAccount/:id',avatarUpload, usersController.deleteUser);
+
 router.all('/:id',methodNotAllowed);
 };

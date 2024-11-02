@@ -27,6 +27,7 @@ async function login(req, res, next) {
         return next(new ApiError(500, error.message));
     }
 }
+
 async function logout(req, res, next) {
     if (!req.session.user) {
         return res.json(JSend.success('Bạn chưa đăng nhập!'));
