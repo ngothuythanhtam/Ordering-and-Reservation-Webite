@@ -1,13 +1,103 @@
-const express = require('express'); 
-const usersController = require('../controllers/users.controller'); 
-const { methodNotAllowed } = require('../controllers/errors.controller'); 
+const express = require('express');
+const usersController = require('../controllers/users.controller');
+const { methodNotAllowed } = require('../controllers/errors.controller');
+const imgUpload = require('../middlewares/img-upload.middleware');
+
 const avatarUpload = require('../middlewares/avatar-upload.middleware');
 const authMiddleware = require('../middlewares/authMiddleware');  
 const router = express.Router(); 
 
+const multer = require('multer');
+const upload = multer();
+
 module.exports.setup = (app) => { 
-    app.use('/api/users', router); 
+    app.use('/api/users', router);
+
 /**
+ * @swagger
+ * /api/users/user/role/{userrole}:
+ *   get:
+ *     summary: Get user by role id
+ *     description: Retrieve users by filter role
+ *     parameters:
+ *       - $ref: '#/components/parameters/userroleParam'
+ *     tags:
+ *       - User
+ *     responses:
+ *       200:
+ *         description: A list of filtered users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: The response status
+ *                   enum: [success]
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     users_by_role:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Users'
+ *                     metadata:
+ *                       $ref: '#/components/schemas/PaginationMetadata'
+ *       400:
+ *         description: Invalid request, missing or invalid fields
+ *         $ref: '#/components/responses/400BadRequest'
+ *       404:
+ *         description: Not Found
+ *         $ref: '#/components/responses/404NotFound'
+ *       500:
+ *         description: Internal server error
+ *         $ref: '#/components/responses/500InternalServerError'
+ */
+    router.get('/user/role/:userrole', usersController.getManyUsersByRole);
+
+/**
+ * @swagger
+ * /api/users/email:
+ *   get:
+ *     summary: Get user by email
+ *     description: Get user by email
+ *     parameters:
+ *       - $ref: '#/components/parameters/useremailParam'
+ *     tags:
+ *       - User
+ *     responses:
+ *       200:
+ *         description: Get user by email
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: The response status
+ *                   enum: [success]
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     user_by_mail:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Users'
+ *       400:
+ *         description: Invalid request, missing or invalid fields
+ *         $ref: '#/components/responses/400BadRequest'
+ *       404:
+ *         description: Not Found
+ *         $ref: '#/components/responses/404NotFound'
+ *       500:
+ *         description: Internal server error
+ *         $ref: '#/components/responses/500InternalServerError'
+ */
+    router.get('/email', usersController.getUserByMail);
+  
+  /**
  * @swagger
  * /api/users/login/:
  *   post:
@@ -322,4 +412,5 @@ router.delete('/deleteAccount/:id',avatarUpload, usersController.deleteUser);
  */
 router.put('/updateRole/:id', avatarUpload, usersController.updateUserToStaff);
 router.all('/:id',methodNotAllowed);
-}; 
+
+};
