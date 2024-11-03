@@ -3,7 +3,11 @@ const ApiError = require('../api-error');
 const JSend = require('../jsend');
 
 async function createReceipt(req, res, next) {
-    const { id } = req.params; 
+    if (!req.session.user) {
+        return next(new ApiError(401,'Vui lòng đăng nhập!'));
+    }
+    console.log(req.session.user.userid);
+    const  id  = req.session.user.userid;
     if (!id || !req.body.order_date) {
         return next(new ApiError(400,'Thông tin nhập không hợp lệ.'));
     }
@@ -23,8 +27,11 @@ async function createReceipt(req, res, next) {
     }
 }
 async function addItemToReceipt(req, res, next) {
-    if (!req.body.item_id ||
-        !req.body.quantity || !req.params.id) {
+    if (!req.session.user) {
+        return next(new ApiError(401,'Vui lòng đăng nhập!'));
+    }
+    const  id  = req.session.user.userid;
+    if (!req.body.item_id || !req.body.quantity) {
         return next(new ApiError(400,'Thiếu thông tin món để thêm vào giỏ hàng'));
     }
     try {
@@ -32,7 +39,7 @@ async function addItemToReceipt(req, res, next) {
         if (!checkExistItem) {
             return next(new ApiError(404,'Thêm món thất bại do món không tồn tại. Vui lòng chọn món khác'));
         }
-        const addItem = await receiptsService.addItemToReceipt(req.params.id,req.body);
+        const addItem = await receiptsService.addItemToReceipt(id,req.body);
         return res
                 .status(201)
                 .json(JSend.success({addItem}));
@@ -41,9 +48,37 @@ async function addItemToReceipt(req, res, next) {
         return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
     }
 }
+async function addReservation(req, res, next) {
+    try {
+        if (!req.session.user) return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        const  id  = req.session.user.userid;
+        
+        if (!req.body) {
+            return next(new ApiError(400, 'Thiếu thông tin đặt bàn hoặc ngày đặt bàn.'));
+        }
+        const checktable = await receiptsService.checktable(req.body.table_number);
+        if (!checktable) {
+            return next(new ApiError(401, 'Bàn này đã được đặt bởi khách hàng khác hoặc không có sẵn!'));
+        }
+        //Kiểm tra người dùng có đang đặt bàn chưa
+        const checkbookedtable = await receiptsService.getIDReser(id);
+        if (checkbookedtable) {
+            return next(new ApiError(401, 'Vui lòng xác nhận đơn đặt bàn vì bạn đã chọn bàn!')); 
+        }
+        const newReservation = await receiptsService.createReservation(id, req.body);
+        return res.status(201).json(JSend.success('Đã thêm bàn thành công. Vui lòng xác nhận đơn!'));
+    }
+    catch (error) {
+        return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
+    }
+}
 async function deleteItemFromReceipt(req, res, next) {
-    const { id } = req.params;
-    const { item_id, quantity } = req.body;
+    if (!req.session.user) {
+        return next(new ApiError(401,'Vui lòng đăng nhập!'));
+    }
+    console.log(req.session.user.userid);
+    const  id  = req.session.user.userid;
+    const { item_id } = req.body;
     try {
         // Kiểm tra xem khách hàng có hóa đơn chưa
         const getIDReceipt_Pending = await receiptsService.getIDReceipt_Pending(id);
@@ -57,7 +92,7 @@ async function deleteItemFromReceipt(req, res, next) {
             return next(new ApiError(404, 'Món không có trong giỏ hàng.'));
         }
 
-        // Nếu tất cả các kiểm tra đều ổn, tiến hành xóa món hàng
+        //Tiến hành xóa món hàng
         const deleted = await receiptsService.deleteItemFromReceipt(id, req.body);
         if (!deleted) {
             return next(new ApiError(400, 'Xóa thất bại'));
@@ -69,20 +104,29 @@ async function deleteItemFromReceipt(req, res, next) {
     }
 }
 async function verifyCustomer(req, res, next) {
-    const { id } = req.params;
-
-    const regularObject = JSON.parse(JSON.stringify(req.body)); 
-
+    if (!req.session.user) {
+        return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
+    }
+    console.log(req.session.user.userid);
+    const id = req.session.user.userid;
     try {
-        const updated = await receiptsService.sttOrderCustomer(id, regularObject);
-        console.log(updated);
-
-        if (updated && updated.success) {
-            return res.json(JSend.success({ message: 'Đặt đơn thành công' }));
-        } else {
-            return next(new ApiError(404, 'Không thể đặt đơn.'));
+        // Kiểm tra xem người dùng có đơn đặt bàn đang pending không
+        const reservationId = await receiptsService.getIDReser(id);
+        if (!reservationId) {
+            return next(new ApiError(404, 'Bạn chưa có đơn đặt bàn nào để xác nhận!'));
         }
-
+        // Kiểm tra xem bàn có sẵn không
+        const tableInfo = await receiptsService.getIDtable(reservationId);
+        if (!tableInfo) {
+            return next(new ApiError(404, 'Không tìm thấy bàn liên quan đến đơn đặt của bạn!'));
+        }
+        const tableAvailable = await receiptsService.checktableid(tableInfo.table_id);
+        if (!tableAvailable) {
+            return next(new ApiError(401, 'Bàn này đã được đặt bởi khách hàng khác hoặc không có sẵn!'));
+        }
+        const updated = await receiptsService.sttOrderCustomer(id, req.body);
+        if (updated && updated.success) return res.json(JSend.success({ message: 'Đặt đơn thành công' }));
+        else return next(new ApiError(404, 'Không thể đặt đơn.'));
     } catch (error) {
         console.error(error);
         return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
@@ -90,7 +134,11 @@ async function verifyCustomer(req, res, next) {
 }
 
 async function cancelCustomer(req, res, next) {
-    const { id } = req.params;
+    if (!req.session.user) {
+        return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
+    }
+    console.log(req.session.user.userid);
+    const  id  = req.session.user.userid;
     const { status } = req.body;
     try {
         const updated = await receiptsService.sttCancelCustomer(id, {status});
@@ -119,7 +167,11 @@ async function getReceiptsByFilter(req, res, next) {
     };
     
     try {
-        const { id } = req.params;
+        if (!req.session.user) {
+            return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        }
+        console.log(req.session.user.userid);
+        const  id  = req.session.user.userid;
         result = await receiptsService.getManyReceipts({ userid: id }, req.query);
     } catch (error) {
         console.log(error);
@@ -133,30 +185,12 @@ async function getReceiptsByFilter(req, res, next) {
     );
 }
 
-// async function verifyStaff(req, res, next) {
-//     const { id } = req.params;
-
-//     try {
-//         const updated = await receiptsService.sttCompleteCustomer(id, req.body);
-//         console.log(updated);
-
-//         if (updated && updated.success) {
-//             return res.json(JSend.success({ message: 'Verify Successfully' }));
-//         } else {
-//             return next(new ApiError(404, 'No changes made.'));
-//         }
-
-//     } catch (error) {
-//         console.error(error);
-//         return next(new ApiError(500, 'Internal Server Error'));
-//     }
-// }
 module.exports = {
+    addReservation,
     createReceipt,
     addItemToReceipt,
     deleteItemFromReceipt,
     verifyCustomer,
     cancelCustomer,
     getReceiptsByFilter
-    // verifyStaff
 }
