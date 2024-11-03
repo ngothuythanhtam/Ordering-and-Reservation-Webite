@@ -3,17 +3,17 @@ const ApiError = require('../api-error');
 const JSend = require('../jsend');
 
 async function getUserByMail(req, res, next) {
-  const { useremail } = req.query;  
-  try {
-    const users = await usersService.getUserByMail(useremail); 
-    if (!users) {
-      return next(new ApiError(404, 'useremail not found'));
+    const { useremail } = req.query;  
+    try {
+        const users = await usersService.getUserByMail(useremail); 
+        if (!users) {
+        return next(new ApiError(404, 'useremail not found'));
+        }
+        return res.json(JSend.success({ users }));
+    } catch (error) {
+        console.log(error);
+        return next(new ApiError(500, `Error retrieving user with useremail=${useremail}`));
     }
-    return res.json(JSend.success({ users }));
-  } catch (error) {
-    console.log(error);
-    return next(new ApiError(500, `Error retrieving user with useremail=${useremail}`));
-  }
 }
 
 async function login(req, res, next) {

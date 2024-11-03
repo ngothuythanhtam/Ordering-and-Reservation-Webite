@@ -184,13 +184,66 @@ async function getReceiptsByFilter(req, res, next) {
         })
     );
 }
+async function getCart(req, res, next) {
+    try {
+        if (!req.session.user) {
+            return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        }
 
+        const id = req.session.user.userid;
+        const result = await receiptsService.getPendingOrderWithDetails(id);
+
+        if (!result) {
+            return res.status(404).json({ status: 'fail', message: 'Không có đơn hàng đang chờ xử lý.' });
+        }
+
+        return res.status(200).json({
+            status: 'success',
+            receipt: result.receipt,
+            reservation: result.reservation,
+            items: result.items
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
+    }
+}
+
+async function getReceiptById(req, res, next) {
+    try {
+        console.log(req.query.order_id);
+        // Kiểm tra xem người dùng đã đăng nhập hay chưa
+        if (!req.session.user) {
+            return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        }
+        const id = req.session.user.userid;
+
+        const result = await receiptsService.getReceiptById(id, req.query.order_id);
+        
+        // Kiểm tra nếu không tìm thấy hóa đơn
+        if (!result) return next(new ApiError(404, 'Không tìm thấy hóa đơn với ID này.'));
+
+        // Trả về kết quả nếu thành công
+        return res.status(200).json({
+            status: 'success',
+            receipt: result.receipt,
+            reservation: result.reservation,
+            items: result.items
+        });
+    } 
+    catch (error) {
+        return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
+    }
+}
 module.exports = {
+    getCart,
     addReservation,
     createReceipt,
     addItemToReceipt,
     deleteItemFromReceipt,
     verifyCustomer,
     cancelCustomer,
-    getReceiptsByFilter
+    getReceiptsByFilter,
+    getReceiptById
 }

@@ -292,7 +292,7 @@ async function sttCancelCustomer(id, payload) {
 }
 async function getManyReceipts(id, query) {
     const { status, page = 1, limit = 5 } = query;
-    const { userid }= id;
+    const { userid } = id;
     const paginator = new Paginator(page, limit);
     
     if (!userid) {
@@ -330,7 +330,59 @@ async function getManyReceipts(id, query) {
         receipts: results,
     };
 }
+const getPendingOrderWithDetails = async (userid) => {
+    const pendingReceipt = await knex('receipt')
+        .where({
+            userid: userid,
+            status: 'Pending'
+        })
+        .first();
+    if (!pendingReceipt) {
+        return null; // Không có đơn hàng đang Pending
+    }
 
+    // Lấy chi tiết bàn từ reservation (nếu có reservation_id)
+    const reservationDetails = pendingReceipt.reservation_id 
+        ? await knex('reservation').where({ reservation_id: pendingReceipt.reservation_id }).first()
+        : null;
+
+    // Lấy chi tiết các món hàng trong đơn
+    const orderItems = await knex('Order_Item')
+        .join('menu_items', 'Order_Item.item_id', 'menu_items.item_id')
+        .select('Order_Item.quantity', 'Order_Item.price', 'menu_items.item_name')
+        .where('Order_Item.order_id', pendingReceipt.order_id);
+
+    return {
+        receipt: pendingReceipt,
+        reservation: reservationDetails,
+        items: orderItems
+    };
+};
+const getReceiptById = async (id, order_id) => {
+    // Lấy thông tin hóa đơn dựa trên order_id và userid
+    const receipt = await knex('receipt')
+        .where({ userid: id, order_id: order_id })
+        .first();
+    if (!receipt) {
+        return null; // Không tìm thấy hóa đơn với order_id này
+    }
+    // Lấy chi tiết bàn từ reservation (nếu có reservation_id)
+    const reservationDetails = receipt.reservation_id 
+        ? await knex('reservation').where({ reservation_id: receipt.reservation_id }).first()
+        : null;
+    // Lấy chi tiết các món hàng trong hóa đơn
+    const orderItems = await knex('Order_Item')
+        .join('menu_items', 'Order_Item.item_id', 'menu_items.item_id')
+        .select('Order_Item.quantity', 'Order_Item.price', 'menu_items.item_name')
+        .where('Order_Item.order_id', receipt.order_id);
+
+    // Trả về chi tiết hóa đơn, đặt bàn (nếu có) và danh sách các món hàng
+    return {
+        receipt: receipt,
+        reservation: reservationDetails,
+        items: orderItems
+    };
+};
 module.exports = {
     checktable,
     checktableid,
@@ -346,5 +398,6 @@ module.exports = {
     sttOrderCustomer,
     sttCancelCustomer,
     getManyReceipts,
-    // sttCompleteCustomer
+    getPendingOrderWithDetails,
+    getReceiptById
 }

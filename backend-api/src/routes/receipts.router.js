@@ -301,5 +301,116 @@ module.exports.setup = (app) => {
  *         $ref: '#/components/responses/500'
  */
     router.put('/customer/cancel/', avatarUpload, receiptsController.cancelCustomer);
+/**
+ * @swagger
+ * /api/receipts/mycart/:
+ *   get:
+ *     summary: My cart
+ *     description: Details about My Cart
+ *     tags:
+ *       - receipts
+ *     responses:
+ *       200:
+ *         description: A list of detail about my cart
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: The response status
+ *                   enum: [success]
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     contacts:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Receipt'
+ *                     metadata:
+ *                       $ref: '#/components/schemas/PaginationMetadata'
+ *       500:
+ *         description: Internal Server Error - Unexpected error on the server
+ *         $ref: '#/components/responses/500'
+ */
+    router.get('/mycart/', receiptsController.getCart);
+/**
+ * @swagger
+ * /api/receipts/history/{order_id}:
+ *   get:
+ *     summary: Detail history Invoice
+ *     description: Details history Invoice
+ *     tags:
+ *       - receipts
+ *     parameters:
+ *       - in: query
+ *         name: order_id
+ *         schema:
+ *           type: integer
+ *         description: Get Detail Invoice
+ *     responses:
+ *       '200':
+ *         description: Successfully retrieved receipt
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   enum: [success]
+ *                   description: The response status
+ *                 receipt:
+ *                   type: object
+ *                   properties:
+ *                     order_id:
+ *                       type: integer
+ *                     userid:
+ *                       type: integer
+ *                     total_price:
+ *                       type: number
+ *                     status:
+ *                       type: string
+ *                     order_date:
+ *                       type: string
+ *                       format: date-time
+ *                 reservation:
+ *                   type: object
+ *                   properties:
+ *                     reservation_id:
+ *                       type: integer
+ *                     table_id:
+ *                       type: integer
+ *                     reservation_date:
+ *                       type: string
+ *                       format: date-time
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       item_name:
+ *                         type: string
+ *                       quantity:
+ *                         type: integer
+ *                       price:
+ *                         type: number
+ *       '404':
+ *         description: Receipt not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   enum: [fail]
+ *                 message:
+ *                   type: string
+ *       '500':
+ *         description: Internal server error
+ */
+    router.get('/history/:order_id', receiptsController.getCart);
     router.all('/',methodNotAllowed);
 }; 
