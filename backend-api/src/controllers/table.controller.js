@@ -84,35 +84,35 @@ async function getTableByFilter(req, res, next) {
     );
 }
 
-async function updateTableStatus(req, res, next) {
-    const { table_number } = req.params; 
-    const { status: newStatus } = req.body; 
+// async function updateTableStatus(req, res, next) {
+//     const { table_number } = req.params; 
+//     const { status: newStatus } = req.body; 
 
-    if (!table_number || !newStatus) {
-        return next(new ApiError(400, 'Table number and new status are required'));
-    }
+//     if (!table_number || !newStatus) {
+//         return next(new ApiError(400, 'Table number and new status are required'));
+//     }
 
-    try {
-        const table = await tableService.getTableByNumber(table_number);
+//     try {
+//         const table = await tableService.getTableByNumber(table_number);
 
-        if (!table) {
-            return next(new ApiError(404, 'Table not found'));
-        }
+//         if (!table) {
+//             return next(new ApiError(404, 'Table not found'));
+//         }
 
-        table.status = newStatus;
-        await tableService.updateTable(table);
+//         table.status = newStatus;
+//         await tableService.updateTable(table);
 
-        return res.json(
-            JSend.success({
-                message: `Table ${table_number} status updated to ${newStatus}`,
-                table
-            })
-        );
-    } catch (error) {
-        console.error(error);
-        return next(new ApiError(500, 'An error occurred while updating table status'));
-    }
-}
+//         return res.json(
+//             JSend.success({
+//                 message: `Table ${table_number} status updated to ${newStatus}`,
+//                 table
+//             })
+//         );
+//     } catch (error) {
+//         console.error(error);
+//         return next(new ApiError(500, 'An error occurred while updating table status'));
+//     }
+// }
 
 async function createTable(req, res, next) {
     // Kiểm tra nếu session không tồn tại hoặc không có userid
@@ -184,7 +184,7 @@ module.exports = {
     getTableByNumber,
     getTableBySeating,
     getTableByFilter,
-    updateTableStatus,
+    // updateTableStatus,
     createTable,
     deleteTable,
 };

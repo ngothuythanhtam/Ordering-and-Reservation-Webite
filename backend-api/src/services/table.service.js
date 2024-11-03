@@ -86,17 +86,17 @@ async function getManyTableByStatus(query) {
     };
 }
 
-async function updateTable(table) {
-    try {
-        await knex('restaurant_table')
-            .where({ table_number: table.table_number })
-            .update({ status: table.status });
-        return table;
-    } catch (error) {
-        console.error('Error updating table status:', error);
-        throw new Error('Could not update the table status');
-    }
-}
+// async function updateTable(table) {
+//     try {
+//         await knex('restaurant_table')
+//             .where({ table_number: table.table_number })
+//             .update({ status: table.status });
+//         return table;
+//     } catch (error) {
+//         console.error('Error updating table status:', error);
+//         throw new Error('Could not update the table status');
+//     }
+// }
 
 function readTable(payload) {
     return {
@@ -138,7 +138,7 @@ module.exports = {
     getTableByNumber,
     getTableBySeating,
     getManyTableByStatus,
-    updateTable,
+    // updateTable,
     createTable,
     deleteTable,
 };

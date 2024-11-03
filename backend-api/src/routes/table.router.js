@@ -142,69 +142,70 @@ module.exports.setup = (app) => {
  */
     router.get('/table_status', tableController.getTableByFilter);
 
-/** 
- * @swagger
- * /api/table/update/table-status/{table_number}:
- *   put:
- *     summary: Update the status of a restaurant table
- *     description: Update the status of a table using form-data
- *     parameters:
- *       - name: table_number
- *         in: path
- *         required: true
- *         description: The number of the table to update
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               status:
- *                 type: string
- *                 description: The new status of the table
- *                 enum: ['available', 'reserved', 'occupied']
- *     tags:
- *       - Table (staff)
- *     responses:
- *       200:
- *         description: Table status updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   enum: [success]
- *                   description: Response status
- *                 data:
- *                   type: object
- *                   properties:
- *                     table:
- *                       $ref: '#/components/schemas/Table'
- *       400:
- *         description: Bad request
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/responses/400'
- *       404:
- *         description: Table not found
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/responses/404'
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/responses/500'
- */
-    router.put('/update/table-status/:table_number', upload.none(), tableController.updateTableStatus);
+// /** 
+//  * @swagger
+//  * /api/table/update/table-status/{table_number}:
+//  *   put:
+//  *     summary: Update the status of a restaurant table
+//  *     description: Update the status of a table using form-data
+//  *     parameters:
+//  *       - name: table_number
+//  *         in: path
+//  *         required: true
+//  *         description: The number of the table to update
+//  *         schema:
+//  *           type: string
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         multipart/form-data:
+//  *           schema:
+//  *             type: object
+//  *             properties:
+//  *               status:
+//  *                 type: string
+//  *                 description: The new status of the table
+//  *                 enum: ['available', 'reserved', 'occupied']
+//  *     tags:
+//  *       - Table (staff)
+//  *     responses:
+//  *       200:
+//  *         description: Table status updated successfully
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                 status:
+//  *                   type: string
+//  *                   enum: [success]
+//  *                   description: Response status
+//  *                 data:
+//  *                   type: object
+//  *                   properties:
+//  *                     table:
+//  *                       $ref: '#/components/schemas/Table'
+//  *       400:
+//  *         description: Bad request
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               $ref: '#/components/responses/400'
+//  *       404:
+//  *         description: Table not found
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               $ref: '#/components/responses/404'
+//  *       500:
+//  *         description: Internal server error
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               $ref: '#/components/responses/500'
+//  */
+//     router.put('/update/table-status/:table_number', upload.none(), tableController.updateTableStatus);
+
 /**
  * @swagger
  * /api/table/create_table:

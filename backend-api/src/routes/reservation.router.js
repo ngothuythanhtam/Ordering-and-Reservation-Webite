@@ -133,40 +133,40 @@ module.exports.setup = (app) => {
     // Route to add item to favorites
     router.post('/add', upload.none(),reservationController.addReservation);
 
-/**
- * @swagger
- * /api/reservation/update/{reservation_id}:
- *   put:
- *     summary: Staff update the status of a reservation
- *     tags: [Reservation (staff)]
- *     description: Update the status of a reservation.
- *     parameters:
- *       - name: reservation_id
- *         in: path
- *         required: true
- *         description: The reservation ID.
- *         schema: 
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               status:
- *                 type: string
- *                 description: The new status of the reservation
- *                 enum: ['booked', 'confirmed', 'completed', 'canceled']
- *     responses:
- *       200:
- *         description: Reservation status updated.
- *       400:
- *         description: Invalid request or missing fields.
- *       500:
- *         description: Error updating reservation status.
- */
-    router.put('/update/:reservation_id',upload.none(), reservationController.updateReservationStatus);
+// /**
+//  * @swagger
+//  * /api/reservation/update/{reservation_id}:
+//  *   put:
+//  *     summary: Staff update the status of a reservation
+//  *     tags: [Reservation (staff)]
+//  *     description: Update the status of a reservation.
+//  *     parameters:
+//  *       - name: reservation_id
+//  *         in: path
+//  *         required: true
+//  *         description: The reservation ID.
+//  *         schema: 
+//  *           type: string
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         multipart/form-data:
+//  *           schema:
+//  *             type: object
+//  *             properties:
+//  *               status:
+//  *                 type: string
+//  *                 description: The new status of the reservation
+//  *                 enum: ['booked', 'confirmed', 'completed', 'canceled']
+//  *     responses:
+//  *       200:
+//  *         description: Reservation status updated.
+//  *       400:
+//  *         description: Invalid request or missing fields.
+//  *       500:
+//  *         description: Error updating reservation status.
+//  */
+//     router.put('/update/:reservation_id',upload.none(), reservationController.updateReservationStatus);
 
 /**
  * @swagger

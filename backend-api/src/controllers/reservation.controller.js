@@ -46,38 +46,38 @@ async function addReservation(req, res, next) {
     }
 }
 
-async function updateReservationStatus(req, res, next) {
-    try {
-        const { reservation_id } = req.params;   
-        const { status } = req.body;            
-        console.log("Received status:", status);  // Debug log
+// async function updateReservationStatus(req, res, next) {
+//     try {
+//         const { reservation_id } = req.params;   
+//         const { status } = req.body;            
+//         console.log("Received status:", status);  // Debug log
 
-        if (!reservation_id || !status) {
-            return res.status(400).json({
-                status: "error",
-                message: "Invalid id or status value"
-            });
-        }
+//         if (!reservation_id || !status) {
+//             return res.status(400).json({
+//                 status: "error",
+//                 message: "Invalid id or status value"
+//             });
+//         }
 
-        const updatedReservation = await reservationService.updateReservationStatus({
-            reservation_id,
-            status
-        });
+//         const updatedReservation = await reservationService.updateReservationStatus({
+//             reservation_id,
+//             status
+//         });
 
-        return res.json(
-            JSend.success({
-                message: `reservation_id ${reservation_id} status updated to ${status}`
-            })
-        );
+//         return res.json(
+//             JSend.success({
+//                 message: `reservation_id ${reservation_id} status updated to ${status}`
+//             })
+//         );
 
-    } catch (error) {
-        console.error("Error updating reservation status:", error);
-        return res.status(500).json({
-            status: "error",
-            message: error.message
-        });
-    }
-}
+//     } catch (error) {
+//         console.error("Error updating reservation status:", error);
+//         return res.status(500).json({
+//             status: "error",
+//             message: error.message
+//         });
+//     }
+// }
 
 async function getReservationByStatus(req, res, next) {
     try {
@@ -103,6 +103,6 @@ async function getReservationByStatus(req, res, next) {
 
 module.exports = {
     addReservation,
-    updateReservationStatus,
-    getReservationByStatus
+    // updateReservationStatus,
+    getReservationByStatus,
 };

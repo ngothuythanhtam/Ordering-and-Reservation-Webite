@@ -70,19 +70,19 @@ async function createReservation(useremail, table_number, reservationData) {
     }
 }
 
-async function updateReservationStatus(reservation) {
-    try {
-        // Update reservation status
-        await knex('reservation')
-            .where({ reservation_id: reservation.reservation_id })
-            .update({ status: reservation.status });
-        return reservation;
+// async function updateReservationStatus(reservation) {
+//     try {
+//         // Update reservation status
+//         await knex('reservation')
+//             .where({ reservation_id: reservation.reservation_id })
+//             .update({ status: reservation.status });
+//         return reservation;
 
-    } catch (error) {
-        console.error('Error updating reservation status:', error);
-        throw new Error('Could not update reservation status');
-    }
-}
+//     } catch (error) {
+//         console.error('Error updating reservation status:', error);
+//         throw new Error('Could not update reservation status');
+//     }
+// }
 
 async function getReservationByStatus(status) {
     try {
@@ -99,6 +99,6 @@ async function getReservationByStatus(status) {
 }
 module.exports = {
     createReservation,
-    updateReservationStatus,
+    // updateReservationStatus,
     getReservationByStatus,
 };
