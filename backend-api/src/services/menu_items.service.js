@@ -81,7 +81,39 @@ async function deleteMenuItemByName(item_name) {
 
 // FUNCTION FOR USER (STAFF & CUSTOMER)
 async function getItemByName(item_name) {
-    return ItemRepository().where('item_name', item_name).select('*').first();
+    const { page = 1, limit = 5 } = query;
+    const paginator = new Paginator(page, limit);
+    
+    let results = await ItemRepository()
+        .where((builder) => {
+            if (item_name) {
+                builder.where('item_name', 'like', `%${item_name}%`);
+            }
+        })
+        .select(
+            knex.raw('count(item_id) OVER() AS recordCount'),
+            'item_id',
+            'item_name',
+            'item_type',
+            'item_description',
+            'item_price',
+            'item_status',
+            'img_url'
+        )
+        .limit(paginator.limit)
+        .offset(paginator.offset);
+
+    let totalRecords = 0;
+    results = results.map((result) => {
+        totalRecords = result.recordCount;
+        delete result.recordCount;
+        return result;
+    });
+
+    return {
+        metadata: paginator.getMetadata(totalRecords),
+        items: results,
+    };
 }
 
 async function getManyItems(query) {

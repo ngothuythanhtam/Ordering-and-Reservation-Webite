@@ -86,18 +86,29 @@ async function deleteMenuItemByName(req, res, next) {
 
 // FUNCTION FOR USER (STAFF & CUSTOMER)
 async function getItemByName(req, res, next) {
-  const { name } = req.query;  // get the 'name' from query parameters
-
-  try {
-    const menu_items = await menu_itemsService.getItemByName(name);  // use name to find item
-    if (!menu_items) {
-      return next(new ApiError(404, 'Item not found'));
+    let result = {
+        items: [],
+        metadata: {
+            totalRecords: 0,
+            firstPage: 1,
+            lastPage: 1,
+            page: 1,
+            limit: 5,
+        }
+    };
+    try {
+        // Pass query parameters (item_name) for filtering
+        result = await menu_itemsService.getManyItems(req.query);
+    } catch (error) {
+        console.error(error);
+        return next(new ApiError(500, 'An error occurred while retrieving menu items'));
     }
-    return res.json(JSend.success({ menu_items }));
-  } catch (error) {
-    console.log(error);
-    return next(new ApiError(500, `Error retrieving item with name=${name}`));
-  }
+    return res.json(
+        JSend.success({
+            items: result.items,
+            metadata: result.metadata,
+        })
+    );
 }
 
 async function getItemsByFilter(req, res, next) {

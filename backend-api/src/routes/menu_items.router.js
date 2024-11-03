@@ -129,19 +129,20 @@ module.exports.setup = (app) => {
  * /api/v1/menu_items/name:
  *   get:
  *     summary: Get menu items by name
- *     description: Get menu items by name
+ *     description: Retrieve menu items by item name
  *     parameters:
  *       - in: query
- *         name: name
- *         required: true
+ *         name: item_name
  *         schema:
  *           type: string
  *         description: Filter by menu item name
+ *       - $ref: '#/components/parameters/limitParam'
+ *       - $ref: '#/components/parameters/pageParam'
  *     tags:
  *       - User / Menu
  *     responses:
  *       200:
- *         description: A list of menu items
+ *         description: A list of filtered menu items
  *         content:
  *           application/json:
  *             schema:
@@ -154,10 +155,12 @@ module.exports.setup = (app) => {
  *                 data:
  *                   type: object
  *                   properties:
- *                     menu_items:
+ *                     items:
  *                       type: array
  *                       items:
  *                         $ref: '#/components/schemas/MenuItem'
+ *                     metadata:
+ *                       $ref: '#/components/schemas/PaginationMetadata'
  *       400:
  *         description: Invalid request, missing or invalid fields
  *         $ref: '#/components/responses/400'
