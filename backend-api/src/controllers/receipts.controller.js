@@ -1,4 +1,5 @@
 const receiptsService = require('../services/receipts.service');
+const usersService = require('../services/users.service');
 const ApiError = require('../api-error');
 const JSend = require('../jsend');
 
@@ -135,30 +136,44 @@ async function getReceiptsByFilter(req, res, next) {
     );
 }
 
-// async function verifyStaff(req, res, next) {
-//     const { id } = req.params;
+// Verify Receipt Controller
+async function verifyReceipt(req, res, next) {
+    // Kiểm tra nếu session không tồn tại hoặc không có userid
+    if (!req.session.user) {
+        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+    }
+    console.log(req.session.user.userid);
 
-//     try {
-//         const updated = await receiptsService.sttCompleteCustomer(id, req.body);
-//         console.log(updated);
+    // Lấy userID từ session
+    const userId = req.session.user.userid;
 
-//         if (updated && updated.success) {
-//             return res.json(JSend.success({ message: 'Verify Successfully' }));
-//         } else {
-//             return next(new ApiError(404, 'No changes made.'));
-//         }
+    // Kiểm tra vai trò người dùng
+    const userRole = await usersService.checkRole(userId);
+    if (userRole !== 2) {
+        return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
+    }
 
-//     } catch (error) {
-//         console.error(error);
-//         return next(new ApiError(500, 'Internal Server Error'));
-//     }
-// }
+    const { order_id } = req.params;
+    const staffId = userId;
+    try {
+        // Call the service function
+        const result = await receiptsService.verifyReceipt(order_id, staffId);
+        if (result && result.success) {
+            return res.json(JSend.success({ message: 'Receipt verified and updated successfully!' }));
+        } else {
+            return next(new ApiError(404, 'Receipt not found'));
+        }
+    } catch (error) {
+        return next(new ApiError(400, error.message));
+    }
+}
+
 module.exports = {
     createReceipt,
     addItemToReceipt,
     deleteItemFromReceipt,
     verifyCustomer,
     cancelCustomer,
-    getReceiptsByFilter
-    // verifyStaff
+    getReceiptsByFilter,
+    verifyReceipt
 }

@@ -334,31 +334,15 @@ components:
     Complete: 
       type: object
       properties:
-        order_id:
-          type: integer
-          description: Mã đơn hàng
         userid:
           type: integer
           readOnly: true
           description: Mã người dùng
-        staff_id:
-          type: integer
-          default: 1
-          description: Mã nhân viên
         reservation_id:
           type: integer
           readOnly: true
           default: null
           description: Mã đơn đặt bàn
-        order_date:
-          type: string
-          format: date
-          description: Ngày đặt đơn
-        total_price:
-          type: integer
-          readOnly: true
-          description: Tổng số tiền
-          default: 0
         status:
           type: string
           enum: ['Completed']
