@@ -137,7 +137,7 @@ async function getReceiptsByFilter(req, res, next) {
 }
 
 // Verify Receipt Controller
-async function verifyReceipt(req, res, next) {
+async function staffVerifyReceipt(req, res, next) {
     // Kiểm tra nếu session không tồn tại hoặc không có userid
     if (!req.session.user) {
         return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
@@ -157,7 +157,7 @@ async function verifyReceipt(req, res, next) {
     const staffId = userId;
     try {
         // Call the service function
-        const result = await receiptsService.verifyReceipt(order_id, staffId);
+        const result = await receiptsService.staffVerifyReceipt(order_id, staffId);
         if (result && result.success) {
             return res.json(JSend.success({ message: 'Receipt verified and updated successfully!' }));
         } else {
@@ -168,6 +168,37 @@ async function verifyReceipt(req, res, next) {
     }
 }
 
+async function staffCancelReceipt(req, res, next) {
+    // Kiểm tra nếu session không tồn tại hoặc không có userid
+    if (!req.session.user) {
+        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+    }
+    console.log(req.session.user.userid);
+
+    // Lấy userID từ session
+    const userId = req.session.user.userid;
+
+    // Kiểm tra vai trò người dùng
+    const userRole = await usersService.checkRole(userId);
+    if (userRole !== 2) {
+        return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
+    }
+
+    const { order_id } = req.params;
+    const staffId = userId;
+    try {
+        // Call the service function
+        const result = await receiptsService.staffCancelReceipt(order_id, staffId);
+        if (result && result.success) {
+            return res.json(JSend.success({ message: `Receipt with id = ${order_id} has been canceled!` }));
+        } else {
+            return next(new ApiError(404, 'Receipt not found'));
+        }
+    } catch (error) {
+        return next(new ApiError(400, error.message));
+    }
+} 
+
 module.exports = {
     createReceipt,
     addItemToReceipt,
@@ -175,5 +206,6 @@ module.exports = {
     verifyCustomer,
     cancelCustomer,
     getReceiptsByFilter,
-    verifyReceipt
+    staffVerifyReceipt,
+    staffCancelReceipt,
 }

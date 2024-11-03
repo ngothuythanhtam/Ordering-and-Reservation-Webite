@@ -237,7 +237,6 @@ module.exports.setup = (app) => {
  *                 enum: ['Canceled']
  *                 description: Trạng thái đơn hàng
  *     tags:
- *       - Receipts (staff)
  *       - receipts
  *     responses:
  *       200:
@@ -269,6 +268,7 @@ module.exports.setup = (app) => {
  *         $ref: '#/components/responses/500'
  */
     router.put('/customer/cancel/:id', avatarUpload, receiptsController.cancelCustomer);
+
 /**
  * @swagger
  * /api/receipts/verify/{order_id}:
@@ -320,6 +320,58 @@ module.exports.setup = (app) => {
  *         $ref: '#/components/responses/500'
  */
     // Verify Receipt Route
-    router.put('/verify/:order_id', receiptsController.verifyReceipt);  
+    router.put('/verify/:order_id', receiptsController.staffVerifyReceipt);  
+
+/**
+ * @swagger
+ * /api/receipts/cancel/{order_id}:
+ *   put:
+ *     summary: Staff Cancel Receipt
+ *     description: Please check carefully before Completing ordering.
+ *     parameters:
+ *       - in: path
+ *         name: order_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID of the order to verify and complete
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             $ref: '#/components/schemas/Cancel'
+ *     tags:
+ *       - Receipts (staff)
+ *     responses:
+ *       200:
+ *         description: Cancel Ordering
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: The response status
+ *                   enum:
+ *                     - success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     contact:
+ *                       $ref: '#/components/schemas/Cancel'
+ *         $ref: '#/components/responses/200NoData'
+ *       400:
+ *         description: Bad Request - Invalid input or missing parameters
+ *         $ref: '#/components/responses/400'
+ *       404:
+ *         description: Not Found - Resource not found
+ *         $ref: '#/components/responses/404'
+ *       500:
+ *         description: Internal Server Error - Unexpected error on the server
+ *         $ref: '#/components/responses/500'
+ */
+    router.put('/cancel/:order_id', receiptsController.staffCancelReceipt);
     router.all('/',methodNotAllowed);
 }; 
