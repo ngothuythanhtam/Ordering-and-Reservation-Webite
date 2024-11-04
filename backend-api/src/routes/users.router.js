@@ -54,7 +54,7 @@ module.exports.setup = (app) => {
  */
     router.get('/email', usersController.getUserByMail);
   
-  /**
+/**
  * @swagger
  * /api/users/login/:
  *   post:

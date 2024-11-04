@@ -105,28 +105,35 @@ async function deleteItemFromReceipt(req, res, next) {
 }
 async function verifyCustomer(req, res, next) {
     if (!req.session.user) {
-        return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
     }
     console.log(req.session.user.userid);
     const id = req.session.user.userid;
+    
     try {
         // Kiểm tra xem người dùng có đơn đặt bàn đang pending không
         const reservationId = await receiptsService.getIDReser(id);
-        if (!reservationId) {
-            return next(new ApiError(404, 'Bạn chưa có đơn đặt bàn nào để xác nhận!'));
-        }
-        // Kiểm tra xem bàn có sẵn không
-        const tableInfo = await receiptsService.getIDtable(reservationId);
-        if (!tableInfo) {
-            return next(new ApiError(404, 'Không tìm thấy bàn liên quan đến đơn đặt của bạn!'));
-        }
-        const tableAvailable = await receiptsService.checktableid(tableInfo.table_id);
-        if (!tableAvailable) {
-            return next(new ApiError(401, 'Bàn này đã được đặt bởi khách hàng khác hoặc không có sẵn!'));
+
+        if (reservationId) {
+            // Kiểm tra xem bàn có sẵn không nếu có reservationId
+            const tableInfo = await receiptsService.getIDtable(reservationId);
+            if (!tableInfo) {
+                return next(new ApiError(404, 'Không tìm thấy bàn liên quan đến đơn đặt của bạn!'));
+            }
+            const tableAvailable = await receiptsService.checktableid(tableInfo.table_id);
+            if (!tableAvailable) {
+                return next(new ApiError(401, 'Bàn này đã được đặt bởi khách hàng khác hoặc không có sẵn!'));
+            }
+        } else {
+            // Nếu không có reservationId thì set reservation_id = null
+            req.body.reservation_id = null;
         }
         const updated = await receiptsService.sttOrderCustomer(id, req.body);
-        if (updated && updated.success) return res.json(JSend.success({ message: 'Đặt đơn thành công' }));
-        else return next(new ApiError(404, 'Không thể đặt đơn.'));
+        if (updated && updated.success) {
+            return res.json(JSend.success({ message: 'Đặt đơn thành công' }));
+        } else {
+            return next(new ApiError(404, 'Không thể đặt đơn.'));
+        }
     } catch (error) {
         console.error(error);
         return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));

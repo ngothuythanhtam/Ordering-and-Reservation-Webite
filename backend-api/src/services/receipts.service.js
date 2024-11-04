@@ -32,13 +32,11 @@ const getIDReser = async (userid) => {
             userid: userid,
             status: 'Pending'
         })
-        .select('reservation_id')
         .first();
     return reserv ? reserv.reservation_id : null;
 };
 const getIDtable = (id) => 
     knex('reservation')
-        .select('table_id')
         .where({ reservation_id: id })
         .first();
 
@@ -226,36 +224,64 @@ async function createReservation(id,payload) {
     });
 }
 async function sttOrderCustomer(id, payload) {
-    const { status } = payload;
+    const { status, reservation_id } = payload;
     const updatedStatus = await knex.transaction(async trx => {
         console.log(id, status);
-        const receipt = await trx('receipt').where({ 
+        
+        // Tìm hóa đơn của khách hàng với trạng thái 'Pending'
+        const receipt = await trx('receipt')
+            .where({ 
                 userid: id,
                 status: 'Pending'
             }).first();
         if (!receipt) return null;
-        const getIDtable =  await knex('reservation')
-            .where({ reservation_id: receipt.reservation_id})
-            .first();
         
-        await knex('restaurant_table')
-            .where({ table_id: getIDtable.table_id})
-            .update({ status: 'reserved' });
-        await trx('reservation')
-            .where({ reservation_id: receipt.reservation_id })
-            .update({ status: 'confirmed' });
+        if (reservation_id) {
+            // Nếu có reservation_id, kiểm tra thông tin bàn và cập nhật trạng thái bàn
+            const getIDtable = await trx('reservation')
+                .where({ reservation_id })
+                .first();
+
+            const tableAvailable = await trx('restaurant_table')
+                .where({ table_id: getIDtable.table_id })
+                .first();
+
+            if (!tableAvailable || tableAvailable.status !== 'available') {
+                throw new Error('Bàn không có sẵn.');
+            }
+
+            await trx('restaurant_table')
+                .where({ table_id: getIDtable.table_id })
+                .update({ status: 'reserved' });
+
+            // Cập nhật trạng thái đơn đặt
+            await trx('reservation')
+                .where({ reservation_id })
+                .update({ status: 'confirmed' });
+
+            receipt.reservation_id = reservation_id;
+        } else {
+            // Nếu không có reservation_id, đặt giá trị reservation_id = null
+            receipt.reservation_id = null;
+        }
+
+        // Cập nhật trạng thái của hóa đơn
         const result = await trx('receipt')
             .where({ order_id: receipt.order_id })
-            .update({status});
+            .update({ status });
+        
         if (result === 0) throw new Error('No changes made.');
+        
         return {
             success: true,
             message: `Receipt status updated to ${status}`,
             order_id: receipt.order_id
         };
     });
+
     return updatedStatus;
 }
+
 async function sttCancelCustomer(id, payload) {
     const { status } = payload;
     const updatedStatus = await knex.transaction(async trx => {
