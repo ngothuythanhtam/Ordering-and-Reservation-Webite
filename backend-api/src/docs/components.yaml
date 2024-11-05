@@ -1,17 +1,6 @@
 # Common references
 components:
   schemas:
-    Role:
-      type: object
-      properties:
-        role id: 
-          type: integer
-          readOnly: true
-        role name:
-          type: string
-          enum: ['Admin', 'Staff', 'Customer']
-          description: Role of user
-    
     Users:
       type: object
       properties:
@@ -486,6 +475,13 @@ components:
       in: path
       schema:
         type: string
+    itemIdParam:
+      name: item_id
+      description: Menu Item ID 
+      required: true
+      in: path
+      schema:
+        type: integer
     
     useridParam:
       name: userid
