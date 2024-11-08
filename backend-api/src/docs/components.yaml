@@ -77,26 +77,6 @@ components:
           writeOnly: true # Used in POST/PUT/PATCH
           description: The file of the image to upload for the menu item
     
-    Favorite:
-      type: object
-      required:
-        - userid
-        - item_id
-      properties:
-        fav_id:
-          type: integer
-          description: Unique identifier for the favorite entry
-        userid:
-          type: integer
-          description: ID of the user
-        item_id:
-          type: integer
-          description: ID of the menu item
-      example:
-        fav_id: 1
-        userid: 123
-        item_id: 456
-    
     Table:
       type: object
       properties:
@@ -148,8 +128,45 @@ components:
           description: The reservation has created at time
         status:
           type: string
+          description: reservation status
+    GetReservation:
+      type: object
+      properties:
+        reservation_id:
+          type: integer
+          readOnly: true
+          description: ID of the reservation
+        userid:
+          type: integer
+          description: ID of user who create the reservation
+        username:
+          type: string
+          description: Name of customer
+        useremail:
+          type: string
+          description: Email of customer
+        userphone:
+          type: string
+          description: Phone of customer
+        table_number:
+          type: string
+          description: Number of table
+        reservation_date:
+          type: string
+          format: date
+          description: Reservation date
+        party_size:
+          type: integer
+          description: Size of the party
+        special_request:
+          type: string
+          description: Special request os customer
+        create_at:
+          type: time
+          description: The reservation has created at time
+        status:
+          type: string
           description: useraddress
-    
     CreateReservation:
       type: object
       properties:
@@ -286,6 +303,64 @@ components:
           enum: ['Pending', 'Ordered', 'Completed', 'Canceled']
           default: 'Pending'
           description: Trạng thái đơn
+    GetReceipt: 
+      type: object
+      properties:
+        order_id:
+          type: integer
+          description: Mã đơn hàng
+        userid:
+          type: integer
+          description: Mã người dùng đã đặt đơn
+        user_name:
+          type: string
+          description: Tên người dùng đã đặt đơn
+        staff_id:
+          type: integer
+          description: Mã nhân viên xử lý đơn hàng
+        staff_name:
+          type: string 
+          description: Tên nhân viên xử lý đơn hàng
+        reservation_id:
+          type: integer
+          description: Mã đặt bàn liên quan đến đơn hàng này
+        table_id:
+          type: string
+          description: Bàn đặt  
+        order_date:
+          type: string
+          format: date-time
+          description: Ngày đặt đơn
+        total_price:
+          type: number
+          format: float
+          description: Tổng số tiền của đơn hàng
+        status:
+          type: string
+          enum: ['Pending', 'Ordered', 'Completed', 'Canceled']
+          description: Trạng thái của đơn hàng
+        order_items:
+          type: array
+          description: Danh sách các mục trong đơn hàng
+          items:
+            type: object
+            properties:
+              order_item_id:
+                type: integer
+                description: Mã của mục trong đơn hàng
+              item_name:
+                type: string
+                description: Tên món ăn
+              quantity:
+                type: integer
+                description: Số lượng món ăn trong mục
+              item_price:
+                type: number
+                description: Đơn giá của món ăn trong mục
+              price:
+                type: number
+                format: float
+                description: Thành tiền theo số lượng từng món ăn
     Verify: 
       type: object
       properties:

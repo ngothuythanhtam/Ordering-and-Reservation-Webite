@@ -288,6 +288,7 @@ async function staffVerifyReceipt(order_id, staffId, status) {
     const order_id_int = parseInt(order_id, 10);
     const receiptData = await receiptRepository().where({ order_id: order_id_int }).first();
     console.log(receiptData)
+    
     if (!receiptData) throw new Error('Receipt not found');
 
     // Format the receipt data
@@ -373,9 +374,60 @@ async function staffGetManyReceipts(query) {
     };
 }
 
-async function getReceiptById(order_id) {
-    return receiptRepository().where('order_id', order_id).select('*').first();
-}   
+async function getReceiptById(order_id, trx = null) {
+    console.log('Looking for receipt with order_id:', order_id); // Debug log
+
+    // Query to get basic receipt info
+    const receiptQuery = receiptRepository()
+        .where('receipt.order_id', order_id)
+        .select(
+            'receipt.order_id',
+            'receipt.userid',
+            'receipt.staff_id',
+            'receipt.reservation_id',
+            'receipt.order_date',
+            'receipt.total_price',
+            'receipt.status',
+            'users.username as user_name',
+            'staff.username as staff_name',
+            'restaurant_table.table_number'
+        )
+        .leftJoin('users as users', 'users.userid', 'receipt.userid')
+        .leftJoin('users as staff', 'staff.userid', 'receipt.staff_id')
+        .leftJoin('reservation', 'reservation.reservation_id', 'receipt.reservation_id')
+        .leftJoin('restaurant_table', 'restaurant_table.table_id', 'reservation.table_id');
+
+    const receipt = trx ? await receiptQuery.transacting(trx).first() : await receiptQuery.first();
+
+    if (!receipt) {
+        console.log('No receipt found for order_id:', order_id); // Log when no receipt is found
+        return {
+            status: 'fail',
+            message: 'Receipt not found'
+        };
+    }
+
+    console.log('Receipt found:', receipt); // Log the receipt if found
+
+    // Get order items
+    const orderItems = await receiptRepository()
+        .from('order_item')
+        .where('order_item.order_id', order_id)
+        .select(
+            'order_item.order_item_id',
+            'order_item.quantity',
+            'order_item.price',
+            'menu_items.item_name',
+            'menu_items.item_price'
+        )
+        .join('menu_items', 'order_item.item_id', 'menu_items.item_id');
+
+    // Add order items to the receipt
+    receipt.order_items = orderItems;
+
+    return receipt;
+}
+
 
 module.exports = {
     getIDReceipt_Pending,

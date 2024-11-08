@@ -308,7 +308,7 @@ module.exports.setup = (app) => {
  *                   properties:
  *                     reservation_info:
  *                       type: object
- *                       $ref: '#/components/schemas/Reservation'
+ *                       $ref: '#/components/schemas/GetReservation'
  *       400:
  *         description: Invalid request, missing or invalid fields
  *         $ref: '#/components/responses/400'

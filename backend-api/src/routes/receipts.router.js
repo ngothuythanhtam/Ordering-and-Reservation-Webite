@@ -378,20 +378,20 @@ module.exports.setup = (app) => {
  * @swagger
  * /api/receipts/{order_id}:
  *   get:
- *     summary: Get receipt by id
- *     description: Get receipt by id
+ *     summary: Get receipt by id along with its order items
+ *     description: Retrieve receipt information along with all order items for a specific order_id
  *     parameters:
  *       - in: path
  *         name: order_id
  *         required: true
  *         schema:
  *           type: integer
- *         description: Find receipt by id
+ *         description: Find receipt by order_id
  *     tags:
  *       - (staff)
  *     responses:
  *       200:
- *         description: Found receipt with id
+ *         description: Found receipt with order items
  *         content:
  *           application/json:
  *             schema:
@@ -404,9 +404,9 @@ module.exports.setup = (app) => {
  *                 data:
  *                   type: object
  *                   properties:
- *                     reservation_info:
+ *                     receipt_info:
  *                       type: object
- *                       $ref: '#/components/schemas/Receipt'
+ *                       $ref: '#/components/schemas/GetReceipt'
  *       400:
  *         description: Invalid request, missing or invalid fields
  *         $ref: '#/components/responses/400'
@@ -418,6 +418,7 @@ module.exports.setup = (app) => {
  *         $ref: '#/components/responses/500'
  */
     router.get('/:order_id', receiptsController.getReceipt);
+
     router.all('/',methodNotAllowed);
 
 }; 

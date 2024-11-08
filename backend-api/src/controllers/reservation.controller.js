@@ -76,7 +76,8 @@ async function getReservation(req, res, next) {
     }
 
     try {
-        const reservation = await reservationService.getReservationById(reservation_id);  
+        const reservation = await reservationService.getReservationById(reservation_id); 
+        console.log({ reservation_info: reservation }); 
         if (!reservation) {
             return next(new ApiError(404, 'reservation not found'));
         }

@@ -69,10 +69,21 @@ async function createReservation(useremail, table_number, reservationData) {
         throw new Error(error.message || "Could not create reservation");
     }
 }
-
-async function getReservationById(reservation_id) {
-    return reservationRepository().where('reservation_id', reservation_id).select('*').first();
-}   
+ 
+async function getReservationById(reservation_id, trx = null) {
+    const query = reservationRepository()
+        .where('reservation_id', reservation_id)
+        .select(
+            '*', 
+            'restaurant_table.table_number',
+            'users.username',
+            'users.useremail',
+            'users.userphone'
+        )
+        .join('restaurant_table', 'restaurant_table.table_id','reservation.table_id' )
+        .join('users', 'users.userid', 'reservation.userid');
+    return trx ? query.transacting(trx).first() : query.first();
+} 
 
 async function getManyReservations(query) {
     const { userid, page = 1, limit = 5 } = query;

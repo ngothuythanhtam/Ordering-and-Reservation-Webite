@@ -143,6 +143,7 @@ async function staffVerifyReceipt(req, res, next) {
     }
 
     const userId = req.session.user.userid;
+    console.log("staffid: ", userId)
     const userRole = await usersService.checkRole(userId);
     
     if (userRole !== 2) {
@@ -199,21 +200,25 @@ async function staffGetReceiptsByFilter(req, res, next) {
 }
 
 async function getReceipt(req, res, next) {
-    const { order_id } = req.params;  
+    const { order_id } = req.params;
+    console.log(order_id)
 
     if (!order_id) {
         return next(new ApiError(400, 'order_id is required'));
     }
 
     try {
-        const receipt = await receiptsService.getReceiptById(order_id);  
+        const receipt = await receiptsService.getReceiptById(order_id);
+
         if (!receipt) {
-            return next(new ApiError(404, 'receipt not found'));
+            return next(new ApiError(404, 'Receipt not found'));
         }
+
         return res.json(JSend.success({ receipt_info: receipt }));  
+        
     } catch (error) {
         console.error(error);
-        return next(new ApiError(500, `Error retrieving item with receipt id = ${order_id}`));
+        return next(new ApiError(500, `Error retrieving receipt with order_id = ${order_id}`));
     }
 }
 
