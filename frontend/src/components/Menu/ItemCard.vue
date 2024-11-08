@@ -7,7 +7,7 @@
 <template>
   <div>
     <div class="p-1 w-75 h-75">
-      <img class="img-fluid img-thumbnail" :src="item.img_url" alt="" />
+      <img class="img-card img-fluid img-thumbnail" :src="item.img_url" alt="" />
     </div>
 
     <div class="p-1">
@@ -20,7 +20,7 @@
       {{ item.item_type }}
     </div>
 
-    <div class="p-1">
+    <div class="p-1 describe">
       <strong>Mô tả:</strong>
       {{ item.item_description }}
     </div>
@@ -37,3 +37,13 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+.img-card {
+  border-radius: 15px;
+  padding: 8px;
+}
+.describe{
+  max-width: 340px;
+}
+</style>

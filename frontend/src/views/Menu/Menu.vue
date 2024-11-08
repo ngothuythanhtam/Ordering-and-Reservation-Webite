@@ -95,39 +95,43 @@ watch(currentPage, () => retrieveItems(currentPage.value), {
 </script>
 
 <template>
-    <div class="page row mb-5">
-        <div class="mt-3 col-md-6">
+    <div class="page">
+        <div class="mt-3 menu-section">
             <h4>Menu <i class="fas fa-book-open"></i></h4>
 
-            <div class="my-3">
+            <div class="d-flex align-items-center mb-3 my-3">
                 <InputSearch v-model="searchText" />
+                <div class="ms-3 action-buttons">
+                    <button class="btn btn-sm btn-primary me-2" @click="retrieveItems(currentPage)">
+                        <i class="fas fa-redo"></i> Làm mới
+                    </button>
+                    <button class="btn btn-sm btn-success me-2" @click="goToAddItem">
+                        <i class="fas fa-plus"></i> Thêm mới
+                    </button>
+                    <button class="btn btn-sm btn-danger" @click="onDeleteItems">
+                        <i class="fas fa-trash"></i> Xóa tất cả
+                    </button>
+                </div>
             </div>
+            
 
-            <ItemList v-if="filteredItems.length > 0" :items="filteredItems" v-model:selectedIndex="selectedIndex" />
+            <ItemList v-if="filteredItems.length > 0" 
+                :items="filteredItems" v-model:selectedIndex="selectedIndex"/>
 
             <p v-else>
                 Không có món nào.
             </p>
 
             <div class="mt-3 d-flex flex-wrap justify-content-round align-items-center">
-                <MainPagination :total-pages="totalPages" :current-page="currentPage"
+                <MainPagination :total-pages="totalPages" :current-page="currentPage" class="mt-2"
                     @update:current-page="changeCurrentPage" />
-                <div class="w-100"></div>
-                <button class="btn btn-sm btn-primary" @click="retrieveItems(currentPage)">
-                    <i class="fas fa-redo"></i> Làm mới
-                </button>
-                <button class="btn btn-sm btn-success" @click="goToAddItem">
-                    <i class="fas fa-plus"></i> Thêm mới
-                </button>
-                <button class="btn btn-sm btn-danger" @click="onDeleteItems">
-                    <i class="fas fa-trash"></i> Xóa tất cả
-                </button>
+
             </div>
         </div>
 
-        <div class="mt-3 col-md-6" v-if="selectedItem">
-            <h4>Chi tiết món ăn <i class="fa-solid fa-utensils"></i></h4>
-            <ItemCard :item="selectedItem" />
+        <div class="mt-3 details-section" v-if="selectedItem">
+            <h4 class="mt-5" >Chi tiết món ăn <i class="fa-solid fa-utensils"></i></h4>
+            <ItemCard class="card" :item="selectedItem" />
             <router-link :to="{
                 name: 'item.edit',
                 params: { item_id: selectedItem.item_id },
@@ -141,7 +145,32 @@ watch(currentPage, () => retrieveItems(currentPage.value), {
 
 <style scoped>
 .page {
-    text-align: left;
-    max-width: 750px;
+    display: flex;
+    width: 90vw; 
+    height: 90vh; 
+    max-width: 1600px;
+    box-sizing: border-box;
+    margin-left: -50px;
 }
+
+.menu-section {
+    width: 65%;
+    padding-left: 20px;
+    padding-right: 10px;
+    overflow-y: auto; 
+}
+
+.details-section {
+    width: 30%;
+    padding-left: 0px;
+    margin-left: 75px;
+    overflow-y: auto; 
+}
+
+.card{
+    margin-top: 20px;
+    border-style: none;
+}
+
 </style>
+

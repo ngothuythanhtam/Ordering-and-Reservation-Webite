@@ -1,10 +1,13 @@
 import { createWebHistory, createRouter } from 'vue-router';
 import Home from '@/views/Home.vue'
 import Menu from '@/views/Menu/Menu.vue';
+import ItemCard from '@/components/Menu/ItemCard.vue';
 import Table from '@/views/Table/Table.vue';
 import Reservation from '@/views/Reservation/Reservation.vue';
 import Receipt from '@/views/Receipt/Receipt.vue';
-import Account from '@/views/Account/Account.vue';
+import UserAccount from '@/views/Account/UserAccount.vue';
+import MyAccount from '@/views/Account/MyAccount.vue';
+
 const routes = [
     {
         path: '/login/',
@@ -29,6 +32,7 @@ const routes = [
         name: 'notfound',
         component: () => import('@/views/NotFound.vue'),
     },
+
     {
         path: '/menu/items/:item_id',
         name: 'item.edit',
@@ -65,11 +69,16 @@ const routes = [
     },
 
     {
-        path: '/account',
-        name: 'account',
-        component: Account,
+        path: '/UserAccount',
+        name: 'UserAccount',
+        component: UserAccount,
     },
     
+    {
+        path: '/MyAccount',
+        name: 'MyAccount',
+        component: MyAccount,
+    },
 ];
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),

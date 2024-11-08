@@ -57,13 +57,6 @@ function submitItem(values) {
         formData.append('img_url_file', imgFileElement.files[0]);
     }
     $emit('submit:item', formData);
-
-  // for (const value of formData.values()) {
-  //   console.log(value)
-  // }
-
-  // // Emit the submit event with formData
-  // $emit('submit:item', formData);
 }
 
 function deleteItem() {
