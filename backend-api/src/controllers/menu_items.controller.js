@@ -65,20 +65,20 @@ async function getItem(req, res, next) {
 
 async function createItem(req, res, next) {
     // Kiểm tra nếu session không tồn tại hoặc không có userid
-    // if (!req.session.user) {
-    //     return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
-    // }
-    // console.log(req.session.user.userid);
+    if (!req.session.user) {
+        return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
+    }
+    console.log(req.session.user.userid);
 
-    // // Lấy userID từ session
-    // const userId  = req.session.user.userid;
+    // Lấy userID từ session
+    const userId  = req.session.user.userid;
     try {
 
         // Kiểm tra vai trò người dùng
-        // const userRole = await usersService.checkRole(userId);
-        // if (userRole !== 2  ) {
-        //     return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
-        // }
+        const userRole = await usersService.checkRole(userId);
+        if (userRole !== 2  ) {
+            return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
+        }
 
         if (!req.body?.item_name || typeof req.body.item_name !== 'string') {
             return next(new ApiError(400, 'Invalid input', { code: 'INVALID_INPUT' }));
@@ -94,6 +94,7 @@ async function createItem(req, res, next) {
             ...req.body,
             img_url: req.file ? `/public/uploads/${req.file.filename}` : null,
         });
+        console.log(item);
         return res
           .status(201)
           .set({
@@ -112,38 +113,52 @@ async function createItem(req, res, next) {
 
 async function updateItem(req, res, next) {
     // Kiểm tra nếu session không tồn tại hoặc không có userid
-    // if (!req.session.user) {
-    //     return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
-    // }
-    // console.log(req.session.user.userid);
+    if (!req.session.user) {
+        return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
+    }
+    console.log(req.session.user.userid);
 
-    // // Lấy userID từ session
-    // const userId  = req.session.user.userid;
+    // Lấy userID từ session
+    const userId  = req.session.user.userid;
     try {
 
         // // Kiểm tra vai trò người dùng
-        // const userRole = await usersService.checkRole(userId);
-        // if (userRole !== 2  ) {
-        //     return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
-        // }
+        const userRole = await usersService.checkRole(userId);
+        if (userRole !== 2  ) {
+            return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
+        }
 
+        // Check if both req.body and req.file are empty
         if (Object.keys(req.body).length === 0 && !req.file) {
             return next(new ApiError(400, 'Data to update cannot be empty'));
         }
 
-        // Kiểm tra tên món đã tồn tại hay chưa
-        const existingItem = await menu_itemsService.getItemByName(req.body.item_name);
-        if (existingItem) {
-            return next(new ApiError(400, 'Item name already exists. Please choose a different name.', { code: 'DUPLICATE_ITEM_NAME' }));
+        const { item_id } = req.params;
+
+        // Fetch the current item from the database
+        const currentItem = await menu_itemsService.getItemById(item_id);
+        if (!currentItem) {
+            return next(new ApiError(404, 'Menu item not found'));
         }
-        const { item_id } = req.params;  // Use name from params
+
+        // If the new name is different, check for duplicates
+        if (req.body.item_name && req.body.item_name !== currentItem.item_name) {
+            const existingItem = await menu_itemsService.getItemByName(req.body.item_name);
+            if (existingItem) {
+                return next(new ApiError(400, 'Item name already exists. Please choose a different name.', { code: 'DUPLICATE_ITEM_NAME' }));
+            }
+        }
+
+        // Proceed to update the item
         const updated = await menu_itemsService.updateItem(item_id, {
             ...req.body,
-            img_url: req.file ? `/public/uploads/${req.file.filename}` : null,
+            img_url: req.file ? `/public/uploads/${req.file.filename}` : currentItem.img_url,
         });
+
         if (!updated) {
             return next(new ApiError(404, 'Menu item not found'));
         }
+
         return res.json(
             JSend.success({
                 item: updated,
@@ -156,21 +171,21 @@ async function updateItem(req, res, next) {
 }
 
 async function deleteItem(req, res, next) {
-    // // Kiểm tra nếu session không tồn tại hoặc không có userid
-    // if (!req.session.user) {
-    //     return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
-    // }
-    // console.log(req.session.user.userid);
+    // Kiểm tra nếu session không tồn tại hoặc không có userid
+    if (!req.session.user) {
+        return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
+    }
+    console.log(req.session.user.userid);
 
-    // // Lấy userID từ session
-    // const userId  = req.session.user.userid;
+    // Lấy userID từ session
+    const userId  = req.session.user.userid;
     
     try {
-        // // Kiểm tra vai trò người dùng
-        // const userRole = await usersService.checkRole(userId);
-        // if (userRole !== 2  ) {
-        //     return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
-        // }
+        // Kiểm tra vai trò người dùng
+        const userRole = await usersService.checkRole(userId);
+        if (userRole !== 2  ) {
+            return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
+        }
         const { item_id } = req.params;  // Use item_name from params
         const deleted  = await menu_itemsService.deleteItem(item_id);
         if (!deleted ){

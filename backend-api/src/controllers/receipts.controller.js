@@ -138,26 +138,30 @@ async function getReceiptsByFilter(req, res, next) {
 
 // Verify Receipt Controller
 async function staffVerifyReceipt(req, res, next) {
-    // Kiểm tra nếu session không tồn tại hoặc không có userid
     if (!req.session.user) {
         return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
     }
-    console.log(req.session.user.userid);
 
-    // Lấy userID từ session
     const userId = req.session.user.userid;
-
-    // Kiểm tra vai trò người dùng
     const userRole = await usersService.checkRole(userId);
+    
     if (userRole !== 2) {
-        return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
+        return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items'));
     }
 
     const { order_id } = req.params;
-    const staffId = userId;
+    const status = req.body.status; // Read directly from body
+
+    if (!status) {
+        return next(new ApiError(400, 'Status is required'));
+    }
+
+    if (!['Completed', 'Canceled'].includes(status)) {
+        return next(new ApiError(400, 'Invalid status. Must be either "Completed" or "Canceled"'));
+    }
+
     try {
-        // Call the service function
-        const result = await receiptsService.staffVerifyReceipt(order_id, staffId);
+        const result = await receiptsService.staffVerifyReceipt(order_id, userId, status);
         if (result && result.success) {
             return res.json(JSend.success({ message: 'Receipt verified and updated successfully!' }));
         } else {
@@ -168,36 +172,50 @@ async function staffVerifyReceipt(req, res, next) {
     }
 }
 
-async function staffCancelReceipt(req, res, next) {
-    // Kiểm tra nếu session không tồn tại hoặc không có userid
-    if (!req.session.user) {
-        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
-    }
-    console.log(req.session.user.userid);
-
-    // Lấy userID từ session
-    const userId = req.session.user.userid;
-
-    // Kiểm tra vai trò người dùng
-    const userRole = await usersService.checkRole(userId);
-    if (userRole !== 2) {
-        return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
-    }
-
-    const { order_id } = req.params;
-    const staffId = userId;
-    try {
-        // Call the service function
-        const result = await receiptsService.staffCancelReceipt(order_id, staffId);
-        if (result && result.success) {
-            return res.json(JSend.success({ message: `Receipt with id = ${order_id} has been canceled!` }));
-        } else {
-            return next(new ApiError(404, 'Receipt not found'));
+async function staffGetReceiptsByFilter(req, res, next) {
+    let result = {
+        receipts: [],
+        metadata: {
+            totalRecords: 0,
+            firstPage: 1,
+            lastPage: 1,
+            page: 1,
+            limit: 5,
         }
+    };
+    
+    try {
+        result = await receiptsService.staffGetManyReceipts(req.query);
     } catch (error) {
-        return next(new ApiError(400, error.message));
+        console.log(error);
+        return next(new ApiError(500, 'An error occurred while retrieving receipts'));
     }
-} 
+    return res.json(
+        JSend.success({
+            receipts: result.receipts,
+            metadata: result.metadata,
+        })
+    );
+}
+
+async function getReceipt(req, res, next) {
+    const { order_id } = req.params;  
+
+    if (!order_id) {
+        return next(new ApiError(400, 'order_id is required'));
+    }
+
+    try {
+        const receipt = await receiptsService.getReceiptById(order_id);  
+        if (!receipt) {
+            return next(new ApiError(404, 'receipt not found'));
+        }
+        return res.json(JSend.success({ receipt_info: receipt }));  
+    } catch (error) {
+        console.error(error);
+        return next(new ApiError(500, `Error retrieving item with receipt id = ${order_id}`));
+    }
+}
 
 module.exports = {
     createReceipt,
@@ -207,5 +225,6 @@ module.exports = {
     cancelCustomer,
     getReceiptsByFilter,
     staffVerifyReceipt,
-    staffCancelReceipt,
+    staffGetReceiptsByFilter,
+    getReceipt,
 }

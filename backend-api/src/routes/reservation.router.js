@@ -133,41 +133,6 @@ module.exports.setup = (app) => {
     // Route to add item to favorites
     router.post('/add', upload.none(),reservationController.addReservation);
 
-// /**
-//  * @swagger
-//  * /api/reservation/update/{reservation_id}:
-//  *   put:
-//  *     summary: Staff update the status of a reservation
-//  *     tags: [Reservation (staff)]
-//  *     description: Update the status of a reservation.
-//  *     parameters:
-//  *       - name: reservation_id
-//  *         in: path
-//  *         required: true
-//  *         description: The reservation ID.
-//  *         schema: 
-//  *           type: string
-//  *     requestBody:
-//  *       required: true
-//  *       content:
-//  *         multipart/form-data:
-//  *           schema:
-//  *             type: object
-//  *             properties:
-//  *               status:
-//  *                 type: string
-//  *                 description: The new status of the reservation
-//  *                 enum: ['booked', 'confirmed', 'completed', 'canceled']
-//  *     responses:
-//  *       200:
-//  *         description: Reservation status updated.
-//  *       400:
-//  *         description: Invalid request or missing fields.
-//  *       500:
-//  *         description: Error updating reservation status.
-//  */
-//     router.put('/update/:reservation_id',upload.none(), reservationController.updateReservationStatus);
-
 /**
  * @swagger
  * /api/reservation/status:
@@ -175,7 +140,7 @@ module.exports.setup = (app) => {
  *     summary: Staff get reservations by status
  *     description: Retrieve reservations by status.
  *     tags:
- *       - Reservation (staff)
+ *       - (staff)
  *     parameters:
  *       - in: query
  *         name: status
@@ -260,6 +225,101 @@ module.exports.setup = (app) => {
  *                   description: Error message
  */
     router.get('/status', reservationController.getReservationByStatus);
+
+/**
+ * @swagger
+ * /api/reservation:
+ *   get:
+ *     summary: Get many tables by filtering
+ *     description: Retrieve many tables by filtering
+ *     parameters:
+ *       - in: query
+ *         name: userid
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Filter by table number
+ *       - $ref: '#/components/parameters/limitParam'
+ *       - $ref: '#/components/parameters/pageParam'
+ *     tags:
+ *       - (staff)
+ *     responses:
+ *       200:
+ *         description: A list of filtered tables
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: The response status
+ *                   enum: [success]
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     items:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Reservation'
+ *                     metadata:
+ *                       $ref: '#/components/schemas/PaginationMetadata'
+ *       400:
+ *         description: Invalid request, missing or invalid fields
+ *         $ref: '#/components/responses/400'
+ *       404:
+ *         description: Not Found
+ *         $ref: '#/components/responses/404'
+ *       500:
+ *         description: Internal server error
+ *         $ref: '#/components/responses/500'
+ */
+    router.get('/', reservationController.getReservationByFilter)
+
+/**
+ * @swagger
+ * /api/reservation/{reservation_id}:
+ *   get:
+ *     summary: Get table by id
+ *     description: Get table by id
+ *     parameters:
+ *       - in: path
+ *         name: reservation_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Find table by id
+ *     tags:
+ *       - (staff)
+ *     responses:
+ *       200:
+ *         description: Found table with id
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: The response status
+ *                   enum: [success]
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     reservation_info:
+ *                       type: object
+ *                       $ref: '#/components/schemas/Reservation'
+ *       400:
+ *         description: Invalid request, missing or invalid fields
+ *         $ref: '#/components/responses/400'
+ *       404:
+ *         description: Not Found
+ *         $ref: '#/components/responses/404'
+ *       500:
+ *         description: Internal server error
+ *         $ref: '#/components/responses/500'
+ */
+    router.get('/:reservation_id', reservationController.getReservation);
     
     // Catch all methods that are not allowed for these routes and return 405 error
     router.all('/', methodNotAllowed);

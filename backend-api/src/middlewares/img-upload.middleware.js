@@ -1,6 +1,7 @@
 const multer = require('multer');
 const path = require('path');
 const ApiError = require('../api-error');
+const { error } = require('console');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -17,6 +18,7 @@ function imgUpload(req, res, next) {
 
   upload(req, res, function (err) {
     if (err instanceof multer.MulterError) {
+      console.log(error.name)
       return next(
         new ApiError(400, 'An error occurred while uploading the image')
       );

@@ -1,4 +1,6 @@
 const express = require('express'); 
+const multer = require('multer');
+const upload = multer();
 const receiptsController = require('../controllers/receipts.controller'); 
 const { methodNotAllowed } = require('../controllers/errors.controller'); 
 const avatarUpload = require('../middlewares/avatar-upload.middleware'); 
@@ -55,7 +57,7 @@ module.exports.setup = (app) => {
  *         description: Internal Server Error - Unexpected error on the server
  *         $ref: '#/components/responses/500'
  */
-    router.get('/filterreceipt/:id', receiptsController.getReceiptsByFilter);
+    router.get('/filterreceipt/:id', upload.none(), receiptsController.getReceiptsByFilter);
 /**
  * @swagger
  * /api/receipts/cart/{id}:
@@ -142,7 +144,7 @@ module.exports.setup = (app) => {
  * @swagger
  * /api/receipts/removeFromCart/{id}:
  *   delete:
- *     summary: Delete table by ID
+ *     summary: Delete receipt by ID
  *     description: Xóa món từ giỏ hàng
  *     parameters:
  *       - $ref: '#/components/parameters/userIdParam'
@@ -273,26 +275,26 @@ module.exports.setup = (app) => {
  * @swagger
  * /api/receipts/verify/{order_id}:
  *   put:
- *     summary: Complete Receipt
- *     description: Please check carefully before Completing ordering.
+ *     summary: Change status of a specific receipt
+ *     description: Please check carefully before change status ordering.
  *     parameters:
  *       - in: path
  *         name: order_id
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID of the order to verify and complete
+ *         description: ID of the order to change status.
  *     requestBody:
  *       required: true
  *       content:
  *         multipart/form-data:
  *           schema:
- *             $ref: '#/components/schemas/Complete'
+ *             $ref: '#/components/schemas/ReceiptStatus'
  *     tags:
- *       - Receipts (staff)
+ *       - (staff)
  *     responses:
  *       200:
- *         description: Complete Ordering
+ *         description: Change status of a specific receipt
  *         content:
  *           application/json:
  *             schema:
@@ -306,8 +308,8 @@ module.exports.setup = (app) => {
  *                 data:
  *                   type: object
  *                   properties:
- *                     contact:
- *                       $ref: '#/components/schemas/Complete'
+ *                     receipt:
+ *                       $ref: '#/components/schemas/ReceiptStatus'
  *         $ref: '#/components/responses/200NoData'
  *       400:
  *         description: Bad Request - Invalid input or missing parameters
@@ -320,32 +322,28 @@ module.exports.setup = (app) => {
  *         $ref: '#/components/responses/500'
  */
     // Verify Receipt Route
-    router.put('/verify/:order_id', receiptsController.staffVerifyReceipt);  
+    router.put('/verify/:order_id', upload.none(),receiptsController.staffVerifyReceipt);  
 
 /**
  * @swagger
- * /api/receipts/cancel/{order_id}:
- *   put:
- *     summary: Staff Cancel Receipt
- *     description: Please check carefully before Completing ordering.
+ * /api/receipts:
+ *   get:
+ *     summary: Get many user's receipts by filtering
+ *     description: Retrieve many users' receipts by filtering
  *     parameters:
- *       - in: path
- *         name: order_id
+ *       - in: query
+ *         name: userid
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID of the order to verify and complete
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             $ref: '#/components/schemas/Cancel'
+ *         description: Filter by table number
+ *       - $ref: '#/components/parameters/limitParam'
+ *       - $ref: '#/components/parameters/pageParam'
  *     tags:
- *       - Receipts (staff)
+ *       - (staff)
  *     responses:
  *       200:
- *         description: Cancel Ordering
+ *         description: A list of filtered user's receipts
  *         content:
  *           application/json:
  *             schema:
@@ -354,24 +352,72 @@ module.exports.setup = (app) => {
  *                 status:
  *                   type: string
  *                   description: The response status
- *                   enum:
- *                     - success
+ *                   enum: [success]
  *                 data:
  *                   type: object
  *                   properties:
- *                     contact:
- *                       $ref: '#/components/schemas/Cancel'
- *         $ref: '#/components/responses/200NoData'
+ *                     items:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Receipt'
+ *                     metadata:
+ *                       $ref: '#/components/schemas/PaginationMetadata'
  *       400:
- *         description: Bad Request - Invalid input or missing parameters
+ *         description: Invalid request, missing or invalid fields
  *         $ref: '#/components/responses/400'
  *       404:
- *         description: Not Found - Resource not found
+ *         description: Not Found
  *         $ref: '#/components/responses/404'
  *       500:
- *         description: Internal Server Error - Unexpected error on the server
+ *         description: Internal server error
  *         $ref: '#/components/responses/500'
  */
-    router.put('/cancel/:order_id', receiptsController.staffCancelReceipt);
+    router.get('/', receiptsController.staffGetReceiptsByFilter)
+
+/**
+ * @swagger
+ * /api/receipts/{order_id}:
+ *   get:
+ *     summary: Get receipt by id
+ *     description: Get receipt by id
+ *     parameters:
+ *       - in: path
+ *         name: order_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Find receipt by id
+ *     tags:
+ *       - (staff)
+ *     responses:
+ *       200:
+ *         description: Found receipt with id
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: The response status
+ *                   enum: [success]
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     reservation_info:
+ *                       type: object
+ *                       $ref: '#/components/schemas/Receipt'
+ *       400:
+ *         description: Invalid request, missing or invalid fields
+ *         $ref: '#/components/responses/400'
+ *       404:
+ *         description: Not Found
+ *         $ref: '#/components/responses/404'
+ *       500:
+ *         description: Internal server error
+ *         $ref: '#/components/responses/500'
+ */
+    router.get('/:order_id', receiptsController.getReceipt);
     router.all('/',methodNotAllowed);
+
 }; 

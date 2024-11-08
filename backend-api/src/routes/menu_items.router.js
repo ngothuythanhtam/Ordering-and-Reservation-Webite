@@ -26,7 +26,7 @@ module.exports.setup = (app) => {
  *       - $ref: '#/components/parameters/pageParam'
  *     tags:
  *       - User / Menu
- *       - Menu (staff)
+ *       - (staff)
  *     responses:
  *       200:
  *         description: A list of filtered menu items
@@ -73,7 +73,7 @@ module.exports.setup = (app) => {
  *           schema:
  *             $ref: '#/components/schemas/MenuItem'
  *     tags:
- *       - Menu (staff)
+ *       - (staff)
  *     responses:
  *       201:
  *         description: Successfully created a new menu item
@@ -109,7 +109,7 @@ module.exports.setup = (app) => {
  *     parameters:
  *       - $ref: '#/components/parameters/itemIdParam'
  *     tags:
- *       - Menu (staff)
+ *       - (staff)
  *     responses:
  *       200:
  *         description: menu items
@@ -155,7 +155,7 @@ module.exports.setup = (app) => {
  *           schema:
  *             $ref: '#/components/schemas/MenuItem'
  *     tags:
- *       - Menu (staff)
+ *       - (staff)
  *     responses:
  *       200:
  *         description: Successfully updated menu item
@@ -194,7 +194,7 @@ module.exports.setup = (app) => {
  *     parameters:
  *       - $ref: '#/components/parameters/itemIdParam'
  *     tags:
- *       - Menu (staff)
+ *       - (staff)
  *     responses:
  *       200:
  *         description: Menu item deleted
@@ -219,7 +219,7 @@ module.exports.setup = (app) => {
  *     summary: Staff delete all items
  *     description: Delete all menu items
  *     tags:
- *       - Menu (staff)
+ *       - (staff)
  *     responses:
  *       200:
  *         description: Menu item deleted

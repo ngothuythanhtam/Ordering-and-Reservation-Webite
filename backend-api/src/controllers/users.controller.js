@@ -81,19 +81,6 @@ async function createUser(req, res, next) {
     }
 }
 
-// async function getUser(req, res, next) {
-//     const { id } = req.params;
-//     try {
-//         const user = await usersService.getUserById(id);
-//         if (!user) {
-//             return next(new ApiError(404,'Không tìm thấy người dùng.'));
-//         }
-//         return res.json(JSend.success({ user }));
-//     } catch (error) {
-//         return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
-//     }
-// }
-
 async function getUser(req, res, next) {
     if (!req.session.user) {
         return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));

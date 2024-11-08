@@ -36,7 +36,7 @@ module.exports.setup = (app) => {
  *                 description: Mật khẩu tài khoản của người dùng
  *     tags:
  *       - users
- *       - Users (staff)
+ *       - (staff)
  *     responses:
  *       200:
  *         description: Login success
@@ -65,7 +65,7 @@ module.exports.setup = (app) => {
  *     description: Logout into System
  *     tags:
  *       - users
- *       - Users (staff)
+ *       - (staff)
  *     responses:
  *       200:
  *         description: Logout success
@@ -135,7 +135,7 @@ module.exports.setup = (app) => {
  *                 description: Ảnh đại diện người dùng
  *     tags:
  *       - users
- *       - Users (staff)
+ *       - (staff)
  *     responses:
  *       201:
  *         description: A new user
@@ -170,7 +170,7 @@ router.all('/',methodNotAllowed);
  *     description: Get user by ID
  *     tags:
  *       - users
- *       - Users (staff)
+ *       - (staff)
  *     responses:
  *       200:
  *         description: A user
@@ -212,7 +212,7 @@ router.get('/info/', usersController.getUser);
  *             $ref: '#/components/schemas/UserUpdate'
  *     tags:
  *       - users
- *       - Users (staff)
+ *       - (staff)
  *     responses:
  *       200:
  *         description: An updated user
@@ -264,7 +264,7 @@ router.put('/updateProfile/:id/',avatarUpload, usersController.updateUser);
  *                 description: Mã người dùng
  *     tags:
  *       - users
- *       - Users (staff)
+ *       - (staff)
  *     responses:
  *       200:
  *         description: User deleted

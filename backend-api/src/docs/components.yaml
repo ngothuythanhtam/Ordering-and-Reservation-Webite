@@ -320,7 +320,7 @@ components:
           enum: ['Pending', 'Ordered', 'Completed', 'Canceled']
           default: 'Pending'
           description: Trạng thái đơn
-    Complete: 
+    ReceiptStatus: 
       type: object
       properties:
         userid:
@@ -334,26 +334,9 @@ components:
           description: Mã đơn đặt bàn
         status:
           type: string
-          enum: ['Completed']
+          enum: ['Completed', 'Canceled']
           default: 'Pending'
           description: Trạng thái đơn    
-    Cancel: 
-      type: object
-      properties:
-        userid:
-          type: integer
-          readOnly: true
-          description: Mã người dùng
-        reservation_id:
-          type: integer
-          readOnly: true
-          default: null
-          description: Mã đơn đặt bàn
-        status:
-          type: string
-          enum: ['Canceled']
-          default: 'Pending'
-          description: Trạng thái đơn 
     OrderItem: 
       type: object
       properties:

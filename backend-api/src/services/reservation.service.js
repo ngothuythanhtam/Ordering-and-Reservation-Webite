@@ -70,19 +70,45 @@ async function createReservation(useremail, table_number, reservationData) {
     }
 }
 
-// async function updateReservationStatus(reservation) {
-//     try {
-//         // Update reservation status
-//         await knex('reservation')
-//             .where({ reservation_id: reservation.reservation_id })
-//             .update({ status: reservation.status });
-//         return reservation;
+async function getReservationById(reservation_id) {
+    return reservationRepository().where('reservation_id', reservation_id).select('*').first();
+}   
 
-//     } catch (error) {
-//         console.error('Error updating reservation status:', error);
-//         throw new Error('Could not update reservation status');
-//     }
-// }
+async function getManyReservations(query) {
+    const { userid, page = 1, limit = 5 } = query;
+    const paginator = new Paginator(page, limit);
+    
+    let results = await reservationRepository()
+        .where((builder) => {
+            if (userid) {
+                builder.where('userid', userid);
+            }
+        })
+        .select(
+            knex.raw('count(reservation_id) OVER() AS recordCount'),
+            'reservation_id',
+            'userid',
+            'table_id',
+            'reservation_date',
+            'special_request',
+            'create_at',
+            'status',
+        )
+        .limit(paginator.limit)
+        .offset(paginator.offset);
+
+    let totalRecords = 0;
+    results = results.map((result) => {
+        totalRecords = result.recordCount;
+        delete result.recordCount;
+        return result;
+    });
+
+    return {
+        metadata: paginator.getMetadata(totalRecords),
+        reservations: results,
+    };
+}
 
 async function getReservationByStatus(status) {
     try {
@@ -99,6 +125,7 @@ async function getReservationByStatus(status) {
 }
 module.exports = {
     createReservation,
-    // updateReservationStatus,
+    getReservationById,
+    getManyReservations,
     getReservationByStatus,
 };

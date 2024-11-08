@@ -281,8 +281,9 @@ async function getManyReceipts(id, query) {
     };
 }
 
+
 // Verify receipt function
-async function staffVerifyReceipt(order_id, staffId) {
+async function staffVerifyReceipt(order_id, staffId, status) {
     // Fetch the receipt based on order_id
     const order_id_int = parseInt(order_id, 10);
     const receiptData = await receiptRepository().where({ order_id: order_id_int }).first();
@@ -301,7 +302,7 @@ async function staffVerifyReceipt(order_id, staffId) {
     await receiptRepository()
         .where({ order_id })
         .update({ 
-            status: 'Completed',
+            status: status,
             staff_id: staffId
          });
 
@@ -338,62 +339,43 @@ async function staffVerifyReceipt(order_id, staffId) {
     return { success: true, message: 'Receipt verified and updated successfully' };
 }
 
-// Service function to cancel the receipt
-async function staffCancelReceipt(order_id, staffId) {
-        // Fetch the receipt based on order_id
-    const order_id_int = parseInt(order_id, 10);
-    const receiptData = await receiptRepository().where({ order_id: order_id_int }).first();
-    console.log(receiptData)
-    if (!receiptData) throw new Error('Receipt not found');
-
-    // Format the receipt data
-    const receipt = readReceipt(receiptData);
-
-    // Check if the status is 'Ordered'
-    if (receipt.status !== 'Ordered') {
-        throw new Error('Receipt status is not "Ordered"');
-    }
-
-    // Update the status to 'Completed'
-    await receiptRepository()
-        .where({ order_id })
-        .update({ 
-            status: 'Canceled',
-            staff_id: staffId
-         });
-
-    // Check if reservation_id is present
-    if (receipt.reservation_id) {
-        // Fetch table_id and reservation_id based on order_id
-        const reservationDetails = await knex('restaurant_table')
-            .join('reservation', 'restaurant_table.table_id', 'reservation.table_id')
-            .join('receipt', 'reservation.reservation_id', 'receipt.reservation_id')
-            .where('receipt.order_id', order_id)
-            .select('restaurant_table.table_id', 'reservation.reservation_id')
-            .first();
-
-        if (reservationDetails) {
-            const { table_id, reservation_id } = reservationDetails;
-
-            // Update both table status and reservation status
-            await knex.transaction(async (trx) => {
-                if (table_id) {
-                    await trx('restaurant_table')
-                        .where({ table_id })
-                        .update({ status: 'available' });
-                }
-
-                if (reservation_id) {
-                    await trx('reservation')
-                        .where({ reservation_id })
-                        .update({ status: 'canceled' });
-                }
-            });
-        }
-    }
-
-    return { success: true, message: 'Receipt verified and updated successfully' };
+async function staffGetManyReceipts(query) {
+    const { userid, page = 1, limit = 5 } = query;
+    const paginator = new Paginator(page, limit);
+    
+    let results = await receiptRepository()
+        .where((builder) => {
+            if (userid) {
+                builder.where('userid', userid);
+            }
+        })
+        .select(
+            knex.raw('count(order_id) OVER() AS recordCount'),
+            'order_id',
+            'userid',
+            'staff_id',
+            'reservation_id',
+            'order_date',
+            'total_price',
+            'status'
+        )
+        .limit(paginator.limit)
+        .offset(paginator.offset);
+    let totalRecords = 0;
+    results = results.map((result) => {
+        totalRecords = result.recordCount;
+        delete result.recordCount;
+        return result;
+    });
+    return {
+        metadata: paginator.getMetadata(totalRecords),
+        receipts: results,
+    };
 }
+
+async function getReceiptById(order_id) {
+    return receiptRepository().where('order_id', order_id).select('*').first();
+}   
 
 module.exports = {
     getIDReceipt_Pending,
@@ -406,5 +388,6 @@ module.exports = {
     sttCancelCustomer,
     getManyReceipts,
     staffVerifyReceipt,
-    staffCancelReceipt
+    staffGetManyReceipts,
+    getReceiptById,
 }

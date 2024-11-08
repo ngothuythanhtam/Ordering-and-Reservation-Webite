@@ -1,14 +1,13 @@
 <script setup>
-import AppHeader from '@/components/AppHeader.vue';
+import Navbar from '@/components/Navbar.vue';
 </script>
 
 <template>
-  <AppHeader />
-
+  <Navbar />
   <div class="container mt-3">
-    <router-view />
+  <router-view />
   </div>
-</template> 
+</template>
 
 <style>
 .page {
