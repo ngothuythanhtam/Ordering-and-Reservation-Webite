@@ -7,20 +7,16 @@ import { z } from 'zod';
 const props = defineProps({
     user: { type: Object, required: true }
 });
-console.log("props.user: ",props.user);
+console.log("Thông tin user nè: ",props.user);
 let avatarFileInput = useTemplateRef('avatar-file-input');
-let avatarFile = ref(props.user.useravatar);
+let avatarFile = ref(props.user?.useravatar || '');
 const $emit = defineEmits(['submit:user', 'delete:user']);
 
 const validationSchema = toTypedSchema(
     z.object({
-        userrole: z.literal('1'),
         username: z.string().min(2, { message: 'Tên phải ít nhất 2 ký tự.' }).max(50, { message: 'Tên có nhiều nhất 50 ký tự.' }),
-        useremail: z.string().email({ message: 'E-mail không đúng.' }).max(50, { message: 'E-mail tối đa 50 ký tự.' }),
         useraddress: z.string().max(100, { message: 'Địa chỉ tối đa 100 ký tự.' }),
-        userphone: z.string().regex(/(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/g, { message: 'Số điện thoại không hợp lệ.' }),
         userbirthday: z.string().optional(),
-        userpwd: z.string().min(8, { message: 'Mật khẩu phải có ít nhất 8 ký tự.' }),
         useravatarFile: z.instanceof(File).optional(),
     })
 );
@@ -37,6 +33,7 @@ function previewAvatarFile(event) {
 }
 
 function submitUser(values) {
+    console.log("Submit form: ", values);
     const formData = new FormData();
     for (let key in values) {
         if (values[key] !== undefined) {
@@ -76,24 +73,9 @@ function deleteUser() {
             <ErrorMessage name="username" class="error-feedback" />
         </div>
         <div class="mb-3">
-            <label for="useremail" class="form-label">E-mail</label>
-            <Field name="useremail" type="email" class="form-control" :id="'useremail'" :value="user?.useremail"/>
-            <ErrorMessage name="useremail" class="error-feedback" />
-        </div>
-        <div class="mb-3">
-            <label for="userpwd" class="form-label">Password</label>
-            <Field name="userpwd" type="password" class="form-control" :id="'userpwd'" autocomplete="new-password"/>
-            <ErrorMessage name="userpwd" class="error-feedback" />
-        </div>
-        <div class="mb-3">
             <label for="useraddress" class="form-label">Address</label>
             <Field name="useraddress" type="text" class="form-control" :id="'useraddress'" :value="user?.useraddress" />
             <ErrorMessage name="useraddress" class="error-feedback" />
-        </div>
-        <div class="mb-3">
-            <label for="userphone" class="form-label">Phone Number</label>
-            <Field name="userphone" type="tel" class="form-control" :id="'userphone'" :value="user?.userphone" />
-            <ErrorMessage name="userphone" class="error-feedback" />
         </div>
         <div class="mb-3">
             <label for="userbirthday" class="form-label">Birthday</label>
@@ -102,7 +84,7 @@ function deleteUser() {
         </div>
         <div class="mb-3">
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i> Register
+                <i class="fas fa-save"></i> Update
             </button>
             <button v-if="user?.userid" type="button" class="ms-2 btn btn-danger" @click="deleteUser">
                 <i class="fas fa-trash"></i> Delete

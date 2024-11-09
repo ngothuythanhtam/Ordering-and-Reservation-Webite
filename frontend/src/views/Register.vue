@@ -1,63 +1,63 @@
 <template>
-  <div class="login-container">
-    <h2>Login</h2>
-    <form @submit.prevent="handleLogin">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input v-model="useremail" type="email" id="email" class="form-control" required/>
-      </div>
+    <div class="form-container">
+        <h2 class="text-center mb-4">Register New User</h2>
 
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input v-model="userpwd" type="password" id="password" class="form-control" required/>
-      </div>
+        <UserForm :user="user" @submit:user="onCreateContact" />
 
-      <button type="submit" class="btn btn-primary">Login</button>
-    </form>
-
-    <div v-if="error" class="error-message">
-      {{ error }}
+        <div v-if="message" class="alert alert-success mt-3">
+        {{ message }}
+        </div>
     </div>
-  </div>
 </template>
 
-<script>
-import { makeUserService } from '@/services/users.service.js';
-const userService = makeUserService();
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useQuery, useMutation } from '@tanstack/vue-query';
+import UserForm from '@/components/UserForm.vue';
+import UserService from '@/services/users.service.js';
 
-export default {
-  data() {
-    return {
-      useremail: '',
-      userpwd: '',
-      error: null,
-    };
-  },
-  methods: {
-    async handleLogin() {
-      this.error = null; // Xóa lỗi cũ
-      try {
-        const userData = await userService.login(this.useremail, this.userpwd);
-        localStorage.setItem('user', JSON.stringify(userData)); // Lưu thông tin người dùng vào localStorage
-        localStorage.setItem('isLoggedIn', 'true'); // Đặt trạng thái đăng nhập
-        this.$router.push({ name: 'Home' }); // Điều hướng về trang Home
-      } catch (error) {
-        this.error = error.message || 'Login failed. Please try again.';
-      }
+const user = ref({
+    username: '',
+    useremail: '',
+    userphone: '',
+    useraddress: '',
+    userbirthday: '',
+    useravatar: '/public/images/blank-profile-picture.png'
+});
+
+const message = ref('');
+
+const mutation = useMutation({
+    mutationFn: (newUser) => UserService.createUser(newUser),
+    onSuccess: () => {
+        message.value = ('Liên hệ mới  đã được thêm thành công vào danh bạ!');
     },
-  },
-};
+    onError: () => {
+        message.value = 'Email hoặc số điện thoại đã được sử dụng. Vui lòng kiểm tra lại.';
+    }
+});
+
+function onCreateContact(newContact) {
+    mutation.mutate(newContact);
+}
+
 </script>
 
 <style scoped>
-.login-container {
-  max-width: 400px;
-  margin: auto;
+.form-container {
+  max-width: 600px;
+  margin: 0 auto;
   padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
 }
 
-.error-message {
-  color: red;
-  margin-top: 10px;
+.text-center {
+  text-align: center;
+}
+
+.alert {
+  font-size: 1rem;
 }
 </style>

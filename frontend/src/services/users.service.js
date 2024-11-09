@@ -22,16 +22,15 @@ async function efetch(url, options = {}) {
 
 function makeUserService() {
     const baseUrl = '/api/users';
-
     async function login(useremail, userpwd) {
+        const formData = new FormData();
+        formData.append('useremail', useremail);
+        formData.append('userpwd', userpwd);
         const data = await efetch(`${baseUrl}/login/`, {
             method: 'POST',
-            body: JSON.stringify({ useremail: useremail, userpwd: userpwd }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            body: formData,
         });
-        return data;
+        return data.data;
     }
 
     async function logout() {
@@ -43,14 +42,12 @@ function makeUserService() {
     async function createUser(user) {
         return efetch(`${baseUrl}/registration/`, {
             method: 'POST',
-            body: JSON.stringify(user),
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            body: user,
         });
     }
 
     async function getUser() {
+        const userid = localStorage.getItem('userid');
         const { user } = await efetch(`${baseUrl}/info/`);
         return {
             ...user,
@@ -59,30 +56,27 @@ function makeUserService() {
     }
 
     async function updateUser(user) {
+        const userid = localStorage.getItem('userid');
         return efetch(`${baseUrl}/updateProfile/`, {
             method: 'PUT',
-            body: JSON.stringify(user),
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            body: user,
         });
     }
 
     async function deleteUser() {
+        const userid = localStorage.getItem('userid');
         return efetch(`${baseUrl}/deleteAccount/`, {
             method: 'DELETE',
         });
     }
-
     return {
         login,
         logout,
         createUser,
         getUser,
         updateUser,
-        deleteUser
+        deleteUser,
     };
 }
 
-// Xuất makeUserService dưới dạng một hàm
-export { makeUserService }; // Đảm bảo rằng bạn xuất hàm này
+export default makeUserService() ;

@@ -1,63 +1,31 @@
+<script setup>
+import { ref, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router'; // Ensure you're using useRoute to access route params
+import UserCard from '@/components/UserCard.vue';
+import getUser from '@/services/users.service.js'; // Assuming this is a function that fetches the user
+
+const route = useRoute();
+const user = ref(null);
+const error = ref(null);
+
+const fetchUserData = async () => {
+  try {
+    const fetchedUser = await getUser.getUser();
+    user.value = fetchedUser;
+    error.value = null; // Reset error if the fetch is successful
+  } catch (err) {
+    console.error("Unable to fetch user data:", err);
+    error.value = true;
+  }
+};
+onMounted(fetchUserData);
+watch(route, fetchUserData);
+</script>
 <template>
-  <div class="login-container">
-    <h2>Login</h2>
-    <form @submit.prevent="handleLogin">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input v-model="useremail" type="email" id="email" class="form-control" required/>
-      </div>
-
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input v-model="userpwd" type="password" id="password" class="form-control" required/>
-      </div>
-
-      <button type="submit" class="btn btn-primary">Login</button>
-    </form>
-
-    <div v-if="error" class="error-message">
-      {{ error }}
-    </div>
+  <div>
+    <h1 style="display: flex; align-items: center; justify-content: center; margin-top: 80px;">User Information</h1>
+    <div v-if="!user">Loading user data...</div>
+    <div v-else-if="error">Failed to load user data.</div>
+    <UserCard v-if="user" :user="user" @submit:user="handleUpdateProfile" />
   </div>
 </template>
-
-<script>
-import { makeUserService } from '@/services/users.service.js';
-const userService = makeUserService();
-
-export default {
-  data() {
-    return {
-      useremail: '',
-      userpwd: '',
-      error: null,
-    };
-  },
-  methods: {
-    async handleLogin() {
-      this.error = null; // Xóa lỗi cũ
-      try {
-        const userData = await userService.login(this.useremail, this.userpwd);
-        localStorage.setItem('user', JSON.stringify(userData)); // Lưu thông tin người dùng vào localStorage
-        localStorage.setItem('isLoggedIn', 'true'); // Đặt trạng thái đăng nhập
-        this.$router.push({ name: 'Home' }); // Điều hướng về trang Home
-      } catch (error) {
-        this.error = error.message || 'Login failed. Please try again.';
-      }
-    },
-  },
-};
-</script>
-
-<style scoped>
-.login-container {
-  max-width: 400px;
-  margin: auto;
-  padding: 20px;
-}
-
-.error-message {
-  color: red;
-  margin-top: 10px;
-}
-</style>
