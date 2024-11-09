@@ -113,13 +113,14 @@ async function verifyCustomer(req, res, next) {
     try {
         // Kiểm tra xem người dùng có đơn đặt bàn đang pending không
         const reservationId = await receiptsService.getIDReser(id);
-
+        console.log("Mã đặt bàn:",reservationId);
         if (reservationId) {
             // Kiểm tra xem bàn có sẵn không nếu có reservationId
             const tableInfo = await receiptsService.getIDtable(reservationId);
             if (!tableInfo) {
                 return next(new ApiError(404, 'Không tìm thấy bàn liên quan đến đơn đặt của bạn!'));
             }
+            console.log("Mã bàn: ",tableInfo);
             const tableAvailable = await receiptsService.checktableid(tableInfo.table_id);
             if (!tableAvailable) {
                 return next(new ApiError(401, 'Bàn này đã được đặt bởi khách hàng khác hoặc không có sẵn!'));
@@ -208,7 +209,8 @@ async function getCart(req, res, next) {
             status: 'success',
             receipt: result.receipt,
             reservation: result.reservation,
-            items: result.items
+            items: result.items,
+            table: result.table
         });
     }
     catch (error) {

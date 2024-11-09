@@ -224,10 +224,9 @@ async function createReservation(id,payload) {
     });
 }
 async function sttOrderCustomer(id, payload) {
-    const { status, reservation_id } = payload;
+    const { status } = payload;
     const updatedStatus = await knex.transaction(async trx => {
         console.log(id, status);
-        
         // Tìm hóa đơn của khách hàng với trạng thái 'Pending'
         const receipt = await trx('receipt')
             .where({ 
@@ -236,30 +235,31 @@ async function sttOrderCustomer(id, payload) {
             }).first();
         if (!receipt) return null;
         
-        if (reservation_id) {
+        if (receipt.reservation_id) {
             // Nếu có reservation_id, kiểm tra thông tin bàn và cập nhật trạng thái bàn
             const getIDtable = await trx('reservation')
-                .where({ reservation_id })
+                .where({ reservation_id: receipt.reservation_id })
                 .first();
 
             const tableAvailable = await trx('restaurant_table')
                 .where({ table_id: getIDtable.table_id })
                 .first();
-
+            console.log('Updating table status:', getIDtable.table_id);
+            console.log('Reservation ID:', receipt.reservation_id);
             if (!tableAvailable || tableAvailable.status !== 'available') {
                 throw new Error('Bàn không có sẵn.');
             }
 
-            await trx('restaurant_table')
+            const tableUpdateResult = await trx('restaurant_table')
                 .where({ table_id: getIDtable.table_id })
                 .update({ status: 'reserved' });
+            console.log('Table update result:', tableUpdateResult);
 
             // Cập nhật trạng thái đơn đặt
-            await trx('reservation')
-                .where({ reservation_id })
+            const reservationUpdateResult = await trx('reservation')
+                .where({ reservation_id: receipt.reservation_id })
                 .update({ status: 'confirmed' });
-
-            receipt.reservation_id = reservation_id;
+            console.log('Reservation update result:', reservationUpdateResult);
         } else {
             // Nếu không có reservation_id, đặt giá trị reservation_id = null
             receipt.reservation_id = null;
@@ -356,34 +356,51 @@ async function getManyReceipts(id, query) {
         receipts: results,
     };
 }
-const getPendingOrderWithDetails = async (userid) => {
+async function getPendingOrderWithDetails(userid) {
     const pendingReceipt = await knex('receipt')
         .where({
             userid: userid,
             status: 'Pending'
         })
         .first();
+
     if (!pendingReceipt) {
-        return null; // Không có đơn hàng đang Pending
+        return null; // No pending order
     }
 
-    // Lấy chi tiết bàn từ reservation (nếu có reservation_id)
+    // Fetch reservation details if reservation_id exists
     const reservationDetails = pendingReceipt.reservation_id 
         ? await knex('reservation').where({ reservation_id: pendingReceipt.reservation_id }).first()
         : null;
 
-    // Lấy chi tiết các món hàng trong đơn
+    // Fetch order items
     const orderItems = await knex('Order_Item')
         .join('menu_items', 'Order_Item.item_id', 'menu_items.item_id')
-        .select('Order_Item.quantity', 'Order_Item.price', 'menu_items.item_name')
         .where('Order_Item.order_id', pendingReceipt.order_id);
 
+    if (pendingReceipt.reservation_id) {
+        const { table_id } = await knex('reservation')
+            .select('table_id') // Use 'table_id' here
+            .where({ reservation_id: pendingReceipt.reservation_id })
+            .first();
+
+        const detailTable = await knex('restaurant_table')
+            .where({ table_id: table_id })
+            .first();
+
+        return {
+            receipt: pendingReceipt,
+            reservation: reservationDetails,
+            items: orderItems,
+            table: detailTable
+        };
+    }
     return {
         receipt: pendingReceipt,
         reservation: reservationDetails,
         items: orderItems
     };
-};
+}
 const getReceiptById = async (id, order_id) => {
     // Lấy thông tin hóa đơn dựa trên order_id và userid
     const receipt = await knex('receipt')
