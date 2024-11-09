@@ -1,18 +1,20 @@
-<script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+ <script setup>
+import { ref, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import InputSearch from '@/components/InputSearch.vue';
 import ItemList from '@/components/Menu/ItemList.vue';
 import MainPagination from '@/components/MainPagination.vue';
 import itemsService from '@/services/items.service';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import Swal from 'sweetalert2';
 
 const router = useRouter();
 const route = useRoute();
 const totalPages = ref(1);
+const queryClient = useQueryClient();
 const items = ref([]);
 const selectedIndex = ref(-1);
 const searchText = ref('');
-
 const selectedStatus = ref(''); //Lọc theo trạng thái
 const selectedType = ref(''); //Lọc theo loại món
 
@@ -49,6 +51,45 @@ const selectedItem = computed(() => {
     return filteredItems.value[selectedIndex.value];
 });
 
+// Function to display success notification
+function showSuccessMessage() {
+    Swal.fire({
+        icon: 'success',
+        title: 'Thành công!',
+        text: 'Cập nhật món ăn thành công!',
+        timer: 2000,
+        showConfirmButton: false
+    });
+}
+
+// Function to display error notification
+function showErrorMessage(error) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: `Có lỗi xảy ra: ${error.message || 'Không rõ lỗi'}`,
+        timer: 3000,
+        showConfirmButton: false
+    });
+}
+
+// Use mutationFn for fetchContactsMutation
+const fetchItemsMutation = useMutation({
+  mutationFn: (page) => itemsService.getItems(page),
+  onSuccess: (data) => {
+    totalPages.value = data.metadata.lastPage ?? 1;
+    items.value = data.items.sort((a, b) => a.item_name.localeCompare(b.item_name));
+    selectedIndex.value = -1;
+  },
+  onError: (error) => {
+    console.error('Failed to fetch items:', error);
+  },
+});
+
+function fetchItems() {
+  fetchItemsMutation.mutate(currentPage.value);
+}
+
 // Get items for a specific pages and order them by name
 async function retrieveItems(page) {
     try {
@@ -62,18 +103,42 @@ async function retrieveItems(page) {
     }
 }
 
+// Use mutationFn for deleteAllItemsMutation
+const deleteAllItemsMutation = useMutation({
+  mutationFn: () => itemsService.deleteAllItems(),
+  onSuccess: () => {
+    queryClient.invalidateQueries(['items']);
+    totalPages.value = 1;
+    items.value = [];
+    selectedIndex.value = -1;
+    changeCurrentPage(1);
+  },
+  onError: (error) => {
+    console.error('Failed to delete items:', error);
+  },
+});
+
 async function onDeleteItems() {
-    if (confirm('Bạn muốn xóa tất cả các món?')) {
-        try {   
-            await itemsService.deleteAllItems();
-            totalPages.value = 1;
-            items.value = [];
-            selectedIndex.value = -1;
-            changeCurrentPage(1);
-        } catch (error) {
-            console.error('Error deleting items:', error);
+    const result = await Swal.fire({
+        title: 'Bạn có chắc muốn xóa tất cả?',
+        text: 'Hành động này không thể hoàn tác!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy'
+    });
+    if (result.isConfirmed) {
+        try{
+            deleteAllItemsMutation.mutate();
+            showSuccessMessage();
+        }catch (error) {
+            console.log(error);
+            showErrorMessage(error);
         }
     }
+
 }
 
 function goToAddItem() {
@@ -88,9 +153,9 @@ watch(searchText, () => {
     selectedIndex.value = -1;
 });
 
-watch(currentPage, () => retrieveItems(currentPage.value), { 
-    immediate: true 
-});
+watch(currentPage, () => {
+    fetchItems();
+}, { immediate: true });
 </script>
 
 <template>
@@ -137,6 +202,7 @@ watch(currentPage, () => retrieveItems(currentPage.value), {
             </div>
 
             <ItemList v-if="filteredItems.length > 0" :items="filteredItems" v-model:selectedIndex="selectedIndex" />
+                
             <p v-else>
                 Không có món nào.
             </p>

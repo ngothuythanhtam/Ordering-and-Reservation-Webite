@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import ItemForm from '@/components/Menu/ItemForm.vue';
 import itemsService from '@/services/items.service';
+import { useMutation } from '@tanstack/vue-query';
 import Swal from 'sweetalert2';
 
 const message = ref('');
@@ -37,14 +38,20 @@ function showErrorMessage(error) {
   });
 }
 
-async function onAddItem(item) {
-    try {
-        await itemsService.createItem(item);
-        showSuccessMessage();
-    } catch (error) {
-        console.log(error);
-        showErrorMessage(error);
-    }
+// Mutation to add a new item
+const mutation = useMutation({
+  mutationFn: (newItem) => itemsService.createItem(newItem),
+  onSuccess: () => {
+    showSuccessMessage()
+  },
+  onError: (error) => {
+    console.log(error);
+    showErrorMessage(error);
+  }
+});
+
+function onAddItem(newItem) {
+  mutation.mutate(newItem)
 }
 </script>
 
@@ -54,6 +61,7 @@ async function onAddItem(item) {
       :item="newItem"
       @submit:item="onAddItem" 
     />
-    <p>{{ message }}</p>
+    <p v-if="message">{{ message }}</p>
+    <p v-if="mutation.isLoading">Đang thêm món mới...</p>
   </div>
 </template>

@@ -1,6 +1,7 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted  } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import Swal from 'sweetalert2';
 import ItemForm from '@/components/Menu/ItemForm.vue';
 import itemsService from '@/services/items.service';
@@ -13,20 +14,29 @@ const router = useRouter();
 const route = useRoute();
 const item = ref(null);
 const message = ref('');
+const isLoading = ref(false);
+const isError = ref(false);
+const queryClient = useQueryClient();
 
-async function getItem(item_id) {
-    try {
-        item.value = await itemsService.fetchItem(item_id);
-    } catch (error) {
-        console.log(error);
-        router.push({
-            name: 'notfound',
-            params: { pathMatch: route.path.split('/').slice(1) },
-            query: route.query,
-            hash: route.hash,
-        });
-    }
-}
+// Fetch item mutation using mutationFn
+const fetchItemMutation = useMutation({
+  mutationFn: () => itemsService.fetchItem(props.item_id),
+  onSuccess: (data) => {
+    item.value = data;
+    isLoading.value = false;
+  },
+  onError: (error) => {
+    console.error('Failed to fetch item:', error);
+    isError.value = true;
+    router.push({
+      name: 'notfound',
+      params: { pathMatch: route.path.split('/').slice(1) },
+      query: route.query,
+      hash: route.hash
+    });
+  }
+});
+
 // Function to display success notification
 function showSuccessMessage() {
     Swal.fire({
@@ -49,18 +59,37 @@ function showErrorMessage(error) {
     });
 }
 
+// Update item using mutationFn
+const updateItemMutation = useMutation({
+  mutationFn: (updatedItem) => itemsService.updateItem(props.item_id, updatedItem),
+  onSuccess: () => {
+    queryClient.invalidateQueries(['item', props.item_id]);
+    showSuccessMessage();
+  },
+  onError: (error) => {
+    console.error('Failed to update item:', error);
+    showErrorMessage(error)
+  }
+});
+
 async function onUpdateItem(item) {
-    try {
-        await itemsService.updateItem(props.item_id, item);
-        showSuccessMessage();
-    } catch (error) {
-        console.log(error);
-        showErrorMessage(error);
-    }
+    updateItemMutation.mutate(item);
     console.log("Updating item with data:", item);
 }
 
-async function onDeleteItem(item_id) {
+// Delete item using mutationFn
+const deleteItemMutation = useMutation({
+  mutationFn: () => itemsService.deleteItem(props.item_id),
+  onSuccess: () => {
+    queryClient.invalidateQueries(['items']);
+    router.push({ name: 'menu' });
+  },
+  onError: (error) => {
+    console.error('Failed to delete contact:', error);
+  }
+});
+
+async function onDeleteItem() {
     const result = await Swal.fire({
         title: 'Bạn có chắc muốn xóa?',
         text: 'Hành động này không thể hoàn tác!',
@@ -74,8 +103,7 @@ async function onDeleteItem(item_id) {
     if (result.isConfirmed) {
         try {
             showSuccessMessage();
-            await itemsService.deleteItem(item_id);
-            router.push({ name: 'menu' });
+            deleteItemMutation.mutate();
         } catch (error) {
             console.log(error);
             showErrorMessage(error);
@@ -83,11 +111,21 @@ async function onDeleteItem(item_id) {
     }
 }
 
-getItem(props.item_id);
+onMounted(() => {
+  isLoading.value = true;
+  fetchItemMutation.mutate();
+});
+// getItem(props.item_id);
 </script>
 
 <template>
-    <div v-if="item" class="page">
+    <div v-if="isLoading" class="page">
+        <p>Loading...</p>
+    </div>
+    <div v-else-if="isError" class="page">
+        <p>Error loading contact.</p>
+    </div>
+    <div v-else="item" class="page">
         <ItemForm :item="item" @submit:item="onUpdateItem" @delete:item="onDeleteItem" />
         <p>{{ message }}</p>
     </div>
