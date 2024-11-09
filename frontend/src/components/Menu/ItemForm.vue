@@ -1,5 +1,5 @@
 <script setup>
-import { ref, useTemplateRef } from 'vue';
+import { ref, watch } from 'vue';
 import { Form, Field, ErrorMessage } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { z } from 'zod';
@@ -17,8 +17,8 @@ const props = defineProps({
   item: { type: Object, required: true },
 });
 
-let img_urlFileInput = useTemplateRef('img_url_file');
-let img_urlFile = ref(props.item.img_url);
+let img_urlFileInput = ref(null);
+let img_urlFile = ref(props.item?.img_url || '');
 
 const $emit = defineEmits(['submit:item', 'delete:item']);
 
@@ -42,14 +42,25 @@ let validationSchema = toTypedSchema(
   })
 );
 
+watch(
+  () => props.item,
+  (newItem) => {
+    img_urlFile.value = newItem?.img_url || '';
+  },
+  { immediate: true }
+);
+
 function previewImgFile(event) {
   const file = event.target.files[0];
+  if(!file) return;
+
   const reader = new FileReader();
   reader.onload = (evt) => {
     img_urlFile.value = evt.target.result;
   };
   reader.readAsDataURL(file);
 }
+
 function submitItem(values) {
   const formData = new FormData();
 
@@ -81,11 +92,11 @@ function deleteItem() {
     <Form :validation-schema="validationSchema" @submit="submitItem" class="form-item">
       <div class="mb-4 w-50 mx-auto text-center">
         <img class="img-fluid img-thumbnail preview-img" :src="img_urlFile" alt="Click to upload image"
-          @click="img_urlFileInput.click()" style="cursor: pointer; transition: transform 0.3s ease;"
+          @click="img_urlFileInput?.click()" style="cursor: pointer; transition: transform 0.3s ease;"
           @mouseover="hoverImg = true" @mouseleave="hoverImg = false"
           :style="{ transform: hoverImg ? 'scale(1.05)' : 'scale(1)' }" />
         <Field name="img_url_file" v-slot="{ handleChange }">
-          <input type="file" class="d-none" ref="img_url_file" @change="(event) => {
+          <input type="file" class="d-none" ref="img_urlFileInput" @change="(event) => {
             handleChange(event);
             previewImgFile(event);
           }" />
@@ -96,18 +107,12 @@ function deleteItem() {
       <div class="row mb-3">
         <div class="col-6">
           <label for="item_name" class="form-label">Tên</label>
-          <Field name="item_name" type="text" class="form-control" v-model="props.item.item_name" />
+          <Field name="item_name" type="text" class="form-control" :value="item?.item_name" />
           <ErrorMessage name="item_name" class="error-feedback" />
         </div>
-        <!-- <div class="col-6">
-          <label for="item_price" class="form-label">Giá</label>
-          <Field name="item_price" type="number" placeholder="Giá" class="form-control"
-            v-model="props.item.item_price" />
-          <ErrorMessage name="item_price" class="error-feedback" />
-        </div> -->
         <div class="col-4 d-flex align-items-end">
-          <Field name="item_status" type="checkbox" class="form-check-input" v-model="props.item.item_status" :value="1"
-            :unchecked-value="0" />
+          <Field name="item_status" type="checkbox" class="form-check-input" :model-value="item?.item_status" :value="1"
+          :unchecked-value="0" />
           <label for="item_status" class="form-check-label ms-2">
             <strong>Có sẵn</strong>
           </label>
@@ -118,7 +123,7 @@ function deleteItem() {
       <div class="row mb-3">
         <div class="col-8">
           <label for="item_type" class="form-label">Loại món</label>
-          <Field as="select" name="item_type" class="form-control" v-model="props.item.item_type">
+          <Field as="select" name="item_type" class="form-control" :value ="item?.item_type">
             <option value="">Chọn loại món</option>
             <option value="Course">Course</option>
             <option value="Salad">Salad</option>
@@ -135,16 +140,14 @@ function deleteItem() {
         </div>
         <div class="col-6">
           <label for="item_price" class="form-label">Giá</label>
-          <Field name="item_price" type="number" placeholder="Giá" class="form-control"
-            v-model="props.item.item_price" />
+          <Field name="item_price" type="number" placeholder="Giá" class="form-control" :value="item?.item_price" />
           <ErrorMessage name="item_price" class="error-feedback" />
         </div>
       </div>
 
       <div class="mb-3">
         <label for="item_description" class="form-label">Mô tả</label>
-        <Field name="item_description" type="text" class="form-control description-field"
-          v-model="props.item.item_description" />
+        <Field name="item_description" type="text" class="form-control description-field" :value="item?.item_description" />
         <ErrorMessage name="item_description" class="error-feedback" />
       </div>
 
@@ -152,7 +155,7 @@ function deleteItem() {
         <button class="btn btn-primary" type="submit">
           <i class="fas fa-save"></i> Lưu
         </button>
-        <button v-if="props.item.item_id" type="button" class="btn btn-danger" @click="deleteItem"
+        <button v-if="item?.item_id" type="button" class="btn btn-danger" @click="deleteItem"
           @mouseover="hoverDelete = true" @mouseleave="hoverDelete = false"
           :style="{ backgroundColor: hoverDelete ? '#dc3545' : '#ff4d4d' }">
           <i class="fas fa-trash"></i> Xóa

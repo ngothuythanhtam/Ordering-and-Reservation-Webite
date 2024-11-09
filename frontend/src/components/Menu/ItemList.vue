@@ -93,6 +93,7 @@ const closeModal = () => {
   color: #333;
 }
 
+/* Modal overlay with fade-in effect */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -104,8 +105,20 @@ const closeModal = () => {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  opacity: 0;
+  animation: fade-in 0.3s forwards;
 }
 
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal content with zoom-in effect */
 .modal-content {
   background-color: #e9bdbd;
   padding: 40px;
@@ -115,13 +128,26 @@ const closeModal = () => {
   height: auto;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   position: relative;
+  transform: scale(0.9);
+  animation: zoom-in 0.3s forwards;
+}
+
+@keyframes zoom-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .close-button {
   position: absolute;
   top: 0px;
   right: 0px;
-  background-color: #e9bdbd;  
+  background-color: #e9bdbd;
   color: rgb(183, 18, 18);
   border: none;
   border-radius: 50%;
@@ -138,12 +164,11 @@ const closeModal = () => {
   text-align: left;
 }
 
-.edit-button{
+.edit-button {
   margin-left: 180px;
   margin-top: 15px;
   width: 150px;
   height: 40px;
-  border-radius: none;
   background-color: bisque;
   font-size: 18px;
 }
