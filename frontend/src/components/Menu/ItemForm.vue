@@ -3,6 +3,15 @@ import { ref, useTemplateRef } from 'vue';
 import { Form, Field, ErrorMessage } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { z } from 'zod';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+const hoverImg = ref(false);
+const hoverDelete = ref(false);
+
+function goBack() {
+  router.back();
+}
 
 const props = defineProps({
   item: { type: Object, required: true },
@@ -65,61 +74,118 @@ function deleteItem() {
 </script>
 
 <template>
-  <Form :validation-schema="validationSchema" @submit="submitItem">
-    <div class="mb-3 w-50 h-50">
-      <img class="img-fluid img-thumbnail" :src="img_urlFile" alt="" @click="img_urlFileInput.click()" />
-      <Field name="img_url_file" v-slot="{ handleChange }">
-        <input type="file" class="d-none" ref="img_url_file" @change="(event) => {
+  <div class="form-container p-4 shadow-lg rounded bg-light">
+    <button class="btn btn-secondary mb-3" @click="goBack">
+      <i class="fas fa-arrow-left"></i> Back
+    </button>
+    <Form :validation-schema="validationSchema" @submit="submitItem">
+      <div class="mb-4 w-50 mx-auto text-center">
+        <img class="img-fluid img-thumbnail preview-img" :src="img_urlFile" alt="Click to upload image"
+          @click="img_urlFileInput.click()" style="cursor: pointer; transition: transform 0.3s ease;"
+          @mouseover="hoverImg = true" @mouseleave="hoverImg = false"
+          :style="{ transform: hoverImg ? 'scale(1.05)' : 'scale(1)' }" />
+        <Field name="img_url_file" v-slot="{ handleChange }">
+          <input type="file" class="d-none" ref="img_url_file" @change="(event) => {
             handleChange(event);
             previewImgFile(event);
-          }
-          " />
-      </Field>
-    </div>
-    <div class="mb-3">
-      <label for="item_name" class="form-label">Tên</label>
-      <Field name="item_name" type="text" class="form-control" v-model="props.item.item_name" />
-      <ErrorMessage name="item_name" class="error-feedback" />
-    </div>
-    <div class="mb-3">
-      <label for="item_type" class="form-label">Loại món</label>
-      <Field as="select" name="item_type" class="form-control" v-model="props.item.item_type">
-        <option value="">Chọn loại món</option>
-        <option value="Course">Course</option>
-        <option value="Salad">Salad</option>
-        <option value="Soup">Soup</option>
-        <option value="Side Dish">Side Dish</option>
-        <option value="Dessert">Dessert</option>
-        <option value="Beverage">Beverage</option>
-        <option value="Snack">Snack</option>
-        <option value="Breakfast">Breakfast</option>
-        <option value="Lunch">Lunch</option>
-        <option value="Dinner">Dinner</option>
-      </Field>
-      <ErrorMessage name="item_type" class="error-feedback" />
-    </div>
-    <div class="mb-3">
-      <label for="item_description" class="form-label">Mô tả</label>
-      <Field name="item_description" type="text" class="form-control" v-model="props.item.item_description" />
-      <ErrorMessage name="item_description" class="error-feedback" />
-    </div>
-    <div class="mb-3">
-      <label for="item_price" class="form-label">Giá</label>
-      <Field name="item_price" type="number" placeholder="Giá" class="form-control" v-model="props.item.item_price" />
-      <ErrorMessage name="item_price" class="error-feedback" />
-    </div>
-    <div class="mb-3 form-check">
-      <Field name="item_status" type="checkbox" class="form-check-input" v-model="props.item.item_status" :value="1"
-        :unchecked-value="0" />
-      <label for="item_status" class="form-check-label">
-        <strong>Có sẵn</strong>
-      </label>
-    </div>
-    <div class="mb-3">
-      <button class="btn btn-primary"><i class="fas fa-save"></i> Lưu</button>
-      <button v-if="props.item.item_id" type="button" class="ms-2 btn btn-danger" @click="deleteItem">
-        <i class="fas fa-trash"></i> Xóa
-      </button>
-    </div>
-  </Form>
+          }" />
+        </Field>
+      </div>
+      <div class="mb-3">
+        <label for="item_name" class="form-label">Tên</label>
+        <Field name="item_name" type="text" class="form-control" v-model="props.item.item_name" />
+        <ErrorMessage name="item_name" class="error-feedback" />
+      </div>
+      <div class="mb-3">
+        <label for="item_type" class="form-label">Loại món</label>
+        <Field as="select" name="item_type" class="form-control" v-model="props.item.item_type">
+          <option value="">Chọn loại món</option>
+          <option value="Course">Course</option>
+          <option value="Salad">Salad</option>
+          <option value="Soup">Soup</option>
+          <option value="Side Dish">Side Dish</option>
+          <option value="Dessert">Dessert</option>
+          <option value="Beverage">Beverage</option>
+          <option value="Snack">Snack</option>
+          <option value="Breakfast">Breakfast</option>
+          <option value="Lunch">Lunch</option>
+          <option value="Dinner">Dinner</option>
+        </Field>
+        <ErrorMessage name="item_type" class="error-feedback" />
+      </div>
+      <div class="mb-3">
+        <label for="item_description" class="form-label">Mô tả</label>
+        <Field name="item_description" type="text" class="form-control" v-model="props.item.item_description" />
+        <ErrorMessage name="item_description" class="error-feedback" />
+      </div>
+      <div class="mb-3">
+        <label for="item_price" class="form-label">Giá</label>
+        <Field name="item_price" type="number" placeholder="Giá" class="form-control" v-model="props.item.item_price" />
+        <ErrorMessage name="item_price" class="error-feedback" />
+      </div>
+      <div class="mb-3 form-check">
+        <Field name="item_status" type="checkbox" class="form-check-input" v-model="props.item.item_status" :value="1"
+          :unchecked-value="0" />
+        <label for="item_status" class="form-check-label">
+          <strong>Có sẵn</strong>
+        </label>
+      </div>
+      <div class="mb-3 d-flex justify-content-between">
+        <button class="btn btn-primary" type="submit">
+          <i class="fas fa-save"></i> Lưu
+        </button>
+        <button v-if="props.item.item_id" type="button" class="btn btn-danger" @click="deleteItem"
+          @mouseover="hoverDelete = true" @mouseleave="hoverDelete = false"
+          :style="{ backgroundColor: hoverDelete ? '#dc3545' : '#ff4d4d' }">
+          <i class="fas fa-trash"></i> Xóa
+        </button>
+      </div>
+    </Form>
+  </div>
 </template>
+
+<style scoped>
+.form-container {
+  max-width: 600px;
+  margin: auto;
+  background-color: #f7f9fc;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.preview-img {
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.preview-img:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+}
+
+.form-label {
+  font-weight: bold;
+}
+
+.btn-primary,
+.btn-danger {
+  font-weight: bold;
+  padding: 10px 20px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #007bff;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+.error-feedback {
+  color: #dc3545;
+  font-size: 0.9em;
+}
+</style>

@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import Swal from 'sweetalert2';
 import ItemForm from '@/components/Menu/ItemForm.vue';
 import itemsService from '@/services/items.service';
 
@@ -26,33 +27,67 @@ async function getItem(item_id) {
         });
     }
 }
+// Function to display success notification
+function showSuccessMessage() {
+    Swal.fire({
+        icon: 'success',
+        title: 'Thành công!',
+        text: 'Cập nhật món ăn thành công!',
+        timer: 2000,
+        showConfirmButton: false
+    });
+}
+
+// Function to display error notification
+function showErrorMessage(error) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: `Có lỗi xảy ra: ${error.message || 'Không rõ lỗi'}`,
+        timer: 3000,
+        showConfirmButton: false
+    });
+}
+
 async function onUpdateItem(item) {
     try {
         await itemsService.updateItem(props.item_id, item);
-        message.value = 'Món được cập nhật thành công.';
+        showSuccessMessage();
     } catch (error) {
         console.log(error);
-        message.value = 'Có lỗi xảy ra khi cập nhật món. Vui lòng thử lại.';
+        showErrorMessage(error);
     }
     console.log("Updating item with data:", item);
 }
 
 async function onDeleteItem(item_id) {
-    if (confirm('Bạn muốn xóa món này?')) {
+    const result = await Swal.fire({
+        title: 'Bạn có chắc muốn xóa?',
+        text: 'Hành động này không thể hoàn tác!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy'
+    });
+    if (result.isConfirmed) {
         try {
+            showSuccessMessage();
             await itemsService.deleteItem(item_id);
             router.push({ name: 'menu' });
         } catch (error) {
             console.log(error);
+            showErrorMessage(error);
         }
     }
 }
+
 getItem(props.item_id);
 </script>
 
 <template>
     <div v-if="item" class="page">
-        <h4>Hiệu chỉnh món</h4>
         <ItemForm :item="item" @submit:item="onUpdateItem" @delete:item="onDeleteItem" />
         <p>{{ message }}</p>
     </div>

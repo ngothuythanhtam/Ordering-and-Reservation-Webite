@@ -6,7 +6,7 @@
 </script>
 
 <template>
-  <div class="input-group">
+  <div class="input-group search-bar">
     <input
       type="text"
       class="form-control px-3"
@@ -22,3 +22,9 @@
     </button>
   </div>
 </template>
+
+<style scoped>
+.search-bar {
+  max-width: 300px; /* Adjust width of the search bar */
+}
+</style>

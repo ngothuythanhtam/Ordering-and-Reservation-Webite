@@ -1,25 +1,55 @@
 <script setup>
-  defineProps({
-    items: { type: Array, default: () => [] },
-    selectedIndex: { type: Number, default: -1 },
-  });
-  const emit = defineEmits(['update:selectedIndex']);
-  const onSelectItem = (item, index) => {
-    emit('update:selectedIndex', index);
-  };
+import { ref, computed, watch } from 'vue';
+import ItemCard from '@/components/Menu/ItemCard.vue';
+
+const props = defineProps({
+  items: { type: Array, default: () => [] },
+  selectedIndex: { type: Number, default: -1 },
+});
+const emit = defineEmits(['update:selectedIndex']);
+
+const isOpen = ref(false);
+const selectedIndex = ref(-1);
+
+// Watch for selectedIndex changes to open the modal
+watch(selectedIndex, (newIndex) => {
+  if (newIndex >= 0) isOpen.value = true;
+});
+
+// Method to handle item selection
+const onSelectItem = (item, index) => {
+  selectedIndex.value = index;
+  emit('update:selectedIndex', index);
+};
+
+const selectedItem = computed(() => {
+  return props.items[selectedIndex.value] || null;
+});
+
+const closeModal = () => {
+  isOpen.value = false;
+  selectedIndex.value = -1; 
+};
 </script>
 
 <template>
-  <div class="item-grid mt-4">
-    <div
-      v-for="(item, index) in items"
-      :key="item.item_id"
-      class="item-card"
-      :class="{ active: index === selectedIndex }"
-      @click="onSelectItem(item, index)"
-    >
+  <div class="item-grid mt-5">
+    <div v-for="(item, index) in items" :key="item.item_id" class="item-card"
+      :class="{ active: index === selectedIndex }" @click="onSelectItem(item, index)">
       <img :src="item.img_url" alt="Image" class="item-image" />
       <div class="item-name">{{ item.item_name }}</div>
+    </div>
+    <div class="modal-overlay" v-if="isOpen">
+      <div class="modal-content">
+        <button class="close-button" @click="closeModal"><i class="fa-solid fa-xmark"></i></button>
+        <div class="content-inner">
+          <ItemCard v-if="selectedItem" class="card" :item="selectedItem" />
+        </div>
+
+        <router-link v-if="selectedItem" :to="{ name: 'item.edit', params: { item_id: selectedItem.item_id } }">
+          <button class="edit-button "> <i class="fas fa-edit"></i> Chỉnh sửa</button>
+        </router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -27,8 +57,9 @@
 <style scoped>
 .item-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(150px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  gap: 0px;
+  row-gap: 50px;
 }
 
 .item-card {
@@ -38,14 +69,15 @@
   padding: 8px;
   border-radius: 8px;
   transition: transform 0.2s, box-shadow 0.2s;
-  background-color: #fff;
+  background-color: #c78888;
+  width: 250px;
 }
 
 .item-card.active,
 .item-card:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  background-color: #e9bdbd
+  background-color: #e9bdbd;
 }
 
 .item-image {
@@ -59,6 +91,61 @@
   margin-top: 8px;
   font-weight: bold;
   color: #333;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #e9bdbd;
+  padding: 40px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 600px;
+  height: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background-color: #e9bdbd;  
+  color: rgb(183, 18, 18);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 25px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content-inner {
+  text-align: left;
+}
+
+.edit-button{
+  margin-left: 180px;
+  margin-top: 15px;
+  width: 150px;
+  height: 40px;
+  border-radius: none;
+  background-color: bisque;
+  font-size: 18px;
 }
 </style>
 

@@ -1,7 +1,6 @@
 import { createWebHistory, createRouter } from 'vue-router';
 import Home from '@/views/Home.vue'
 import Menu from '@/views/Menu/Menu.vue';
-import ItemCard from '@/components/Menu/ItemCard.vue';
 import Table from '@/views/Table/Table.vue';
 import Reservation from '@/views/Reservation/Reservation.vue';
 import Receipt from '@/views/Receipt/Receipt.vue';
@@ -32,7 +31,6 @@ const routes = [
         name: 'notfound',
         component: () => import('@/views/NotFound.vue'),
     },
-
     {
         path: '/menu/items/:item_id',
         name: 'item.edit',

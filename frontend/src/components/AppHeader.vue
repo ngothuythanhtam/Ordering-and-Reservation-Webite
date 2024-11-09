@@ -1,5 +1,5 @@
 <script>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { makeUserService } from '@/services/users.service';
 
@@ -7,16 +7,8 @@ export default {
   name: 'Navbar',
   setup() {
     const userService = makeUserService();
+    const isLoggedIn = ref(!!localStorage.getItem('isLoggedIn'));
     const router = useRouter();
-    const isLoggedIn = ref(false);
-
-    // Function to check login status based on localStorage
-    const checkLoginStatus = () => {
-      isLoggedIn.value = !!localStorage.getItem('isLoggedIn');
-    };
-
-    // Run checkLoginStatus on component mount
-    onMounted(checkLoginStatus);
 
     const login = () => {
       router.push('/login');
@@ -38,7 +30,6 @@ export default {
     };
 
     const checkAuth = (to) => {
-      checkLoginStatus(); // Refresh login status
       if (!isLoggedIn.value) {
         alert('Please log in to access this page.');
         router.push('/login');
@@ -56,7 +47,6 @@ export default {
     };
   },
 };
-
 </script>
 
 <template>
@@ -87,31 +77,11 @@ export default {
           </a>
         </li>
         <li class="nav-item">
-          <a href="javascript:void(0)" @click="checkAuth({ name: 'UserAccount' })" class="nav-link">
-            User Account
-          </a>
-        </li>
-      </div>
-      
-      <!-- Items aligned to the right -->
-      <div class="ms-auto navbar-nav">
-        <li class="nav-item">
-          <a href="javascript:void(0)" @click="checkAuth({ name: 'MyAccount' })" class="nav-link">
-            My Account
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="javascript:void(0)" @click="login" class="nav-link">
-            Login
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="javascript:void(0)" @click="register" class="nav-link">
-            Register
+          <a href="javascript:void(0)" @click="checkAuth({ name: 'account' })" class="nav-link">
+            Account
           </a>
         </li>
       </div>
     </div>
   </nav>
 </template>
-

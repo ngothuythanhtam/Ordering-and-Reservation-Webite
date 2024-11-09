@@ -40,48 +40,52 @@ const pages = computed(() => {
 </script>
 
 <template>
-  <nav>
-    <ul class="pagination">
-      <li
-        class="page-item"
-        :class="{ disabled: currentPage === 1 }"
-      >
-        <a
-        role="button"
-        class="page-link"
-        @click.prevent="
-        $emit('update:currentPage', currentPage - 1)"
-        >
-        <span>&laquo;</span>
-        </a>
-      </li>
-      <li
-        v-for="page in pages"
-        :key="page"
-        class="page-item"
-        :class="{ active: currentPage === page }"
-        >
-        <a
-          role="button"
-          class="page-link"
-          @click.prevent="
-          $emit('update:currentPage', page)"
-        >{{ page }}</a
-      >
-      </li>
-      <li
-        class="page-item"
-        :class="{ disabled: currentPage === totalPages }"
-      >
-        <a
-          role="button"
-          class="page-link"
-          @click.prevent="
-          $emit('update:currentPage', currentPage + 1)"
-          >
-          <span>&raquo;</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
+  <div class="pagination-container">
+    <nav>
+      <ul class="pagination">
+        <li class="page-item" :class="{ disabled: currentPage === 1 }">
+          <a role="button" class="page-link" @click.prevent="$emit('update:currentPage', currentPage - 1)">
+            <span>&laquo;</span>
+          </a>
+        </li>
+        <li v-for="page in pages" :key="page" class="page-item" :class="{ active: currentPage === page }">
+          <a role="button" class="page-link" @click.prevent="$emit('update:currentPage', page)">{{ page }}</a>
+        </li>
+        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+          <a role="button" class="page-link" @click.prevent="$emit('update:currentPage', currentPage + 1)">
+            <span>&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </template>
+
+<style scoped>
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  color: #000;
+}
+
+.pagination {
+  display: inline-flex;
+  padding-left: 0;
+  list-style: none;
+}
+
+.page-item {
+  margin: 0 0px;
+}
+
+.page-item.disabled .page-link {
+  cursor: not-allowed;
+  color: #d4cccc;
+}
+
+.page-item.active .page-link {
+  background-color: #c78888;
+  color: white;
+  border-color: #c78888;
+}
+</style>
