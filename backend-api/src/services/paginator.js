@@ -1,6 +1,6 @@
 class Paginator {
     constructor(page = 1, limit = 5) {
-        this.limit = parseInt(limit, 12);
+        this.limit = parseInt(limit, 10);
         if (isNaN(this.limit) || this.limit < 1) {
             this.limit = 5;
         }
