@@ -16,7 +16,7 @@ const routes = [
     },
     {
         path: '/',
-        name: 'home',
+        name: 'Home',
         component: Home,
     },
 
@@ -28,7 +28,7 @@ const routes = [
     
     {
         path: '/:pathMatch(.*)*',
-        name: 'notfound',
+        name: 'notfound',   
         component: () => import('@/views/NotFound.vue'),
     },
     {

@@ -5,7 +5,7 @@ import Navbar from '@/components/Navbar.vue';
 <template>
   <Navbar />
   <div class="container mt-3">
-  <router-view />
+    <router-view />
   </div>
 </template>
 

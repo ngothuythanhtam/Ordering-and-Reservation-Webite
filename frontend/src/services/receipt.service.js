@@ -35,9 +35,12 @@ function makeReceiptService(){
     }
 
     async function fetchReceipt(order_id) {
-        const { receipt } = await efetch(`${baseUrl}/${order_id}`);
+        const response = await efetch(`${baseUrl}/${order_id}`);
+        const { receipt_info: receipt } = response;
+
         return {
             ...receipt,
+            order_items: receipt.order_items || []  // Bao gồm mảng order_items nếu tồn tại
         };
     }
 
@@ -52,10 +55,28 @@ function makeReceiptService(){
         return data;
     }
 
+    async function updateReceipt(order_id, receipt) {
+        try {
+            const response = await fetch(`${baseUrl}/verify/${order_id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(receipt),
+            });
+            const result = await response.json();
+            console.log("API Response:", result); // Check if the server updated the status
+            return result;
+        } catch (error) {
+            console.error("API Error:", error);
+            throw error;
+        }
+    }
+
+
     return {
         fetchReceipts,
         fetchReceipt,
         getReceipts,
+        updateReceipt,
     }
 }
 export default makeReceiptService();

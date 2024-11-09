@@ -34,12 +34,22 @@ function makeReservationService(){
         return data;
     }
 
+    // async function fetchReservation(reservation_id) {
+    //     const { reservation } = await efetch(`${baseUrl}/${reservation_id}`);
+    //     return {
+    //         ...reservation,
+    //     };
+    // }
+
     async function fetchReservation(reservation_id) {
-        const { reservation } = await efetch(`${baseUrl}/${reservation_id}`);
+        const response = await efetch(`${baseUrl}/${reservation_id}`);
+        const { reservation_info: reservation } = response
         return {
             ...reservation,
+            table_number: reservation.table_number,
         };
     }
+    
 
     async function getReservations(page, limit = 10) {
         let url = `${baseUrl}?page=${page}&limit=${limit}`;

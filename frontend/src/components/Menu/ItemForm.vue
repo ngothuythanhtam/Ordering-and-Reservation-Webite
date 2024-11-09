@@ -74,11 +74,11 @@ function deleteItem() {
 </script>
 
 <template>
-  <div class="form-container p-4 shadow-lg rounded bg-light">
+  <div class="form-container p-4 shadow-lg rounded">
     <button class="btn btn-secondary mb-3" @click="goBack">
       <i class="fas fa-arrow-left"></i> Back
     </button>
-    <Form :validation-schema="validationSchema" @submit="submitItem">
+    <Form :validation-schema="validationSchema" @submit="submitItem" class="form-item">
       <div class="mb-4 w-50 mx-auto text-center">
         <img class="img-fluid img-thumbnail preview-img" :src="img_urlFile" alt="Click to upload image"
           @click="img_urlFileInput.click()" style="cursor: pointer; transition: transform 0.3s ease;"
@@ -91,45 +91,63 @@ function deleteItem() {
           }" />
         </Field>
       </div>
-      <div class="mb-3">
-        <label for="item_name" class="form-label">Tên</label>
-        <Field name="item_name" type="text" class="form-control" v-model="props.item.item_name" />
-        <ErrorMessage name="item_name" class="error-feedback" />
+
+      <!-- Row for item name and item price -->
+      <div class="row mb-3">
+        <div class="col-6">
+          <label for="item_name" class="form-label">Tên</label>
+          <Field name="item_name" type="text" class="form-control" v-model="props.item.item_name" />
+          <ErrorMessage name="item_name" class="error-feedback" />
+        </div>
+        <!-- <div class="col-6">
+          <label for="item_price" class="form-label">Giá</label>
+          <Field name="item_price" type="number" placeholder="Giá" class="form-control"
+            v-model="props.item.item_price" />
+          <ErrorMessage name="item_price" class="error-feedback" />
+        </div> -->
+        <div class="col-4 d-flex align-items-end">
+          <Field name="item_status" type="checkbox" class="form-check-input" v-model="props.item.item_status" :value="1"
+            :unchecked-value="0" />
+          <label for="item_status" class="form-check-label ms-2">
+            <strong>Có sẵn</strong>
+          </label>
+        </div>
       </div>
-      <div class="mb-3">
-        <label for="item_type" class="form-label">Loại món</label>
-        <Field as="select" name="item_type" class="form-control" v-model="props.item.item_type">
-          <option value="">Chọn loại món</option>
-          <option value="Course">Course</option>
-          <option value="Salad">Salad</option>
-          <option value="Soup">Soup</option>
-          <option value="Side Dish">Side Dish</option>
-          <option value="Dessert">Dessert</option>
-          <option value="Beverage">Beverage</option>
-          <option value="Snack">Snack</option>
-          <option value="Breakfast">Breakfast</option>
-          <option value="Lunch">Lunch</option>
-          <option value="Dinner">Dinner</option>
-        </Field>
-        <ErrorMessage name="item_type" class="error-feedback" />
+
+      <!-- Row for item type and item status -->
+      <div class="row mb-3">
+        <div class="col-8">
+          <label for="item_type" class="form-label">Loại món</label>
+          <Field as="select" name="item_type" class="form-control" v-model="props.item.item_type">
+            <option value="">Chọn loại món</option>
+            <option value="Course">Course</option>
+            <option value="Salad">Salad</option>
+            <option value="Soup">Soup</option>
+            <option value="Side Dish">Side Dish</option>
+            <option value="Dessert">Dessert</option>
+            <option value="Beverage">Beverage</option>
+            <option value="Snack">Snack</option>
+            <option value="Breakfast">Breakfast</option>
+            <option value="Lunch">Lunch</option>
+            <option value="Dinner">Dinner</option>
+          </Field>
+          <ErrorMessage name="item_type" class="error-feedback" />
+        </div>
+        <div class="col-6">
+          <label for="item_price" class="form-label">Giá</label>
+          <Field name="item_price" type="number" placeholder="Giá" class="form-control"
+            v-model="props.item.item_price" />
+          <ErrorMessage name="item_price" class="error-feedback" />
+        </div>
       </div>
+
       <div class="mb-3">
         <label for="item_description" class="form-label">Mô tả</label>
-        <Field name="item_description" type="text" class="form-control" v-model="props.item.item_description" />
+        <Field name="item_description" type="text" class="form-control description-field"
+          v-model="props.item.item_description" />
         <ErrorMessage name="item_description" class="error-feedback" />
       </div>
-      <div class="mb-3">
-        <label for="item_price" class="form-label">Giá</label>
-        <Field name="item_price" type="number" placeholder="Giá" class="form-control" v-model="props.item.item_price" />
-        <ErrorMessage name="item_price" class="error-feedback" />
-      </div>
-      <div class="mb-3 form-check">
-        <Field name="item_status" type="checkbox" class="form-check-input" v-model="props.item.item_status" :value="1"
-          :unchecked-value="0" />
-        <label for="item_status" class="form-check-label">
-          <strong>Có sẵn</strong>
-        </label>
-      </div>
+
       <div class="mb-3 d-flex justify-content-between">
         <button class="btn btn-primary" type="submit">
           <i class="fas fa-save"></i> Lưu
@@ -139,6 +157,7 @@ function deleteItem() {
           :style="{ backgroundColor: hoverDelete ? '#dc3545' : '#ff4d4d' }">
           <i class="fas fa-trash"></i> Xóa
         </button>
+
       </div>
     </Form>
   </div>
@@ -148,9 +167,10 @@ function deleteItem() {
 .form-container {
   max-width: 600px;
   margin: auto;
-  background-color: #f7f9fc;
+  background-color: #d1d4d9;
   padding: 20px;
   border-radius: 10px;
+  margin-top: 20px;
 }
 
 .preview-img {
@@ -167,6 +187,10 @@ function deleteItem() {
 
 .form-label {
   font-weight: bold;
+}
+
+.description-field {
+  width: 100%;
 }
 
 .btn-primary,
@@ -187,5 +211,16 @@ function deleteItem() {
 .error-feedback {
   color: #dc3545;
   font-size: 0.9em;
+}
+
+.row {
+  display: flex;
+}
+
+.col-6,
+.col-8,
+.col-4 {
+  flex: 1;
+  padding: 0 5px;
 }
 </style>

@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import ItemForm from '@/components/Menu/ItemForm.vue';
 import itemsService from '@/services/items.service';
+import Swal from 'sweetalert2';
 
 const message = ref('');
 
@@ -11,23 +12,44 @@ const newItem = ref({
     item_description: '',
     item_price: 0,
     item_status: 1,
-    img_url: '/public/images/logo.png', // Default image URL for preview
+    img_url: '/public/images/logo.png', 
 });
+
+// Function to display success notification
+function showSuccessMessage() {
+  Swal.fire({
+    icon: 'success',
+    title: 'Thành công!',
+    text: 'Cập nhật món ăn thành công!',
+    timer: 2000,
+    showConfirmButton: false
+  });
+}
+
+// Function to display error notification
+function showErrorMessage(error) {
+  Swal.fire({
+    icon: 'error',
+    title: 'Lỗi',
+    text: `Có lỗi xảy ra: ${error.message || 'Không rõ lỗi'}`,
+    timer: 3000,
+    showConfirmButton: false
+  });
+}
 
 async function onAddItem(item) {
     try {
         await itemsService.createItem(item);
-        message.value = 'Món mới được thêm thành công.';
+        showSuccessMessage();
     } catch (error) {
         console.log(error);
-        message.value = 'Có lỗi xảy ra khi thêm món.';
+        showErrorMessage(error);
     }
 }
 </script>
 
 <template>
   <div class="page">
-    <h4>Thêm món mới</h4>
     <ItemForm
       :item="newItem"
       @submit:item="onAddItem" 

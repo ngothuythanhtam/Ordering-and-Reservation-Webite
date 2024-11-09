@@ -141,8 +141,8 @@ watch(currentPage, () => retrieveItems(currentPage.value), {
                 Không có món nào.
             </p>
 
-            <div class="mt-5 d-flex justify-content-center align-items-center">
-                <MainPagination :total-pages="totalPages" :current-page="currentPage" class="mt-2"
+            <div class="mt-4 d-flex justify-content-center align-items-center">
+                <MainPagination :total-pages="totalPages" :current-page="currentPage" 
                     @update:current-page="changeCurrentPage" />
             </div>
         </div>
@@ -176,24 +176,21 @@ watch(currentPage, () => retrieveItems(currentPage.value), {
     align-items: center;
     gap: 40px;
     flex-wrap: wrap;
-    margin-top: 10px;
+    margin-top: 5px;
 }
 
 .search-bar {
     flex: 1;
-    margin-top: 25px;
     
 }
 
 .filter-group {
     display: flex;
     flex-direction: column;
-    margin-top: 25px;
 }
 
 .action-buttons {
     display: flex;
     gap: 10px;
-    margin-top: 25px;
 }
 </style>

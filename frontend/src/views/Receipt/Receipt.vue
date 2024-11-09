@@ -5,7 +5,6 @@ import ReceiptCard from '@/components/Receipt/ReceiptCard.vue';
 import ReceiptList from '@/components/Receipt/ReceiptList.vue';
 import MainPagination from '@/components/MainPagination.vue';
 import ReceiptsService from '@/services/receipt.service';
-import InputSearch from '@/components/InputSearch.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -17,6 +16,7 @@ const searchText = ref('');
 
 const selectedStatus = ref(''); // Bộ lọc trạng thái
 const UserFilter = ref(''); // Bộ lọc người dùng
+const ReceiptFilter = ref(''); // Bộ lọc mã hóa đơn
 
 
 // Define computed properties
@@ -43,7 +43,8 @@ const filteredReceipts = computed(() => {
         const matchesSearchText = searchableReceipts.value[index].includes(searchText.value.toLowerCase());
         const matchesStatus = !selectedStatus.value || receipt.status === selectedStatus.value;
         const matchesUser = !UserFilter.value || receipt.userid == UserFilter.value;
-        return matchesSearchText && matchesStatus && matchesUser;
+        const matchesReceipt = !ReceiptFilter.value || receipt.order_id == ReceiptFilter.value;
+        return matchesSearchText && matchesStatus && matchesUser && matchesReceipt;
     });
 });
 
@@ -85,17 +86,14 @@ watch(currentPage, () => retrieveReceipts(currentPage.value), {
         <div class="mt-3 col-md-6">
             <h4>Receipt <i class="fas fa-receipt"></i></h4>
 
-            <div class="my-3">
-                <InputSearch v-model="searchText"/>
-            </div>
-
             <div class="mb-3">
                 <label for="statusFilter" class="form-label">Trạng thái</label>
                 <select id="statusFilter" class="form-control" v-model="selectedStatus">
                     <option value="">Tất cả</option>
-                    <option value="booked">booked</option>
-                    <option value="completed">completed</option>
-                    <option value="canceled">canceled</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Ordered">Ordered</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Canceled">Canceled</option>
                 </select>
             </div>
 
@@ -103,6 +101,12 @@ watch(currentPage, () => retrieveReceipts(currentPage.value), {
                 <label for="userFilter" class="form-label">ID khách hàng</label>
                 <input id="userFilter" type="number" class="form-control" v-model="UserFilter" min="1"
                     placeholder="Nhập ID khách hàng" />
+            </div>
+
+            <div class="mb-3">
+                <label for="ReceiptFilter" class="form-label">ID hóa đơn</label>
+                <input id="ReceiptFilter" type="number" class="form-control" v-model="ReceiptFilter" min="1"
+                    placeholder="Nhập ID hóa đơn" />
             </div>
 
             <ReceiptList v-if="filteredReceipts.length > 0" :receipts="filteredReceipts"

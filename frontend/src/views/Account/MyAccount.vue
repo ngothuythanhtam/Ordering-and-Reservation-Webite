@@ -1,5 +1,5 @@
 <template>
     <h3>
-        Account Staff Page
+        MyAccount Page
     </h3>
 </template>
