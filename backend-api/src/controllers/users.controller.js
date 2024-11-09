@@ -2,20 +2,6 @@ const usersService = require('../services/users.service');
 const ApiError = require('../api-error');
 const JSend = require('../jsend');
 
-async function getUserByMail(req, res, next) {
-    const { useremail } = req.query;  
-    try {
-        const users = await usersService.getUserByMail(useremail); 
-        if (!users) {
-        return next(new ApiError(404, 'useremail not found'));
-        }
-        return res.json(JSend.success({ users }));
-    } catch (error) {
-        console.log(error);
-        return next(new ApiError(500, `Error retrieving user with useremail=${useremail}`));
-    }
-}
-
 async function login(req, res, next) {
     const { useremail, userpwd } = req.body;
     try {
@@ -31,11 +17,15 @@ async function login(req, res, next) {
             userid: user.userid,
             useremail: user.useremail,
             userrole: user.userrole,
+            useravatar: user.useravatar
         };
-        console.log(req.session.user.userid);
+        console.log(req.session.user.userid,req.session.user.useravatar );
         req.session.save(err => {
             if (err) return next(err);
-            return res.status(200).json(JSend.success({ message: 'Đăng nhập thành công!' }));
+            return res.status(200).json(JSend.success({ 
+                message: 'Đăng nhập thành công!', 
+                data: req.session.user, 
+            }));
         });
     } catch (error) {
         return next(new ApiError(500, error.message));
@@ -100,18 +90,15 @@ async function getUser(req, res, next) {
     }
     console.log(req.session.user.userid);
     const id = req.session.user.userid;
-    // Kiểm tra xem userid có tồn tại không
     if (!id) {
         return next(new ApiError(401, 'Bạn cần đăng nhập để xem thông tin người dùng.'));
     }
-        // Lấy thông tin người dùng từ database
     const user = await usersService.getUserById(id);
     if (!user) {
         return next(new ApiError(404, 'Không tìm thấy người dùng.'));
     }
     return res.json(JSend.success({ user }));
 }
-
 
 async function updateUser(req, res, next) {
     if (Object.keys(req.body).length === 0 && !req.file) {
@@ -153,7 +140,6 @@ async function deleteUser(req, res, next) {
 }
 
 module.exports = {
-    getUserByMail,
     login,
     logout,
     createUser,

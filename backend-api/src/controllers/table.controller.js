@@ -32,19 +32,14 @@ async function getTableBySeating(req, res, next) {
             limit: 5,
         }
     };
-
     try {
-        // Pass query parameters (e.g., seating_capacity) for filtering
         result = await tableService.getTableBySeating(req.query);
     } catch (error) {
         console.error(error);
 
         if (error instanceof ApiError) {
-            // Return specific error using JSend.fail
             return res.status(error.statusCode).json(JSend.fail({ message: error.message }));
         }
-
-        // For other errors, use a generic error message
         return next(new ApiError(500, 'An error occurred while retrieving tables'));
     }
 
@@ -76,12 +71,10 @@ async function getTableByFilter(req, res, next) {
 
     return res.json(
         JSend.success({
-            tables: result.tables,
+            items: result.tables,
             metadata: result.metadata,
-        })
-    );
+    }));
 }
-
 async function updateTableStatus(req, res, next) {
     const { table_number } = req.params; 
     const { status: newStatus } = req.body; 

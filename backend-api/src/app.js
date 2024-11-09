@@ -1,7 +1,6 @@
 const express = require('express');
 const JSend = require('./jsend');
 const usersRouter = require('./routes/users.router');
-const tablesRouter = require('./routes/tables.router');
 const receiptsRouter = require('./routes/receipts.router');
 const { serve } = require('swagger-ui-express');
 const crypto = require('crypto');
@@ -34,10 +33,16 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
     return res.json(JSend.success());
 });
+app.get('/api-docs/session', (req, res) => {
+    if (req.session.user && req.session.user.userid) {
+        res.json({ userId: req.session.user.userid });
+    } else {
+        res.status(401).json({ message: 'Chưa đăng nhập' });
+    }
+});
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 usersRouter.setup(app);
-tablesRouter.setup(app);
 receiptsRouter.setup(app);
 menu_itemsRouter.setup(app);
 tableRouter.setup(app);

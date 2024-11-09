@@ -46,22 +46,6 @@ async function getManyUsersByRole(userrole, query) {
     }
 }
 
-async function getUserByMail(useremail) {
-    return userRepository()
-        .where('useremail', useremail)
-        .select(
-            'userid',
-            'userrole',
-            'username',
-            'userbirthday',
-            'userphone',
-            'useremail',
-            'useraddress',
-            'useravatar'
-        )
-        .first();
-}
-
 const checkExistEmail = async (email) => {
     const user = await knex('users').where({ useremail: email }).first();
     return user;
@@ -87,6 +71,7 @@ async function login(email, password) {
         userid: user.userid,
         useremail: user.useremail,
         userrole: user.userrole,
+        useravatar: user.useravatar
     };
 }
 function readUser(payload) {
@@ -176,7 +161,6 @@ const checkRole = async (userid) => {
 
 module.exports = {
     getManyUsersByRole,
-    getUserByMail,
     checkExistUser,
     checkExistEmail,
     checkExistPhone,

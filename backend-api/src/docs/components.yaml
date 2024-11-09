@@ -463,7 +463,6 @@ components:
     tableStatusParam:
       in: query
       name: status
-      required: true
       schema:
         type: string
         enum: ['available', 'reserved', 'occupied']
@@ -472,7 +471,6 @@ components:
     seating_capacity:
       in: query
       name: seating_capacity
-      required: true
       schema:
         type: integer
       description: Find table by number
