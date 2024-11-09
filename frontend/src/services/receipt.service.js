@@ -25,14 +25,25 @@ function makeReceiptService() {
         const userid = localStorage.getItem('userid');
         return efetch(`${baseUrl}/addItem`, {
             method: 'POST',
-            body: JSON.stringify({ item_id, quantity }), // Chuyển sang JSON
+            body: JSON.stringify({ item_id, quantity }),
             headers: {
-                'Content-Type': 'application/json', // Thiết lập Content-Type
+                'Content-Type': 'application/json',
+            },
+        });
+    }
+    async function addTableToReceipt({ table_number, reservation_date, special_request }) {
+        const userid = localStorage.getItem('userid');
+        return efetch(`${baseUrl}/addTable/`, {
+            method: 'POST',
+            body: JSON.stringify({ table_number, reservation_date, special_request }),
+            headers: {
+                'Content-Type': 'application/json',
             },
         });
     }
     return {
-        addItemToReceipt
+        addItemToReceipt,
+        addTableToReceipt
     };
 }
 export default makeReceiptService() ;

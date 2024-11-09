@@ -71,7 +71,6 @@ const tables = ref([]);
 const fetchTablesMutation = useMutation({
   mutationFn: (pageTable) => tableService.fetchTables(pageTable),
   onSuccess: (data) => {
-    console.error("Dữ liệu bàn:", data); // Kiểm tra xem dữ liệu này có đúng cấu trúc không
     totalNumberOfPagesTable.value = data.metadata?.lastPage ?? 1;
     tables.value = data.items.sort((a, b) => a.table_number.localeCompare(b.table_number));
     selectedIndexTable.value = -1;
@@ -82,7 +81,6 @@ const fetchTablesMutation = useMutation({
 });
 const fetchTables = () => {
   fetchTablesMutation.mutate(currentPageTable.value);
-  console.log(tables.value);
 };
 // ------------------ SEARCH - Table ------------------ //
 const searchableTables = computed(() =>

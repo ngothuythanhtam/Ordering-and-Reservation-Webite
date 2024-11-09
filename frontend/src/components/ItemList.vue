@@ -25,7 +25,6 @@ const closeAddItemForm = () => {
 const addToCart = async ({ item, quantity }) => {
   if (item) {
     try {
-      console.log("item, quantity:", item.item_id, quantity);
       await receiptService.addItemToReceipt({ item_id: item.item_id, quantity: quantity });
       alert('Sản phẩm đã được thêm vào giỏ hàng!');
       closeAddItemForm();

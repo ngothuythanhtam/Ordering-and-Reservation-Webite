@@ -47,6 +47,12 @@ const routes = [
     component: () => import('@/views/UpdateUser.vue'),
     meta: { requiresAuth: true } // Chỉ cho phép truy cập nếu đã đăng nhập
   },
+  {
+    path: '/mycart/',
+    name: 'MyCart',
+    component: () => import('@/views/MyCart.vue'),
+    meta: { requiresAuth: true } // Chỉ cho phép truy cập nếu đã đăng nhập
+  },
 ];
 const router = createRouter({
   history: createWebHistory(),
