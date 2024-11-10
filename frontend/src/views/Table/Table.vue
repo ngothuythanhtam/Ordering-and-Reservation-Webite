@@ -1,23 +1,50 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import TableCard from '@/components/Table/TableCard.vue';
 import InputSearch from '@/components/InputSearch.vue';
 import TableList from '@/components/Table/TableList.vue';
+import TableForm from '@/components/Table/TableForm.vue';
 import MainPagination from '@/components/MainPagination.vue';
 import tablesService from '@/services/tables.service';
+import Swal from 'sweetalert2';
 
 const router = useRouter();
 const route = useRoute();
-
 const totalPages = ref(1);
 const tables = ref([]);
 const selectedIndex = ref(-1);
 const searchText = ref('');
-
 const selectedStatus = ref(''); // Trạng thái được chọn
 const seatingCapacityFilter = ref(''); // Bộ lọc chỗ ngồi
+const isOpen = ref(false);
+const closeModal = () => {
+  isOpen.value = false;
+};
+const openModal = () => {
+  isOpen.value = true;
+};
 
+// Function to display success notification
+function showSuccessMessage() {
+    Swal.fire({
+        icon: 'success',
+        title: 'Thành công!',
+        text: 'Thành công!',
+        timer: 2000,
+        showConfirmButton: false
+    });
+}
+
+// Function to display error notification
+function showErrorMessage(error) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: `Có lỗi xảy ra: ${error.message}`,
+        timer: 3000,
+        showConfirmButton: false
+    });
+}
 
 // Define computed properties
 const currentPage = computed(() => {
@@ -66,31 +93,56 @@ async function retrieveTables(page) {
     }
 }
 
-function goToAddTable() {
-    router.push({ name: 'table.add' });
-}
-
 function changeCurrentPage(page) {
     router.push({ name: 'table', query: { page } });
 }
 
 // Delete table function
 async function deleteTable(tableId) {
-    const confirmed = window.confirm('Bạn có chắc chắn muốn xóa bàn này?');
-    if (confirmed) {
+    const result = await Swal.fire({
+        title: 'Bạn có chắc muốn xóa?',
+        text: 'Hành động này không thể hoàn tác!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy'
+    });
+    if (result.isConfirmed) {
         try {
             await tablesService.deleteTable(tableId);
-            // Refresh tables after deletion
+            showSuccessMessage();
             retrieveTables(currentPage.value);
             selectedIndex.value = -1;
         } catch (error) {
             console.error('Error deleting table:', error);
+            showErrorMessage(error);
         }
     }
     
 }
 
-// Watchers
+const newTable = ref({
+    table_number: '',
+    seating_capacity: 1,
+    table_satus: 'available',
+});
+
+async function onAddTable(table) {
+    try {
+        await tablesService.createTable(table);
+        console.log('Bàn mới được thêm thành công.');
+        retrieveTables(currentPage.value);
+        showSuccessMessage();
+        isOpen.value = false;
+    } catch (error) {
+        console.log(error);
+        showErrorMessage(error);
+    }
+}
+
+
 watch(searchText, () => {
     selectedIndex.value = -1;
 });
@@ -101,58 +153,123 @@ watch(currentPage, () => retrieveTables(currentPage.value), {
 </script>
 
 <template>
-    <div class="page row mb-5">
-        <div class="mt-3 col-md-6">
-            <h4>Table <i class="fa-solid fa-utensils"></i></h4>
-
-            <div class="my-3">
-                <InputSearch v-model="searchText" />
-            </div>
-
-            <div class="mb-3">
-                <label for="statusFilter" class="form-label">Trạng thái</label>
-                <select id="statusFilter" class="form-control" v-model="selectedStatus">
-                    <option value="">Tất cả</option>
+    <div class="page mb-5">
+        <div class="mt-5">
+            <div class="d-flex my-3 gap-4 align-items-center ">
+                <h4 class="mb-0">
+                    Table Information <i class="fa-solid fa-utensils"></i>
+                </h4>
+                <InputSearch v-model="searchText" placeholder="Tìm kiếm bàn" />
+                
+                <input id="seatingFilter" type="number" class="form-control" v-model="seatingCapacityFilter" min="1"
+                    placeholder="Nhập số chỗ ngồi" style="width: 180px;" />
+            
+                <select id="statusFilter" class="form-control" v-model="selectedStatus" style="width: 180px;">
+                    <option value="">Tất cả trạng thái</option>
                     <option value="available">Available</option>
                     <option value="reserved">Reserved</option>
                     <option value="occupied">Occupied</option>
                 </select>
-            </div>
 
-            <div class="mb-3">
-                <label for="seatingFilter" class="form-label">Chỗ ngồi</label>
-                <input id="seatingFilter" type="number" class="form-control" v-model="seatingCapacityFilter" min="1"
-                    placeholder="Nhập số chỗ ngồi" />
+                <button class="btn btn-sm btn-primary" @click="retrieveTables(currentPage)">
+                    <i class="fas fa-redo"></i> Làm mới
+                </button>
+                <button @click="openModal" class="btn btn-sm btn-success" >
+                    <i class="fas fa-plus"></i> Thêm mới
+                </button>
+                <div v-if="isOpen" class="modal-overlay" >
+                    <div class="modal-content">
+                        <button class="close-button" @click="closeModal"><i class="fa-solid fa-xmark"></i></button>
+                        <div class="content-inner">
+                        <TableForm :table="newTable" @submit:table="onAddTable" />
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <TableList v-if="filteredTables.length > 0" :tables="filteredTables"
-                v-model:selectedIndex="selectedIndex" />
-
+                v-model:selectedIndex="selectedIndex" :table="selectedTable" @delete="deleteTable" />
             <p v-else>Không có bàn nào.</p>
 
             <div class="mt-3 d-flex flex-wrap justify-content-round align-items-center">
                 <MainPagination :total-pages="totalPages" :current-page="currentPage"
                     @update:current-page="changeCurrentPage" />
                 <div class="w-100"></div>
-                <button class="btn btn-sm btn-primary" @click="retrieveTables(currentPage)">
-                    <i class="fas fa-redo"></i> Làm mới
-                </button>
-                <button class="btn btn-sm btn-success" @click="goToAddTable">
-                    <i class="fas fa-plus"></i> Thêm mới
-                </button>
             </div>
-        </div>
-
-        <div class="mt-3 col-md-6" v-if="selectedTable">
-            <h4>Chi tiết bàn <i class="fa-solid fa-utensils"></i></h4>
-            <TableCard :table="selectedTable" @delete="deleteTable" />
         </div>
     </div>
 </template>
 
 <style scoped>
-.page {
-    text-align: left;
-    max-width: 750px;
+/* Modal overlay with fade-in effect */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  animation: fade-in 0.3s forwards;
 }
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal content with zoom-in effect */
+.modal-content {
+  background-color: #d1d4d9;
+  padding: 40px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 600px;
+  height: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  transform: scale(0.9);
+  animation: zoom-in 0.3s forwards;
+}
+
+@keyframes zoom-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.close-button {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background-color: #d1d4d9;
+  color: rgb(183, 18, 18);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 25px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content-inner {
+  text-align: left;
+}
+
 </style>

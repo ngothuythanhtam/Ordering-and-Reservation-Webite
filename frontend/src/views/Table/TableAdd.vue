@@ -3,7 +3,6 @@ import { ref } from 'vue';
 import TableForm from '@/components/Table/TableForm.vue';
 import tablesService from '@/services/tables.service';
 
-const message = ref('');
 
 const newTable = ref({
     table_number: '',
@@ -14,10 +13,9 @@ const newTable = ref({
 async function onAddTable(table) {
     try {
         await tablesService.createTable(table);
-        message.value = 'Bàn mới được thêm thành công.';
+        console.log('Bàn mới được thêm thành công.');
     } catch (error) {
         console.log(error);
-        message.value = 'Có lỗi xảy ra khi thêm bàn.';
     }
 }
 
@@ -27,6 +25,5 @@ async function onAddTable(table) {
     <div class="page">
         <h4>Thêm bàn mới</h4>
         <TableForm :table="newTable" @submit:table="onAddTable" />
-        <p>{{ message }}</p>
     </div>
 </template>

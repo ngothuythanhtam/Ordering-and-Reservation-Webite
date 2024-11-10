@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import ReceiptCard from '@/components/Receipt/ReceiptCard.vue';
 import ReceiptList from '@/components/Receipt/ReceiptList.vue';
@@ -8,16 +8,13 @@ import ReceiptsService from '@/services/receipt.service';
 
 const router = useRouter();
 const route = useRoute();
-
 const totalPages = ref(1);
 const receipts = ref([]);
 const selectedIndex = ref(-1);
 const searchText = ref('');
-
 const selectedStatus = ref(''); // Bộ lọc trạng thái
 const UserFilter = ref(''); // Bộ lọc người dùng
 const ReceiptFilter = ref(''); // Bộ lọc mã hóa đơn
-
 
 // Define computed properties
 const currentPage = computed(() => {
@@ -82,58 +79,173 @@ watch(currentPage, () => retrieveReceipts(currentPage.value), {
 </script>
 
 <template>
-    <div class="page row mb-5">
-        <div class="mt-3 col-md-6">
-            <h4>Receipt <i class="fas fa-receipt"></i></h4>
+    <div class="page mb-5">
+        <div class="mt-5">
+            <div class="top-controls">
+            <h4>Receipt Information &nbsp;<i class="fas fa-receipt"></i></h4>
+            <input id="ReceiptFilter" type="number" class="form-control" v-model="ReceiptFilter" min="1" placeholder="Nhập ID hóa đơn" style="width: 180px;"/>
+            <input id="userFilter" type="number" class="form-control" v-model="UserFilter" min="1" placeholder="Nhập ID khách hàng" style="width: 180px;"/>
 
-            <div class="mb-3">
-                <label for="statusFilter" class="form-label">Trạng thái</label>
-                <select id="statusFilter" class="form-control" v-model="selectedStatus">
-                    <option value="">Tất cả</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Ordered">Ordered</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Canceled">Canceled</option>
-                </select>
+            <select id="statusFilter" class="form-control" v-model="selectedStatus">
+                <option value="">Tất cả trạng thái</option>
+                <option value="Pending">Pending</option>
+                <option value="Ordered">Ordered</option>
+                <option value="Completed">Completed</option>
+                <option value="Canceled">Canceled</option>
+            </select>
+
+            <button class="btn btn-sm btn-primary" @click="retrieveReceipts(currentPage)"><i class="fas fa-redo"></i>&nbsp;Làm mới </button>
             </div>
 
-            <div class="mb-3">
-                <label for="userFilter" class="form-label">ID khách hàng</label>
-                <input id="userFilter" type="number" class="form-control" v-model="UserFilter" min="1"
-                    placeholder="Nhập ID khách hàng" />
+
+            <div class="main-content">
+                <div class="reserv-list">
+                    <h5>Danh sách hóa đơn</h5>
+                    <ReceiptList v-if="filteredReceipts.length > 0" :receipts="filteredReceipts" v-model:selectedIndex="selectedIndex" />
+                    <p v-else>Không có hóa đơn nào.</p>
+                </div>
+
+                <div class="reserv-card">
+                    <h5>Chi tiết hóa đơn &nbsp;<i class="fas fa-receipt"></i></h5>
+                    <p v-if="!selectedReceipt">Click vào mã hóa đơn để xem chi tiết</p>
+                    <ReceiptCard v-if="selectedReceipt" :receipt="selectedReceipt" />
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label for="ReceiptFilter" class="form-label">ID hóa đơn</label>
-                <input id="ReceiptFilter" type="number" class="form-control" v-model="ReceiptFilter" min="1"
-                    placeholder="Nhập ID hóa đơn" />
-            </div>
+            
 
-            <ReceiptList v-if="filteredReceipts.length > 0" :receipts="filteredReceipts"
-                v-model:selectedIndex="selectedIndex" />
-
-            <p v-else>Không có hóa đơn nào.</p>
-
-            <div class="mt-3 d-flex flex-wrap justify-content-round align-items-center">
+            <div class="pagination">
                 <MainPagination :total-pages="totalPages" :current-page="currentPage"
-                    @update:current-page="changeCurrentPage" />
-                <div class="w-100"></div>
-                <button class="btn btn-sm btn-primary" @click="retrieveReceipts(currentPage)">
-                    <i class="fas fa-redo"></i> Làm mới
-                </button>
+                @update:current-page="changeCurrentPage" />                
+            </div>
             </div>
         </div>
 
-        <div class="mt-3 col-md-6" v-if="selectedReceipt">
-            <h4>Chi tiết hóa đơn <i class="fas fa-receipt"></i> </h4>
-            <ReceiptCard :receipt="selectedReceipt" />
-        </div>
-    </div>
 </template>
 
 <style scoped>
-.page {
-    text-align: left;
-    max-width: 750px;
+/* Top controls styling */
+.top-controls {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.top-controls h4 {
+    margin: 0;
+}
+
+.top-controls input,
+.top-controls select {
+    width: 180px;
+    padding: 8px;
+}
+
+.refresh-button,
+.add-button {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+/* Main content layout styling */
+.main-content {
+    display: flex;
+    gap: 8px; 
+}
+
+/* Reservation list styling */
+.reserv-list {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+/* Reservation card styling */
+.reserv-card {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+/* Pagination styling */
+.pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+/* Modal overlay with fade-in effect */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  animation: fade-in 0.3s forwards;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal content with zoom-in effect */
+.modal-content {
+  background-color: #d1d4d9;
+  padding: 40px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 600px;
+  height: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  transform: scale(0.9);
+  animation: zoom-in 0.3s forwards;
+}
+
+@keyframes zoom-in {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.close-button {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background-color: #d1d4d9;
+  color: rgb(183, 18, 18);
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 25px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content-inner {
+  text-align: left;
 }
 </style>
