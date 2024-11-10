@@ -4,7 +4,6 @@ import Menu from '@/views/Menu/Menu.vue';
 import Table from '@/views/Table/Table.vue';
 import Reservation from '@/views/Reservation/Reservation.vue';
 import Receipt from '@/views/Receipt/Receipt.vue';
-import UserAccount from '@/views/Account/UserAccount.vue';
 import MyAccount from '@/views/Account/MyAccount.vue';
 
 const routes = [
@@ -21,7 +20,7 @@ const routes = [
     },
 
     {
-        path: '/menu',
+        path: '/admin/menu',
         name: 'menu',
         component: Menu,
     },
@@ -32,48 +31,41 @@ const routes = [
         component: () => import('@/views/NotFound.vue'),
     },
     {
-        path: '/menu/items/:item_id',
+        path: '/admin/menu/items/:item_id',
         name: 'item.edit',
         component: () => import('@/views/Menu/ItemEdit.vue'),
         props: (route) => ({ item_id: route.params.item_id })
     },
     {
-        path: '/menu/items/add',
+        path: '/admin/menu/items/add',
         name: 'item.add',
         component: () => import('@/views/Menu/ItemAdd.vue'),
     },
 
     {
-        path: '/table',
+        path: '/admin/table',
         name: 'table',
         component: Table,
     },
     {
-        path: '/table/add',
+        path: '/admin/table/add',
         name: 'table.add',
         component: () => import('@/views/Table/TableAdd.vue'),
     },
 
     {
-        path: '/reservation',
+        path: '/admin/reservation',
         name: 'reservation',
         component: Reservation,
     },
 
     {
-        path: '/receipt',
+        path: '/admin/receipt',
         name: 'receipt',
         component: Receipt,
     },
-
     {
-        path: '/UserAccount',
-        name: 'UserAccount',
-        component: UserAccount,
-    },
-    
-    {
-        path: '/MyAccount',
+        path: '/admin/MyAccount',
         name: 'MyAccount',
         component: MyAccount,
     },
