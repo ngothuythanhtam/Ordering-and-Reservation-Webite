@@ -320,40 +320,86 @@ async function getManyReceipts(id, query) {
     const { status, page = 1, limit = 5 } = query;
     const { userid } = id;
     const paginator = new Paginator(page, limit);
-    
+
     if (!userid) {
         return null;
     }
-    let results = await receiptRepository()
+
+    // Khởi tạo câu truy vấn đếm tổng số hóa đơn 
+    // trong lịch sử giao dịch của khách hàng qua các trạng thái
+    const countQuery = knex('receipt')
+        .countDistinct('receipt.order_id as totalRecords')
+        .leftJoin('reservation', 'receipt.reservation_id', 'reservation.reservation_id')
+        .leftJoin('restaurant_table', 'reservation.table_id', 'restaurant_table.table_id')
+        .leftJoin('Order_Item', 'receipt.order_id', 'Order_Item.order_id')
         .where((builder) => {
             if (['Pending', 'Ordered', 'Completed', 'Canceled'].includes(status)) {
-                builder.where('status', status);
+                builder.where('receipt.status', status);
             }
             if (userid) {
-                builder.where('userid', userid);
+                builder.where('receipt.userid', userid);
+            }
+        });
+
+    // Lấy tất cả thông tin của từng hóa đơn của người dùng
+    let results = await knex('receipt')
+        .leftJoin('reservation', 'receipt.reservation_id', 'reservation.reservation_id')
+        .leftJoin('restaurant_table', 'reservation.table_id', 'restaurant_table.table_id')
+        .leftJoin('Order_Item', 'receipt.order_id', 'Order_Item.order_id')
+        .leftJoin('menu_items', 'Order_Item.item_id', 'menu_items.item_id')
+        .where((builder) => {
+            if (['Pending', 'Ordered', 'Completed', 'Canceled'].includes(status)) {
+                builder.where('receipt.status', status);
+            }
+            if (userid) {
+                builder.where('receipt.userid', userid);
             }
         })
-        .select(
-            knex.raw('count(order_id) OVER() AS recordCount'),
-            'order_id',
-            'userid',
-            'staff_id',
-            'reservation_id',
-            'order_date',
-            'total_price',
-            'status'
-        )
         .limit(paginator.limit)
         .offset(paginator.offset);
-    let totalRecords = 0;
-    results = results.map((result) => {
-        totalRecords = result.recordCount;
-        delete result.recordCount;
-        return result;
+
+    //Thực thi truy vấn đếm tổng số hóa đơn
+    const [{ totalRecords }] = await countQuery;
+
+    //Nhóm các order items theo hóa đơn bằng đối tượng
+    const groupedReceipts = {};
+
+    results.forEach(result => {
+        const orderItem = {
+            item_id: result.item_id,
+            item_name: result.item_name,
+            item_price: result.item_price,
+            quantity: result.quantity,
+            item_total_price: result.item_total_price
+        };
+
+        if (!groupedReceipts[result.order_id]) {
+            groupedReceipts[result.order_id] = {
+                order_id: result.order_id,
+                userid: result.userid,
+                staff_id: result.staff_id,
+                order_date: result.order_date,
+                total_price: result.total_price,
+                status: result.status,
+                table: {
+                    table_id: result.table_id,
+                    table_number: result.table_number,
+                    seating_capacity: result.seating_capacity,
+                    table_status: result.table_status
+                },
+                items: [orderItem]
+            };
+        } else {
+            groupedReceipts[result.order_id].items.push(orderItem);
+        }
     });
+
+    // Chuyển đổi đối tượng groupedReceipts thành một mảng
+    const finalResults = Object.values(groupedReceipts);
+
     return {
         metadata: paginator.getMetadata(totalRecords),
-        receipts: results,
+        receipts: finalResults,
     };
 }
 async function getPendingOrderWithDetails(userid) {

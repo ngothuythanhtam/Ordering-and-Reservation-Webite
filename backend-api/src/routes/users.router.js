@@ -257,6 +257,6 @@ router.put('/updateProfile/',avatarUpload, usersController.updateUser);
  *         $ref: '#/components/responses/500'
  * 
  */    
-router.delete('/deleteAccount/',avatarUpload, usersController.deleteUser);
-router.all('/:id',methodNotAllowed);
+    router.delete('/deleteAccount/', avatarUpload, usersController.deleteUser);
+    router.all('/:id',methodNotAllowed);
 };

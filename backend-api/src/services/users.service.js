@@ -125,6 +125,8 @@ async function updateUser(id, payload) {
     return { ...updatedUser, ...update };
 }
 
+const fs = require('fs').promises;
+
 async function deleteUser(id) {
     const deleteUser = await userRepository()
         .where('userid', id)
@@ -133,21 +135,12 @@ async function deleteUser(id) {
     if (!deleteUser) {
         return null;
     }
-    return await knex.transaction(async trx => {
-        await trx('users').where('userid', id).del();
-        if (deleteUser.useravatar && deleteUser.useravatar.startsWith('/public/uploads')) {
-            try {
-                unlink(`.${deleteUser.useravatar}`, (err) => {
-                    if (err) {
-                        console.error('Error deleting avatar:', err);
-                    }
-                });
-            } catch (error) {
-                console.error('Error occurred while deleting user avatar:', error);
-            }
-        }
-        return deleteUser;
-    });
+    await userRepository().where('userid', id).del();
+    if (deleteUser.useravatar && 
+        deleteUser.useravatar.startsWith('/public/uploads')) {
+        unlink(`.${deleteUser.useravatar}`, () => {});
+    }
+    return deleteUser;
 }
 const checkRole = async (userid) => {
     try {
