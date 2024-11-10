@@ -13,6 +13,7 @@ async function handleItemClick(reservation_id, index) {
 </script>
 
 <template>
+    <div class="reserv-list">
     <ul class="list-group">
         <li class="list-group-item px-3" v-for="(reservation, index) in reservations"
             :class="{ active: index === selectedIndex }" :key="reservation.reservation_id"
@@ -20,4 +21,10 @@ async function handleItemClick(reservation_id, index) {
             {{ reservation.reservation_id }}
         </li>
     </ul>
+    </div>
 </template>
+
+<style scoped>
+
+
+</style>

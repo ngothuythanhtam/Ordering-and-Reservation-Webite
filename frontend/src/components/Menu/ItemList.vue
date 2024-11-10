@@ -47,7 +47,7 @@ const closeModal = () => {
         </div>
 
         <router-link v-if="selectedItem" :to="{ name: 'item.edit', params: { item_id: selectedItem.item_id } }">
-          <button class="edit-button "> <i class="fas fa-edit"></i> Chỉnh sửa</button>
+          <button class="edit-button btn"> <i class="fas fa-edit"></i> Chỉnh sửa</button>
         </router-link>
       </div>
     </div>

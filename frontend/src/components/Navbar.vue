@@ -86,14 +86,8 @@ export default {
             Receipt
           </a>
         </li>
-        <li class="nav-item">
-          <a href="javascript:void(0)" @click="checkAuth({ name: 'UserAccount' })" class="nav-link">
-            User Account
-          </a>
-        </li>
       </div>
       
-      <!-- Items aligned to the right -->
       <div class="ms-auto navbar-nav">
         <li class="nav-item">
           <a href="javascript:void(0)" @click="checkAuth({ name: 'MyAccount' })" class="nav-link">
@@ -103,11 +97,6 @@ export default {
         <li class="nav-item">
           <a href="javascript:void(0)" @click="login" class="nav-link">
             Login
-          </a>
-        </li>
-        <li class="nav-item">
-          <a href="javascript:void(0)" @click="register" class="nav-link">
-            Register
           </a>
         </li>
       </div>

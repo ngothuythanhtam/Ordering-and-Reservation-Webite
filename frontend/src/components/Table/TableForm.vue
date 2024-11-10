@@ -1,5 +1,4 @@
 <script setup>
-import { ref, useTemplateRef } from 'vue';
 import { Form, Field, ErrorMessage } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { z } from 'zod';
@@ -37,44 +36,34 @@ function submitTable(values) {
     // Emit the submit event with formData
     $emit('submit:table', formData); 
 }
-
-function deleteTable() {
-    $emit('delete:table', props.table.table_id);
-}
-
 </script>
 
 <template>
-    <Form :validation-schema="validationSchema" @submit="submitTable">
+    <Form :validation-schema="validationSchema" @submit="submitTable" >
         <div class="mb-3">
-            <label for="table_number" class="form-label">Tên</label>
+            <label for="table_number" class="form-label">Tên bàn</label>
             <Field name="table_number" type="text" class="form-control" v-model="props.table.table_number" />
             <ErrorMessage name="table_number" class="error-feedback" />
         </div>
         <div class="mb-3">
-            <label for="seating_capacity" class="form-label">Chỗ ngồi</label>
+            <label for="seating_capacity" class="form-label">Số chỗ ngồi</label>
             <Field name="seating_capacity" type="number" placeholder="Chỗ ngồi" class="form-control"
                 v-model="props.table.seating_capacity" />
             <ErrorMessage name="seating_capacity" class="error-feedback" />
         </div>
-        <div class="mb-3">
-            <label for="status" class="form-label">Trạng thái</label>
-            <Field as="select" name="status" class="form-control" v-model="props.table.status">
-                <option value="">available</option>
-            </Field>
-            <ErrorMessage name="status" class="error-feedback" />
-        </div>
-        <div class="mb-3">
-            <button class="btn btn-primary"><i class="fas fa-save"></i> Lưu</button>
-            <button v-if="props.table.table_id" type="button" class="ms-2 btn btn-danger" @click="deleteTable">
-                <i class="fas fa-trash"></i> Xóa
-            </button>
-            <RouterLink to="/table">
-                <button type="button" class="btn btn-secondary ms-2">
-                    <i class="fas fa-backward"></i> Back
-                </button>
-            </RouterLink>
-
+        <div class="mb-2 mt-5 d-flex justify-content-center">
+            <button class="save-btn btn"><i class="fas fa-save"></i> Lưu</button>
         </div>
     </Form>
 </template>
+
+
+<style scoped>
+.save-btn {
+  width: 100px;
+  height: 50px;
+  background-color: rgb(104, 144, 231);
+  font-size: 18px;
+  font-weight: bold;
+}
+</style>
