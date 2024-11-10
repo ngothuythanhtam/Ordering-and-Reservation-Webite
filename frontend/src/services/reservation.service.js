@@ -62,10 +62,19 @@ function makeReservationService(){
         return data;
     }
 
+    async function createReserv(reservation) {
+        return efetch(baseUrl, {
+            method: 'POST',
+            body: reservation,
+        });
+    }
+
+
     return {
         fetchReservations,
         fetchReservation,
         getReservations,
+        createReserv,
     }
 }
 export default makeReservationService();

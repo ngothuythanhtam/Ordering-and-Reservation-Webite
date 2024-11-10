@@ -65,12 +65,28 @@ function makeTableService(){
         return data;
     }
 
+    async function updateTable(table_id) {
+    try {
+        const response = await fetch(`${baseUrl}/${table_id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+        });
+        const result = await response.json();
+        console.log("API Response:", result); // Check if the server updated the status
+        return result;
+    } catch (error) {
+        console.error("API Error:", error);
+        throw error;
+    }
+    }
+
     return {
         fetchTables,
         fetchTable,
         createTable,
         deleteTable,
-        getTables
+        getTables,
+        updateTable
     }
 }
 export default makeTableService();

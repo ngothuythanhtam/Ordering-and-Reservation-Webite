@@ -22,7 +22,7 @@ async function efetch(url, options = {}) {
 function makeReceiptService(){
     const baseUrl = '/api/receipts';
 
-    async function fetchReceipts(page, limit = 10) {
+    async function fetchReceipts(page, limit = 8) {
         let url = `${baseUrl}/?page=${page}&limit=${limit}`;
         const data = await efetch(url);
 
