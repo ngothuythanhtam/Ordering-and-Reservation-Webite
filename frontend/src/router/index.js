@@ -17,12 +17,14 @@ const routes = [
         path: '/',
         name: 'Home',
         component: Home,
+        meta: { requiresAuth: true }
     },
 
     {
         path: '/admin/menu',
         name: 'menu',
         component: Menu,
+        meta: { requiresAuth: true }
     },
     
     {
@@ -34,40 +36,47 @@ const routes = [
         path: '/admin/menu/items/:item_id',
         name: 'item.edit',
         component: () => import('@/views/Menu/ItemEdit.vue'),
-        props: (route) => ({ item_id: route.params.item_id })
+        props: (route) => ({ item_id: route.params.item_id }),
+        meta: { requiresAuth: true }
     },
     {
         path: '/admin/menu/items/add',
         name: 'item.add',
         component: () => import('@/views/Menu/ItemAdd.vue'),
+        meta: { requiresAuth: true },
     },
 
     {
         path: '/admin/table',
         name: 'table',
         component: Table,
+        meta: { requiresAuth: true }
     },
     {
         path: '/admin/table/add',
         name: 'table.add',
         component: () => import('@/views/Table/TableAdd.vue'),
+        meta: { requiresAuth: true }
     },
 
     {
         path: '/admin/reservation',
         name: 'reservation',
         component: Reservation,
+        meta: { requiresAuth: true }
     },
 
     {
         path: '/admin/receipt',
         name: 'receipt',
         component: Receipt,
+        meta: { requiresAuth: true }
     },
     {
         path: '/admin/MyAccount',
         name: 'MyAccount',
         component: MyAccount,
+        meta: { requiresAuth: true }
     },
 ];
 const router = createRouter({
