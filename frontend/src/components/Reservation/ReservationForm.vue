@@ -38,9 +38,8 @@ function formatDateForBackend(dateString) {
     return date.toISOString().split('T')[0];
 }
 
-function submitTable(values) {
+function submitReserv(values) {
     try {
-        // Create FormData object
         const formData = new FormData();
         formData.append('useremail', values.useremail);
         formData.append('table_number', values.table_number);
@@ -59,32 +58,28 @@ function submitTable(values) {
 </script>
 
 <template>
-    <Form :validation-schema="validationSchema" @submit="submitTable">
+    <Form :validation-schema="validationSchema" @submit="submitReserv">
         <div class="mb-3">
             <label for="useremail" class="form-label">Email khách hàng</label>
-            <Field name="useremail" type="email" class="form-control" placeholder="Email khách hàng"
-                v-model="props.reservation.useremail" />
+            <Field name="useremail" type="email" class="form-control" placeholder="Email khách hàng" :value="reservation?.useremail" />
             <ErrorMessage name="useremail" class="error-feedback" />
         </div>
 
         <div class="mb-3">
             <label for="table_number" class="form-label">Số bàn</label>
-            <Field name="table_number" type="text" placeholder="Số bàn" class="form-control"
-                v-model="props.reservation.table_number" />
+            <Field name="table_number" type="text" placeholder="Số bàn" class="form-control" :value="reservation?.table_number" />
             <ErrorMessage name="table_number" class="error-feedback" />
         </div>
 
         <div class="mb-3">
             <label for="reservation_date" class="form-label">Ngày đặt</label>
-            <Field name="reservation_date" type="datetime-local" placeholder="Ngày lấy bàn" class="form-control"
-                v-model="props.reservation.reservation_date" />
+            <Field name="reservation_date" type="datetime-local" placeholder="Ngày lấy bàn" class="form-control" :value="reservation?.reservation_date" />
             <ErrorMessage name="reservation_date" class="error-feedback" />
         </div>
 
         <div class="mb-3">
             <label for="special_request" class="form-label">Yêu cầu</label>
-            <Field name="special_request" type="text" placeholder="Yêu cầu của khách hàng" class="form-control"
-                v-model="props.reservation.special_request" />
+            <Field name="special_request" type="text" placeholder="Yêu cầu của khách hàng" class="form-control" :value="reservation?.special_request" />
             <ErrorMessage name="special_request" class="error-feedback" />
         </div>
 
@@ -100,10 +95,14 @@ function submitTable(values) {
 .save-btn {
     width: 100px;
     height: 50px;
-    background-color: rgb(104, 144, 231);
+    background-color: #668ece;
+    border-color: #668ece;
+    color: #EAE7DC;
     font-size: 18px;
     font-weight: bold;
-    color: white;
+}
+.save-btn:hover{
+    background-color: #406eb8;
 }
 
 .error-feedback {

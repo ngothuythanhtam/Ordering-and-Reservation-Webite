@@ -65,11 +65,12 @@ function makeTableService(){
         return data;
     }
 
-    async function updateTable(table_id) {
+    async function updateTable(table_id, table) {
     try {
         const response = await fetch(`${baseUrl}/${table_id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(table)
         });
         const result = await response.json();
         console.log("API Response:", result); // Check if the server updated the status

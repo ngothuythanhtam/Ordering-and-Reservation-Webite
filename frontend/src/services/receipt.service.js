@@ -70,8 +70,6 @@ function makeReceiptService(){
             throw error;
         }
     }
-
-
     return {
         fetchReceipts,
         fetchReceipt,

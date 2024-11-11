@@ -6,7 +6,6 @@ const props = defineProps({
     reservation: { type: Object, required: true }
 });
 
-
 const emit = defineEmits(['submit:reservation']);
 const reservationDetails = ref({});
 

@@ -80,12 +80,12 @@ const pages = computed(() => {
 
 .page-item.disabled .page-link {
   cursor: not-allowed;
-  color: #d4cccc;
+  color: #9a9892;
 }
 
 .page-item.active .page-link {
-  background-color: #c78888;
-  color: white;
-  border-color: #c78888;
+  background-color: #d8c3a5;
+  color: #565551;
+  border-color: #d8c3a5;
 }
 </style>

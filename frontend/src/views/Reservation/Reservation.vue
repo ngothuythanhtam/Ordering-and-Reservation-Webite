@@ -8,7 +8,9 @@ import ReservationsService from '@/services/reservation.service';
 import InputSearch from '@/components/InputSearch.vue';
 import ReservationForm from '@/components/Reservation/ReservationForm.vue';
 import Swal from 'sweetalert2';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
 
+const queryClient = useQueryClient();
 const router = useRouter();
 const route = useRoute();
 const totalPages = ref(1);
@@ -80,22 +82,53 @@ const selectedReservation = computed(() => {
     return filteredReservations.value[selectedIndex.value];
 });
 
-async function retrieveReservations(page) {
-    try {
-        const chunk = await ReservationsService.getReservations(page);
-        console.log(chunk); // Kiểm tra dữ liệu trả về
-        totalPages.value = chunk.metadata.lastPage ?? 1;
-        reservations.value = chunk.reservations.sort(
-            (current, next) => current.reservation_date.localeCompare(next.reservation_date)
-        );
-    } catch (error) {
-        console.error('Error retrieving reservations:', error);
-    }
-}
+const fetchReservsMutation = useMutation({
+  mutationFn: (page) => ReservationsService.getReservations(page),
+  onSuccess: (data) => {
+    totalPages.value = data.metadata.lastPage ?? 1;
+    reservations.value = data.reservations.sort((a, b) => a.reservation_date.localeCompare(b.reservation_date));
+    selectedIndex.value = -1;
+  },
+  onError: (error) => {
+    console.error('Failed to fetch reservations:', error);
+  },
+});
 
+function fetchReservs() {
+  fetchReservsMutation.mutate(currentPage.value);
+}
 
 function changeCurrentPage(page) {
     router.push({ name: 'reservation', query: { page } });
+}
+
+const newReserv = ref({
+    useremail: '',
+    table_number: '',
+    reservation_date: new Date().toISOString().slice(0, 16),
+    special_request: '',
+});
+
+const mutation = useMutation({
+    mutationFn: (formData) => {
+        console.log('Sending reservation data:', formData);
+        const response = ReservationsService.createReserv(formData);
+        console.log('Reservation added successfully');
+        return response;
+  },
+  onSuccess: () => {
+    fetchReservs();
+    showSuccessMessage();
+    isOpen.value = false;
+  },
+  onError: (error) => {
+    console.error('Error adding reservation:', error);
+    showErrorMessage(error);
+  }
+});
+
+function onAddReserv(formData) {
+  mutation.mutate(formData);
 }
 
 // Watchers
@@ -103,100 +136,97 @@ watch(searchText, () => {
     selectedIndex.value = -1;
 });
 
-watch(currentPage, () => retrieveReservations(currentPage.value), {
-    immediate: true
-});
-
-// In your reservation.vue setup script
-const newReserv = ref({
-    useremail: '',
-    table_number: '',
-    reservation_date: new Date().toISOString().slice(0, 16), // Set default to current date/time
-    special_request: '',
-});
-
-async function onAddReserv(formData) {
-    try {
-        // Log the data being sent
-        console.log('Sending reservation data:', formData);
-        
-        // Call the service to create a reservation with FormData
-        await ReservationsService.createReserv(formData);
-        
-        console.log('Reservation added successfully');
-        await retrieveReservations(currentPage.value);
-        showSuccessMessage();
-        isOpen.value = false;
-    } catch (error) {
-        console.error('Error adding reservation:', error);
-        showErrorMessage(error);
-    }
-}
+watch(currentPage, () => {
+    fetchReservs();
+}, { immediate: true });
 
 </script>
 
 <template>
-    <div class="page mb-5">
-        <div class="mt-5">
-            <div class="top-controls">
-                <h4>
-                    Reservation Information <i class="fas fa-calendar-check"></i>
-                </h4>
-                <InputSearch v-model="searchText" placeholder="Nhập thông tin cần tìm" />
-                
-                <input id="userFilter" type="number" v-model="UserFilter" min="1" placeholder="Nhập ID khách hàng" class="form-control" style="width: 180px;"/>
+    <div class="app-container">
+        <div class="page mb-5">
+                <div class="top-controls">
+                    <h4>
+                        Thông tin đơn đặt bàn <i class="fas fa-calendar-check"></i>&nbsp;
+                    </h4>
+                    <InputSearch v-model="searchText" placeholder="Nhập thông tin cần tìm" />
+                    
+                    <input id="userFilter" type="number" v-model="UserFilter" min="1" placeholder="Nhập ID khách hàng" class="form-control" style="width: 180px;"/>
 
-                <select id="statusFilter" v-model="selectedStatus" class="form-control" >
-                    <option value="">Tất cả trạng thái</option>
-                    <option value="booked">booked</option>
-                    <option value="completed">completed</option>
-                    <option value="canceled">canceled</option>
-                </select>
+                    <select id="statusFilter" v-model="selectedStatus" class="form-control" >
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="booked">booked</option>
+                        <option value="completed">completed</option>
+                        <option value="canceled">canceled</option>
+                    </select>
 
-                <button class="refresh-button btn btn-primary" @click="retrieveReservations(currentPage)">
-                    <i class="fas fa-redo"></i> Làm mới
-                </button>
-                <button @click="openModal" class="add-button btn btn-success">
-                    <i class="fa-solid fa-plus"></i> &nbsp; Đặt bàn cho khách
-                </button>
-               
-            </div>
-
-            <div class="modal-overlay" v-if="isOpen">
-                <div class="modal-content">
-                    <button class="close-button" @click="closeModal">
-                        <i class="fa-solid fa-xmark"></i>
+                    <button class="refresh-button btn btn-primary" @click="fetchReservs(currentPage)">
+                        <i class="fas fa-redo"></i> Làm mới
                     </button>
-                     <div class="content-inner">
-                        <ReservationForm :reservation="newReserv" @submit:reservation="onAddReserv" />
+                    <button @click="openModal" class="add-button btn btn-success">
+                        <i class="fa-solid fa-plus"></i> &nbsp; Đặt bàn cho khách
+                    </button>
+                
+                </div>
+
+                <div class="modal-overlay" v-if="isOpen">
+                    <div class="modal-content">
+                        <button class="close-button" @click="closeModal">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                        <div class="content-inner">
+                            <ReservationForm :reservation="newReserv" @submit:reservation="onAddReserv" />
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="main-content">
-                <div class="reserv-list">
-                    <h5>Danh sách đặt bàn</h5>
-                    <ReservationList @click="closeModal" v-if="filteredReservations.length > 0" :reservations="filteredReservations" v-model:selectedIndex="selectedIndex" />
-                    <p v-else>Không có đơn đặt bàn nào.</p>
+                <div class="main-content mt-4">
+                    <div class="reserv-list">
+                        <h5>Danh sách đặt bàn</h5>
+                        <ReservationList @click="closeModal" v-if="filteredReservations.length > 0" :reservations="filteredReservations" v-model:selectedIndex="selectedIndex" />
+                        <p v-else>Không có đơn đặt bàn nào.</p>
+                    </div>
+
+                    <div class="reserv-card">
+                        <h5>Chi tiết đơn đặt bàn <i class="fas fa-calendar-check"></i></h5>
+                        <p v-if="!selectedReservation">Chưa chọn đơn đặt bàn</p>
+                        <ReservationCard v-if="selectedReservation" :reservation="selectedReservation" />
+                    </div>
                 </div>
 
-                <div class="reserv-card">
-                    <h5>Chi tiết đơn đặt bàn <i class="fas fa-calendar-check"></i></h5>
-                    <p v-if="!selectedReservation">Chưa chọn đơn đặt bàn</p>
-                    <ReservationCard v-if="selectedReservation" :reservation="selectedReservation" />
+                <div class="pagination">
+                    <MainPagination :total-pages="totalPages" :current-page="currentPage" @update:current-page="changeCurrentPage" />
                 </div>
-            </div>
-
-            <div class="pagination">
-                <MainPagination :total-pages="totalPages" :current-page="currentPage" @update:current-page="changeCurrentPage" />
-            </div>
         </div>
     </div>
 </template>
 
 
 <style scoped>
-/* Top controls styling */
+
+.app-container {
+    min-height: 95vh;
+    min-width: 90vw;
+    margin: 0;
+    margin-top: 55px;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    background-color: #EAE7DC; 
+    color: #565551;
+}
+
+.page{
+    margin-top: 35px;
+    width: 100%;
+    height: 85%;
+    padding: 20px 60px 20px 60px;
+}
+
 .top-controls {
     display: flex;
     gap: 16px;
@@ -220,13 +250,11 @@ async function onAddReserv(formData) {
     font-size: 14px;
 }
 
-/* Main content layout styling */
 .main-content {
     display: flex;
     gap: 8px; 
 }
 
-/* Reservation list styling */
 .reserv-list {
     flex: 1;
     padding: 10px;
@@ -235,7 +263,6 @@ async function onAddReserv(formData) {
     background-color: #f9f9f9;
 }
 
-/* Reservation card styling */
 .reserv-card {
     flex: 1;
     padding: 10px;
@@ -244,13 +271,36 @@ async function onAddReserv(formData) {
     background-color: #f9f9f9;
 }
 
-/* Pagination styling */
 .pagination {
     margin-top: 20px;
     display: flex;
     justify-content: center;
 }
-/* Modal overlay with fade-in effect */
+
+button.btn-primary {
+    background-color: #4f82d4; 
+    border-color: #4f82d4;
+    color: #EAE7DC;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+button.btn-primary:hover {
+    background-color: #3667b5; 
+}
+
+button.btn-success {
+    background-color: #20ab6a; 
+    border-color: #20ab6a;
+    color: #EAE7DC;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+button.btn-success:hover {
+    background-color: #168250; 
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -277,16 +327,19 @@ async function onAddReserv(formData) {
 
 /* Modal content with zoom-in effect */
 .modal-content {
-  background-color: #d1d4d9;
-  padding: 40px;
-  border-radius: 10px;
-  width: 80%;
-  max-width: 600px;
-  height: auto;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  position: relative;
-  transform: scale(0.9);
-  animation: zoom-in 0.3s forwards;
+    background-color: #d8c3a5;
+    color: #565551;  
+    padding: 40px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 600px;
+    height: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+    transform: scale(0.9);
+    animation: zoom-in 0.3s forwards;
+    font-weight: 700;
+    font-size: 18px;
 }
 
 @keyframes zoom-in {
@@ -301,23 +354,25 @@ async function onAddReserv(formData) {
 }
 
 .close-button {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  background-color: #d1d4d9;
-  color: rgb(183, 18, 18);
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  font-size: 25px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background-color: #d8c3a5;
+    color: rgb(183, 18, 18);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 25px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .content-inner {
-  text-align: left;
+    text-align: left;
+    background-color: #d8c3a5;
+    color: #565551;
 }
 </style>

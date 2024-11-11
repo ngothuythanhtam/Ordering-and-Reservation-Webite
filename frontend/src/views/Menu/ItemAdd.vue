@@ -56,12 +56,32 @@ function onAddItem(newItem) {
 </script>
 
 <template>
-  <div class="page">
-    <ItemForm
-      :item="newItem"
-      @submit:item="onAddItem" 
-    />
-    <p v-if="message">{{ message }}</p>
-    <p v-if="mutation.isLoading">Đang thêm món mới...</p>
+  <div class="app-container">
+    <div class="page">
+      <ItemForm
+        :item="newItem"
+        @submit:item="onAddItem" 
+      />
+      <p v-if="message">{{ message }}</p>
+      <p v-if="mutation.isLoading">Đang thêm món mới...</p>
+    </div>
   </div>
 </template>
+
+<style scoped>
+.app-container {
+    min-height: 95vh;
+    min-width: 90vw;
+    margin: 0;
+    margin-top: 55px;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    background-color: #EAE7DC; 
+    color: #565551;
+}
+</style>

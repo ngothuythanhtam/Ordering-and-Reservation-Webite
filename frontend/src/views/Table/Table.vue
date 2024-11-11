@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import InputSearch from '@/components/InputSearch.vue';
 import TableList from '@/components/Table/TableList.vue';
@@ -7,7 +7,10 @@ import TableForm from '@/components/Table/TableForm.vue';
 import MainPagination from '@/components/MainPagination.vue';
 import tablesService from '@/services/tables.service';
 import Swal from 'sweetalert2';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
 
+const queryClient = useQueryClient();
+const isLoading = ref(false);
 const router = useRouter();
 const route = useRoute();
 const totalPages = ref(1);
@@ -40,13 +43,12 @@ function showErrorMessage(error) {
     Swal.fire({
         icon: 'error',
         title: 'Lỗi',
-        text: `Có lỗi xảy ra: ${error.message}`,
+        text: `${error.message}`,
         timer: 3000,
         showConfirmButton: false
     });
 }
 
-// Define computed properties
 const currentPage = computed(() => {
     const page = Number(route.query?.page);
     if (Number.isNaN(page) || page < 1) return 1;
@@ -80,17 +82,20 @@ const selectedTable = computed(() => {
     return filteredTables.value[selectedIndex.value];
 });
 
-// Retrieve tables for pagination
-async function retrieveTables(page) {
-    try {
-        const chunk = await tablesService.getTables(page);
-        totalPages.value = chunk.metadata.lastPage ?? 1;
-        tables.value = chunk.tables.sort(
-            (current, next) => current.table_number.localeCompare(next.table_number)
-        );
-    } catch (error) {
-        console.error('Error retrieving tables:', error);
-    }
+const fetchTablesMutaion = useMutation({
+    mutationFn: (page) => tablesService.getTables(page),
+    onSuccess: (data) => {
+        totalPages.value = data.metadata.lastPage ?? 1;
+        tables.value = data.tables.sort((a,b) => a.table_number.localeCompare(b.table_number));
+        selectedIndex.value=-1;
+    },
+    onError: (error) => {
+        console.error('Failed to fetch tables:', error);
+    },
+});
+
+function fetchTables(){
+    fetchTablesMutaion.mutate(currentPage.value);
 }
 
 function changeCurrentPage(page) {
@@ -98,7 +103,21 @@ function changeCurrentPage(page) {
 }
 
 // Delete table function
-async function deleteTable(tableId) {
+const deleteTableMutation = useMutation({
+    mutationFn: (table_id) => tablesService.deleteTable(table_id),
+    onSuccess: () => {
+        queryClient.invalidateQueries(['tables']);
+        showSuccessMessage(); 
+        fetchTables();
+        selectedIndex.value = -1;
+    },
+    onError: (error) => {
+        console.log(error);
+        showErrorMessage(error); 
+    }
+});
+
+async function deleteTable(table_id) {
     const result = await Swal.fire({
         title: 'Bạn có chắc muốn xóa?',
         text: 'Hành động này không thể hoàn tác!',
@@ -111,16 +130,12 @@ async function deleteTable(tableId) {
     });
     if (result.isConfirmed) {
         try {
-            await tablesService.deleteTable(tableId);
-            showSuccessMessage();
-            retrieveTables(currentPage.value);
-            selectedIndex.value = -1;
+            deleteTableMutation.mutate(table_id);
         } catch (error) {
-            console.error('Error deleting table:', error);
+            console.log(error);
             showErrorMessage(error);
         }
     }
-    
 }
 
 const newTable = ref({
@@ -129,49 +144,56 @@ const newTable = ref({
     table_satus: 'available',
 });
 
-async function onAddTable(table) {
-    try {
-        await tablesService.createTable(table);
-        console.log('Bàn mới được thêm thành công.');
-        retrieveTables(currentPage.value);
+const mutation = useMutation({
+    mutationFn: (newTable) => tablesService.createTable(newTable),
+    onSuccess: () => {
         showSuccessMessage();
-        isOpen.value = false;
-    } catch (error) {
+        fetchTables();
+    },
+    onError: (error) => {
         console.log(error);
         showErrorMessage(error);
     }
-}
+})
 
+function onAddTable(newTable){
+    mutation.mutate(newTable);
+    isOpen.value=false;
+}
 
 watch(searchText, () => {
     selectedIndex.value = -1;
 });
 
-watch(currentPage, () => retrieveTables(currentPage.value), {
-    immediate: true
+watch(currentPage, () => {
+    fetchTables();
+}, { immediate: true });
+
+onMounted(() => {
+  isLoading.value = true;
+  fetchTablesMutaion.mutate();
 });
 </script>
 
 <template>
+    <div class="app-container">
     <div class="page mb-5">
-        <div class="mt-5">
+        <div class="mt-4">
             <div class="d-flex my-3 gap-4 align-items-center ">
                 <h4 class="mb-0">
-                    Table Information <i class="fa-solid fa-utensils"></i>
+                    Thông tin bàn <i class="fa-solid fa-utensils"></i>
                 </h4>
                 <InputSearch v-model="searchText" placeholder="Tìm kiếm bàn" />
-                
                 <input id="seatingFilter" type="number" class="form-control" v-model="seatingCapacityFilter" min="1"
                     placeholder="Nhập số chỗ ngồi" style="width: 180px;" />
             
                 <select id="statusFilter" class="form-control" v-model="selectedStatus" style="width: 180px;">
                     <option value="">Tất cả trạng thái</option>
-                    <option value="available">Available</option>
-                    <option value="reserved">Reserved</option>
-                    <option value="occupied">Occupied</option>
+                    <option value="available">Bàn còn trống</option>
+                    <option value="occupied">Bàn đã có khách</option>
                 </select>
 
-                <button class="btn btn-sm btn-primary" @click="retrieveTables(currentPage)">
+                <button class="btn btn-sm btn-primary" @click="fetchTables">
                     <i class="fas fa-redo"></i> Làm mới
                 </button>
                 <button @click="openModal" class="btn btn-sm btn-success" >
@@ -182,6 +204,7 @@ watch(currentPage, () => retrieveTables(currentPage.value), {
                         <button class="close-button" @click="closeModal"><i class="fa-solid fa-xmark"></i></button>
                         <div class="content-inner">
                         <TableForm :table="newTable" @submit:table="onAddTable" />
+                        <p v-if="mutation.isLoading">Đang thêm bàn mới...</p>
                         </div>
                     </div>
                 </div>
@@ -198,10 +221,56 @@ watch(currentPage, () => retrieveTables(currentPage.value), {
             </div>
         </div>
     </div>
+    </div>
 </template>
 
 <style scoped>
-/* Modal overlay with fade-in effect */
+.app-container {
+    min-height: 95vh;
+    min-width: 90vw;
+    margin: 0;
+    margin-top: 55px;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    background-color: #EAE7DC; 
+    color: #565551;
+}
+.page{
+    margin-top: 10px;
+    width: 100%;
+    height: 90%;
+    padding: 20px 60px 20px 60px;
+}
+
+button.btn-primary {
+    background-color: #4f82d4; 
+    border-color: #4f82d4;
+    color: #EAE7DC;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+button.btn-primary:hover {
+    background-color: #3667b5; 
+}
+
+button.btn-success {
+    background-color: #20ab6a; 
+    border-color: #20ab6a;
+    color: #EAE7DC;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+button.btn-success:hover {
+    background-color: #168250; 
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -226,18 +295,19 @@ watch(currentPage, () => retrieveTables(currentPage.value), {
   }
 }
 
-/* Modal content with zoom-in effect */
 .modal-content {
-  background-color: #d1d4d9;
-  padding: 40px;
-  border-radius: 10px;
-  width: 80%;
-  max-width: 600px;
-  height: auto;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  position: relative;
-  transform: scale(0.9);
-  animation: zoom-in 0.3s forwards;
+    background-color: #d8c3a5;
+    color: #565551;  
+    padding: 40px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 600px;
+    height: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+    transform: scale(0.9);
+    animation: zoom-in 0.3s forwards;
+    font-weight: bold;
 }
 
 @keyframes zoom-in {
@@ -252,24 +322,26 @@ watch(currentPage, () => retrieveTables(currentPage.value), {
 }
 
 .close-button {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  background-color: #d1d4d9;
-  color: rgb(183, 18, 18);
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  font-size: 25px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    background-color: #d8c3a5;
+    color: rgb(183, 18, 18);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 25px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
   justify-content: center;
 }
 
 .content-inner {
-  text-align: left;
+    text-align: left;
+    background-color: #d8c3a5;
+    color: #565551;
 }
 
 </style>

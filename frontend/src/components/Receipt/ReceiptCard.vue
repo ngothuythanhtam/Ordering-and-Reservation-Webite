@@ -3,7 +3,13 @@ import { defineProps, defineEmits, ref, onMounted, watch, computed } from 'vue';
 import ReceiptsService from '@/services/receipt.service';
 import Swal from 'sweetalert2';
 import MainPagination from '@/components/MainPagination.vue';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
 
+const props = defineProps({
+    receipt: { type: Object, required: true }
+});
+
+const queryClient = useQueryClient();
 const isOpen = ref(false);
 const closeModal = () => {
   isOpen.value = false;
@@ -11,10 +17,6 @@ const closeModal = () => {
 const openModal = () => {
   isOpen.value = true;
 };
-
-const props = defineProps({
-    receipt: { type: Object, required: true }
-});
 
 const emit = defineEmits(['submit:item']);
 const receiptDetails = ref({});
@@ -48,7 +50,7 @@ function showSuccessMessage() {
     Swal.fire({
         icon: 'success',
         title: 'Thành công!',
-        text: 'Thành công!',
+        text: 'Thành công! Làm mới lại trang.',
         timer: 2000,
         showConfirmButton: false
     });
@@ -64,71 +66,60 @@ function showErrorMessage(error) {
     });
 }
 
+const updateReceiptMutation = useMutation({
+    mutationFn: (updatedStatus) => ReceiptsService.updateReceipt(props.receipt.order_id, { status: updatedStatus }),
+    onSuccess: () => {
+        queryClient.invalidateQueries(['receipt', props.receipt.order_id]); 
+        showSuccessMessage();
+        fetchReceiptDetails();
+        emit('submit:item');
+    },
+    onError: (error) => {
+        console.error('Failed to update status receipt:', error);
+        showErrorMessage(error);
+    }
+});
+
 async function onUpdateReceipt(status) {
     if (props.receipt.status !== 'Ordered') {
         showErrorMessage("Chỉ có thể cập nhật trạng thái khi trạng thái hiện tại là 'Ordered'.");
         return;
     }
     try {
-        if (status === 'Canceled') {
-            const resultCancel = await Swal.fire({
-                title: 'Hủy hóa đơn này?',
-                text: 'Hành động này không thể hoàn tác!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Hủy hóa đơn',
-                cancelButtonText: 'Thoát'
-            });
-            if (resultCancel.isConfirmed) {
-                const updatedReceipt = { ...props.receipt, status: 'Canceled' };
-                await ReceiptsService.updateReceipt(props.receipt.order_id, updatedReceipt);
-                emit('submit:item');
-                showSuccessMessage("Hóa đơn đã được hủy thành công.");
-                return;
-            }
-        } else if (status === 'Completed') {
-            const resultComplete = await Swal.fire({
-                title: 'Hoàn thành hóa đơn này?',
-                text: 'Nếu bạn đồng ý hóa đơn này sẽ được hoàn thành!',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#2b9957',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Đồng ý',
-                cancelButtonText: 'Thoát'
-            });
-            if (resultComplete.isConfirmed) {
-                const updatedReceipt = { ...props.receipt, status: 'Completed' };
-                await ReceiptsService.updateReceipt(props.receipt.order_id, updatedReceipt);
-                emit('submit:item');
-                showSuccessMessage("Hóa đơn đã hoàn thành.");
-                console.log("Updated status:", status);
-            }
+        const result = await Swal.fire({
+            title: `Xác nhận "${status === 'Canceled' ? 'hủy' : 'hoàn thành'}"?`,
+            text: `${status === 'Canceled' ? 'Hóa đơn hủy sẽ không thể hoàn tác!' : 'Hoàn thành hóa đơn này!'}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Đồng ý',
+            cancelButtonText: 'Thoát'
+        });
+        
+        if (result.isConfirmed) {
+            updateReceiptMutation.mutate(status);
         }
     } catch (error) {
         console.log(error);
         showErrorMessage(error);
     }
 }
-const currentPage = ref(1); // Initialize current page to 1
-const itemsPerPage = 5; // Define how many items per page
-// This computed property calculates the total pages
+
+const currentPage = ref(1); 
+const itemsPerPage = 5; 
 const totalPages = computed(() => {
   return Math.ceil((receiptDetails.value.order_items?.length || 0) / itemsPerPage);
 });
 
-// This computed property slices the items based on the current page
 const paginatedItems = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage;
   const end = start + itemsPerPage;
   return receiptDetails.value.order_items?.slice(start, end) || [];
 });
 
-// Update page when pagination component emits the change
 function changeCurrentPage(page) {
-  currentPage.value = page; // Update the currentPage ref directly
+  currentPage.value = page; 
 }
 
 </script>
@@ -330,5 +321,40 @@ function changeCurrentPage(page) {
 }
 .modal-content h3{
     font-size: 20px;
+}
+
+button.btn-success {
+    background-color: #20ab6a; 
+    border-color: #20ab6a;
+    color: #EAE7DC;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+button.btn-success:hover {
+    background-color: #168250; 
+}
+
+button.btn-danger {
+    background-color: #e0453a;
+    border-color: #e0453a;
+    color: #EAE7DC;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+button.btn-danger:hover {
+    background-color: #cd3025; 
+}
+
+button.btn-info{
+    background-color: #61bbd4;
+    border-color: #61bbd4;
+    color: #33312c;
+    font-size: 16px;
+    font-weight: 500;
+}
+button.btn-info:hover{
+    background-color: #38adce;
 }
 </style>

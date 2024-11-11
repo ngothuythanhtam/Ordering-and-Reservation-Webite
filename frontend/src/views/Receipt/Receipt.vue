@@ -1,10 +1,11 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import ReceiptCard from '@/components/Receipt/ReceiptCard.vue';
 import ReceiptList from '@/components/Receipt/ReceiptList.vue';
 import MainPagination from '@/components/MainPagination.vue';
 import ReceiptsService from '@/services/receipt.service';
+import { useMutation } from '@tanstack/vue-query';
 
 const router = useRouter();
 const route = useRoute();
@@ -50,13 +51,29 @@ const selectedReceipt = computed(() => {
     return filteredReceipts.value[selectedIndex.value];
 });
 
+const fetchReceiptsMutaion = useMutation({
+    mutationFn: (page) => ReceiptsService.getReceipts(page),
+    onSuccess: (data) => {
+        totalPages.value = data.metadata.lastPage ?? 1;
+        receipts.value = data.receipts.sort((a,b) => a.status.localeCompare(b.status));
+        selectedIndex.value=-1;
+    },
+    onError: (error) => {
+        console.error('Failed to fetch receipts:', error);
+    },
+});
+
+function fetchReceipts(){
+    fetchReceiptsMutaion.mutate(currentPage.value);
+}
+
 async function retrieveReceipts(page) {
     try {
         const chunk = await ReceiptsService.getReceipts(page);
         console.log(chunk); // Kiểm tra dữ liệu trả về
         totalPages.value = chunk.metadata.lastPage ?? 1;
         receipts.value = chunk.receipts.sort(
-            (current, next) => current.order_date.localeCompare(next.order_date)
+            (current, next) => current.status.localeCompare(next.status)
         );
     } catch (error) {
         console.error('Error retrieving receipts:', error);
@@ -73,58 +90,86 @@ watch(searchText, () => {
     selectedIndex.value = -1;
 });
 
-watch(currentPage, () => retrieveReceipts(currentPage.value), {
+watch(currentPage, () => {
+    fetchReceipts();
+}, {
     immediate: true
 });
+onMounted(() => {
+    fetchReceipts();
+});
+
 </script>
 
 <template>
-    <div class="page mb-5">
-        <div class="mt-5">
-            <div class="top-controls">
-            <h4>Receipt Information &nbsp;<i class="fas fa-receipt"></i></h4>
-            <input id="ReceiptFilter" type="number" class="form-control" v-model="ReceiptFilter" min="1" placeholder="Nhập ID hóa đơn" style="width: 180px;"/>
-            <input id="userFilter" type="number" class="form-control" v-model="UserFilter" min="1" placeholder="Nhập ID khách hàng" style="width: 180px;"/>
+    <div class="app-container">
+        <div class="page mb-5">
+                <div class="top-controls">
+                <h4>Receipt Information &nbsp;<i class="fas fa-receipt"></i></h4>
+                <input id="ReceiptFilter" type="number" class="form-control" v-model="ReceiptFilter" min="1" placeholder="Nhập ID hóa đơn" style="width: 180px;"/>
+                <input id="userFilter" type="number" class="form-control" v-model="UserFilter" min="1" placeholder="Nhập ID khách hàng" style="width: 180px;"/>
 
-            <select id="statusFilter" class="form-control" v-model="selectedStatus">
-                <option value="">Tất cả trạng thái</option>
-                <option value="Pending">Pending</option>
-                <option value="Ordered">Ordered</option>
-                <option value="Completed">Completed</option>
-                <option value="Canceled">Canceled</option>
-            </select>
+                <select id="statusFilter" class="form-control" v-model="selectedStatus">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Ordered">Ordered</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Canceled">Canceled</option>
+                </select>
 
-            <button class="btn btn-sm btn-primary" @click="retrieveReceipts(currentPage)"><i class="fas fa-redo"></i>&nbsp;Làm mới </button>
-            </div>
-
-
-            <div class="main-content">
-                <div class="reserv-list">
-                    <h5>Danh sách hóa đơn</h5>
-                    <ReceiptList v-if="filteredReceipts.length > 0" :receipts="filteredReceipts" v-model:selectedIndex="selectedIndex" />
-                    <p v-else>Không có hóa đơn nào.</p>
+                <button class="btn btn-sm btn-primary" @click="retrieveReceipts(currentPage)"><i class="fas fa-redo"></i>&nbsp;Làm mới </button>
                 </div>
 
-                <div class="reserv-card">
-                    <h5>Chi tiết hóa đơn &nbsp;<i class="fas fa-receipt"></i></h5>
-                    <p v-if="!selectedReceipt">Click vào mã hóa đơn để xem chi tiết</p>
-                    <ReceiptCard v-if="selectedReceipt" :receipt="selectedReceipt" />
+
+                <div class="main-content">
+                    <div class="reserv-list">
+                        <h5>Danh sách hóa đơn</h5>
+                        <ReceiptList v-if="filteredReceipts.length > 0" :receipts="filteredReceipts" v-model:selectedIndex="selectedIndex" />
+                        <p v-else>Không có hóa đơn nào.</p>
+                    </div>
+
+                    <div class="reserv-card">
+                        <h5>Chi tiết hóa đơn &nbsp;<i class="fas fa-receipt"></i></h5>
+                        <p v-if="!selectedReceipt">Click vào mã hóa đơn để xem chi tiết</p>
+                        <ReceiptCard v-if="selectedReceipt" :receipt="selectedReceipt" />
+                    </div>
                 </div>
-            </div>
 
-            
+                
 
-            <div class="pagination">
-                <MainPagination :total-pages="totalPages" :current-page="currentPage"
-                @update:current-page="changeCurrentPage" />                
-            </div>
-            </div>
+                <div class="pagination">
+                    <MainPagination :total-pages="totalPages" :current-page="currentPage"
+                    @update:current-page="changeCurrentPage" />                
+                </div>
         </div>
+    </div>
 
 </template>
 
 <style scoped>
-/* Top controls styling */
+.app-container {
+    min-height: 95vh;
+    min-width: 90vw;
+    margin: 0;
+    margin-top: 55px;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    background-color: #EAE7DC; 
+    color: #565551;
+}
+
+.page{
+    margin-top: 35px;
+    width: 100%;
+    height: 85%;
+    padding: 20px 60px 20px 60px;
+}
+
 .top-controls {
     display: flex;
     gap: 16px;
@@ -148,13 +193,11 @@ watch(currentPage, () => retrieveReceipts(currentPage.value), {
     font-size: 14px;
 }
 
-/* Main content layout styling */
 .main-content {
     display: flex;
     gap: 8px; 
 }
 
-/* Reservation list styling */
 .reserv-list {
     flex: 1;
     padding: 10px;
@@ -163,7 +206,6 @@ watch(currentPage, () => retrieveReceipts(currentPage.value), {
     background-color: #f9f9f9;
 }
 
-/* Reservation card styling */
 .reserv-card {
     flex: 1;
     padding: 10px;
@@ -172,13 +214,12 @@ watch(currentPage, () => retrieveReceipts(currentPage.value), {
     background-color: #f9f9f9;
 }
 
-/* Pagination styling */
 .pagination {
     margin-top: 20px;
     display: flex;
     justify-content: center;
 }
-/* Modal overlay with fade-in effect */
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -203,7 +244,6 @@ watch(currentPage, () => retrieveReceipts(currentPage.value), {
   }
 }
 
-/* Modal content with zoom-in effect */
 .modal-content {
   background-color: #d1d4d9;
   padding: 40px;
@@ -248,4 +288,17 @@ watch(currentPage, () => retrieveReceipts(currentPage.value), {
 .content-inner {
   text-align: left;
 }
+
+button.btn-primary {
+    background-color: #4f82d4; 
+    border-color: #4f82d4;
+    color: #EAE7DC;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+button.btn-primary:hover {
+    background-color: #3667b5; 
+}
+
 </style>

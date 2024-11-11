@@ -14,7 +14,7 @@ async function handleItemClick(order_id, index) {
 </script>
 
 <template>
-    <ul class="list-group">
+    <ul class="list-group" style="font-size: 18px;">
         <li
             class="list-group-item px-3"
             v-for="(receipt, index) in receipts"
@@ -26,3 +26,12 @@ async function handleItemClick(order_id, index) {
         </li>
     </ul>
 </template>
+
+<style scoped>
+.active {
+    background-color: #e8e6e3 !important; 
+    color: rgb(22, 38, 63);  
+    font-weight: 600;
+    border-color: #e8e6e3;
+}
+</style>

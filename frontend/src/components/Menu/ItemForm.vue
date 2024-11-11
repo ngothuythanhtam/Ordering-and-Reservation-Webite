@@ -63,8 +63,6 @@ function previewImgFile(event) {
 
 function submitItem(values) {
   const formData = new FormData();
-
-  // Append fields from values to formData
   for (let key in values) {
     if (key === "img_url_file" && values[key]) {
       formData.append(key, values[key]);
@@ -103,27 +101,19 @@ function deleteItem() {
         </Field>
       </div>
 
-      <!-- Row for item name and item price -->
       <div class="row mb-3">
         <div class="col-6">
           <label for="item_name" class="form-label">Tên</label>
           <Field name="item_name" type="text" class="form-control" :value="item?.item_name" />
           <ErrorMessage name="item_name" class="error-feedback" />
         </div>
-        <div class="col-4 d-flex align-items-end">
-          <Field name="item_status" type="checkbox" class="form-check-input" :model-value="item?.item_status" :value="1"
-          :unchecked-value="0" />
-          <label for="item_status" class="form-check-label ms-2">
-            <strong>Có sẵn</strong>
-          </label>
-        </div>
+        
       </div>
 
-      <!-- Row for item type and item status -->
       <div class="row mb-3">
-        <div class="col-8">
+        <div class="col-4">
           <label for="item_type" class="form-label">Loại món</label>
-          <Field as="select" name="item_type" class="form-control" :value ="item?.item_type">
+          <Field as="select" name="item_type" class="form-control" :value ="item?.item_type" style="width: 200px;">
             <option value="">Chọn loại món</option>
             <option value="Course">Course</option>
             <option value="Salad">Salad</option>
@@ -138,30 +128,38 @@ function deleteItem() {
           </Field>
           <ErrorMessage name="item_type" class="error-feedback" />
         </div>
-        <div class="col-6">
+        <div class="col-4">
           <label for="item_price" class="form-label">Giá</label>
-          <Field name="item_price" type="number" placeholder="Giá" class="form-control" :value="item?.item_price" />
+          <Field name="item_price" type="number" placeholder="Giá" class="form-control" :value="item?.item_price" style="width: 200px;"/>
           <ErrorMessage name="item_price" class="error-feedback" />
+        </div>
+        <div class="col-3 align-items-end" style=" height: 25px; margin-top: 48px;">
+          <Field name="item_status" type="checkbox" class="form-check-input" :model-value="item?.item_status" :value="1"
+          :unchecked-value="0" />
+          <label for="item_status" class="form-check-label ms-2">
+            <strong>Có sẵn</strong>
+          </label>
         </div>
       </div>
 
-      <div class="mb-3">
-        <label for="item_description" class="form-label">Mô tả</label>
+      <div class="row mb-3">
+        <label for="item_description" class="form-label" style="padding: 5px; padding-top: 0;">Mô tả</label>
         <Field name="item_description" type="text" class="form-control description-field" :value="item?.item_description" />
         <ErrorMessage name="item_description" class="error-feedback" />
       </div>
 
-      <div class="mb-3 d-flex justify-content-between">
-        <button class="btn btn-primary" type="submit">
+      <div class="mb-3 mt-4 d-flex" style="padding-left: 0px; padding-top: 0;">
+        <button class="btn btn-primary me-2" type="submit">
           <i class="fas fa-save"></i> Lưu
         </button>
         <button v-if="item?.item_id" type="button" class="btn btn-danger" @click="deleteItem"
           @mouseover="hoverDelete = true" @mouseleave="hoverDelete = false"
-          :style="{ backgroundColor: hoverDelete ? '#dc3545' : '#ff4d4d' }">
+          :style="{ backgroundColor: hoverDelete ? '#dc3545' : '#ff4d4d' } ">
           <i class="fas fa-trash"></i> Xóa
         </button>
-
       </div>
+
+
     </Form>
   </div>
 </template>
@@ -170,10 +168,11 @@ function deleteItem() {
 .form-container {
   max-width: 600px;
   margin: auto;
-  background-color: #d1d4d9;
-  padding: 20px;
+  background-color: #d8c3a5;
+  padding: 0px;
   border-radius: 10px;
-  margin-top: 20px;
+  margin-top: 10px;
+  color: #565551;
 }
 
 .preview-img {
@@ -196,6 +195,16 @@ function deleteItem() {
   width: 100%;
 }
 
+.btn-primary{
+  background-color: #668ece;
+  border-color: #668ece;
+  color: #EAE7DC;
+}
+
+.btn-danger{
+  border-color: #ff4d4d;
+}
+
 .btn-primary,
 .btn-danger {
   font-weight: bold;
@@ -204,7 +213,7 @@ function deleteItem() {
 }
 
 .btn-primary:hover {
-  background-color: #007bff;
+  background-color: #406eb8;
 }
 
 .btn-danger:hover {
@@ -221,7 +230,6 @@ function deleteItem() {
 }
 
 .col-6,
-.col-8,
 .col-4 {
   flex: 1;
   padding: 0 5px;

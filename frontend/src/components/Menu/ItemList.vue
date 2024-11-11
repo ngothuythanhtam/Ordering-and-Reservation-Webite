@@ -69,7 +69,7 @@ const closeModal = () => {
   padding: 8px;
   border-radius: 8px;
   transition: transform 0.2s, box-shadow 0.2s;
-  background-color: #c78888;
+  background-color: #d8c3a5;
   width: 250px;
 }
 
@@ -77,12 +77,12 @@ const closeModal = () => {
 .item-card:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  background-color: #e9bdbd;
+  background-color: #dcaf75;
 }
 
 .item-image {
   width: 100%;
-  height: auto;
+  height: 80%;
   object-fit: cover;
   border-radius: 4px;
 }
@@ -90,7 +90,7 @@ const closeModal = () => {
 .item-name {
   margin-top: 8px;
   font-weight: bold;
-  color: #333;
+  color: #47302f;
 }
 
 /* Modal overlay with fade-in effect */
@@ -120,7 +120,7 @@ const closeModal = () => {
 
 /* Modal content with zoom-in effect */
 .modal-content {
-  background-color: #e9bdbd;
+  background-color: #d8c3a5;
   padding: 40px;
   border-radius: 10px;
   width: 80%;
@@ -147,7 +147,7 @@ const closeModal = () => {
   position: absolute;
   top: 0px;
   right: 0px;
-  background-color: #e9bdbd;
+  background-color: #d8c3a5;
   color: rgb(183, 18, 18);
   border: none;
   border-radius: 50%;
@@ -169,8 +169,12 @@ const closeModal = () => {
   margin-top: 15px;
   width: 150px;
   height: 40px;
-  background-color: bisque;
+  background-color: #d09c54;
   font-size: 18px;
+}
+.edit-button:hover {
+  background-color: #ce923f;
+  color: #47302f;
 }
 </style>
 

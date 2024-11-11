@@ -37,7 +37,6 @@ const fetchItemMutation = useMutation({
   }
 });
 
-// Function to display success notification
 function showSuccessMessage() {
     Swal.fire({
         icon: 'success',
@@ -48,7 +47,6 @@ function showSuccessMessage() {
     });
 }
 
-// Function to display error notification
 function showErrorMessage(error) {
     Swal.fire({
         icon: 'error',
@@ -102,8 +100,8 @@ async function onDeleteItem() {
     });
     if (result.isConfirmed) {
         try {
-            showSuccessMessage();
             deleteItemMutation.mutate();
+            showSuccessMessage();
         } catch (error) {
             console.log(error);
             showErrorMessage(error);
@@ -119,14 +117,34 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="app-container">
     <div v-if="isLoading" class="page">
         <p>Loading...</p>
     </div>
     <div v-else-if="isError" class="page">
         <p>Error loading contact.</p>
     </div>
-    <div v-else="item" class="page">
+    <div v-else="item" class="page mt-5" >
         <ItemForm :item="item" @submit:item="onUpdateItem" @delete:item="onDeleteItem" />
         <p>{{ message }}</p>
     </div>
+  </div>
 </template>
+
+<style scoped>
+.app-container {
+    min-height: 95vh;
+    min-width: 90vw;
+    margin: 0;
+    margin-top: 55px;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    background-color: #EAE7DC; 
+    color: #565551;
+}
+</style>

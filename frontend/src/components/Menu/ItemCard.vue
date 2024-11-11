@@ -43,13 +43,13 @@
 .img-card {
   border-radius: 15px;
   padding: 8px;
-  background-color: #e9bdbd;
+  background-color: #d8c3a5;
 }
 .describe{
   max-width: 100%;
 }
 .box-card{
-  background-color: #e9bdbd;
+  background-color: #d8c3a5;
   border-style: none;
 }
 .card-content{

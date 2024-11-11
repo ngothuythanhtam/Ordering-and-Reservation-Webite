@@ -23,17 +23,14 @@ let validationSchema = toTypedSchema(
         .optional(),
     })
 );
-function submitTable(values) {
-    let formData = new FormData();
 
-    // Append fields from values to formData
+function submitTable(values) {
+    const formData = new FormData();
     for (let key in values) {
         if (values[key] !== undefined) {
             formData.append(key, values[key]);
         }
     }
-
-    // Emit the submit event with formData
     $emit('submit:table', formData); 
 }
 </script>
@@ -42,13 +39,12 @@ function submitTable(values) {
     <Form :validation-schema="validationSchema" @submit="submitTable" >
         <div class="mb-3">
             <label for="table_number" class="form-label">Tên bàn</label>
-            <Field name="table_number" type="text" class="form-control" v-model="props.table.table_number" />
+            <Field name="table_number" type="text" class="form-control" :value="table?.table_number" />
             <ErrorMessage name="table_number" class="error-feedback" />
         </div>
         <div class="mb-3">
             <label for="seating_capacity" class="form-label">Số chỗ ngồi</label>
-            <Field name="seating_capacity" type="number" placeholder="Chỗ ngồi" class="form-control"
-                v-model="props.table.seating_capacity" />
+            <Field name="seating_capacity" type="number" placeholder="Chỗ ngồi" class="form-control" :value="table?.seating_capacity"/>
             <ErrorMessage name="seating_capacity" class="error-feedback" />
         </div>
         <div class="mb-2 mt-5 d-flex justify-content-center">
@@ -62,8 +58,13 @@ function submitTable(values) {
 .save-btn {
   width: 100px;
   height: 50px;
-  background-color: rgb(104, 144, 231);
+  background-color: #668ece;
+  border-color: #668ece;
+  color: #EAE7DC;
   font-size: 18px;
   font-weight: bold;
+}
+.save-btn:hover{
+    background-color: #406eb8;
 }
 </style>

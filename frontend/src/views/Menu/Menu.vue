@@ -15,10 +15,9 @@ const queryClient = useQueryClient();
 const items = ref([]);
 const selectedIndex = ref(-1);
 const searchText = ref('');
-const selectedStatus = ref(''); //Lọc theo trạng thái
-const selectedType = ref(''); //Lọc theo loại món
+const selectedStatus = ref(''); 
+const selectedType = ref(''); 
 
-// current page is from the query string (?page=1)
 const currentPage = computed(() => {
     const page = Number(route.query?.page);
     if (Number.isNaN(page) || page < 1) return 1;
@@ -45,13 +44,6 @@ const filteredItems = computed(() => {
     });
 });
 
-
-const selectedItem = computed(() => {
-    if (selectedIndex.value < 0) return null;
-    return filteredItems.value[selectedIndex.value];
-});
-
-// Function to display success notification
 function showSuccessMessage() {
     Swal.fire({
         icon: 'success',
@@ -62,7 +54,6 @@ function showSuccessMessage() {
     });
 }
 
-// Function to display error notification
 function showErrorMessage(error) {
     Swal.fire({
         icon: 'error',
@@ -73,7 +64,6 @@ function showErrorMessage(error) {
     });
 }
 
-// Use mutationFn for fetchContactsMutation
 const fetchItemsMutation = useMutation({
   mutationFn: (page) => itemsService.getItems(page),
   onSuccess: (data) => {
@@ -90,20 +80,6 @@ function fetchItems() {
   fetchItemsMutation.mutate(currentPage.value);
 }
 
-// Get items for a specific pages and order them by name
-async function retrieveItems(page) {
-    try {
-        const chunk = await itemsService.getItems(page);
-        totalPages.value = chunk.metadata.lastPage ?? 1;
-        items.value = chunk.items.sort(
-            (current, next) => current.item_name.localeCompare(next.item_name)
-        );
-    } catch (error) {
-        console.error('Error retrieving items:', error);
-    }
-}
-
-// Use mutationFn for deleteAllItemsMutation
 const deleteAllItemsMutation = useMutation({
   mutationFn: () => itemsService.deleteAllItems(),
   onSuccess: () => {
@@ -160,9 +136,9 @@ watch(currentPage, () => {
 
 <template>
     <div class="app-container">
-        <div class="page">
-            <h4>Menu <i class="fas fa-book-open"></i></h4>
-            <div class="d-flex align-items-center mb-3 filter-bar">
+        <div class="page mt-3">
+            <div class="d-flex my-3 align-items-center mb-3 filter-bar">
+                <h4 class="mb-0">Thực đơn &nbsp;<i class="fas fa-book-open"></i></h4>
                 <InputSearch v-model="searchText" class="search-bar" />
                 <div class="filter-group">
                     <select id="statusFilter" class="form-control" v-model="selectedStatus">
@@ -189,7 +165,7 @@ watch(currentPage, () => {
                 </div>
 
                 <div class="action-buttons ms-3">
-                    <button class="btn btn-sm btn-primary me-2" @click="retrieveItems(currentPage)">
+                    <button class="btn btn-sm btn-primary me-2" @click="fetchItems">
                         <i class="fas fa-redo"></i> Làm mới
                     </button>
                     <button class="btn btn-sm btn-success me-2" @click="goToAddItem">
@@ -217,10 +193,10 @@ watch(currentPage, () => {
 
 <style scoped>
 .app-container {
-    min-height: 90vh;
+    min-height: 95vh;
     min-width: 90vw;
     margin: 0;
-    margin-top: 60px;
+    margin-top: 55px;
     padding: 0;
     position: fixed;
     top: 0;
@@ -228,26 +204,27 @@ watch(currentPage, () => {
     right: 0;
     bottom: 0;
     overflow-y: auto;
+    background-color: #EAE7DC; 
+    color: #565551;
 }
 
 .page {
     margin-top: 10px;
-    width: 95%;
-    height: 90%;
-    padding: 20px;
+    width: 100%;
+    height: 95%;
+    padding: 20px 30px 20px 60px;
 }
 
 .filter-bar {
     display: flex;
     align-items: center;
-    gap: 40px;
+    gap: 20px;
     flex-wrap: wrap;
     margin-top: 5px;
 }
 
 .search-bar {
     flex: 1;
-    
 }
 
 .filter-group {
@@ -258,5 +235,41 @@ watch(currentPage, () => {
 .action-buttons {
     display: flex;
     gap: 10px;
+}
+
+button.btn-primary {
+    background-color: #4f82d4; 
+    border-color: #4f82d4;
+    color: #EAE7DC;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+button.btn-primary:hover {
+    background-color: #3667b5; 
+}
+
+button.btn-success {
+    background-color: #20ab6a; 
+    border-color: #20ab6a;
+    color: #EAE7DC;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+button.btn-success:hover {
+    background-color: #168250; 
+}
+
+button.btn-danger {
+    background-color: #e0453a;
+    border-color: #e0453a;
+    color: #EAE7DC;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+button.btn-danger:hover {
+    background-color: #cd3025; 
 }
 </style>
