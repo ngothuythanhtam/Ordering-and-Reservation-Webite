@@ -99,7 +99,6 @@ async function getUser(req, res, next) {
     return res.json(JSend.success({ user }));
 }
 
-
 async function updateUser(req, res, next) {
     if (Object.keys(req.body).length === 0 && !req.file) {
         return next(new ApiError(400, 'Thông tin cập nhật không hợp lệ.'));
@@ -124,6 +123,7 @@ async function updateUser(req, res, next) {
         return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
     }
 }
+
 async function deleteUser(req, res, next) {
     const { id } = req.params;
     const { requestId } = req.body; 

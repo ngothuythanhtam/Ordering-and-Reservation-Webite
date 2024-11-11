@@ -7,18 +7,18 @@ async function getTable(req, res, next) {
     const { table_id } = req.params;  
 
     if (!table_id) {
-        return next(new ApiError(400, 'Table number is required'));
+        return next(new ApiError(400, 'Table number là bắt buộc'));
     }
 
     try {
         const table = await tableService.getTableById(table_id);  
         if (!table) {
-            return next(new ApiError(404, 'Table not found'));
+            return next(new ApiError(404, 'Không tìm thấy bàn!'));
         }
         return res.json(JSend.success({ table_info: table }));  
     } catch (error) {
         console.error(error);
-        return next(new ApiError(500, `Error retrieving item with table_number=${table_number}`));
+        return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
     }
 }
 
@@ -36,7 +36,7 @@ async function createTable(req, res, next) {
         // Kiểm tra vai trò người dùng
         const userRole = await usersService.checkRole(userId);
         if (userRole !== 2  ) {
-            return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
+            return next(new ApiError(403, 'Forbidden: Bạn không có quyền để thêm bàn mới!', { code: 'FORBIDDEN' }));
         }
 
         const { id } = req.params;
@@ -45,7 +45,7 @@ async function createTable(req, res, next) {
         }
         const existingTable = await tableService.getTableByNumber(req.body.table_number);
         if (existingTable) {
-            return next(new ApiError(400, 'Table number already exists. Please choose a different number.', { code: 'DUPLICATE_ITEM_NAME' }));
+            return next(new ApiError(400, 'Tên bàn đã tồn tại. Vui lòng nhập tên khác!', { code: 'DUPLICATE_ITEM_NAME' }));
         }
 
         const table = await tableService.createTable(req.body);
@@ -56,7 +56,7 @@ async function createTable(req, res, next) {
     } 
     catch (error) {
         console.error(error);
-        return next(new ApiError(500, 'Lỗi khi tạo bàn mới!'));
+        return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
     }
 }
 
@@ -74,7 +74,7 @@ async function deleteTable(req, res, next) {
         // Kiểm tra vai trò người dùng
         const userRole = await usersService.checkRole(userId);
         if (userRole !== 2  ) {
-            return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
+            return next(new ApiError(403, 'Forbidden: Bạn không có quyền để xóa bàn!', { code: 'FORBIDDEN' }));
         }
 
         const { table_id } = req.params; 
@@ -106,11 +106,10 @@ async function getManyTablesByFilter(req, res, next) {
     };
 
     try {
-        // Pass query parameters (e.g., item_name, item_type, item_status) for filtering
         result = await tableService.getManyTables(req.query);
     } catch (error) {
         console.error(error);
-        return next(new ApiError(500, 'An error occurred while retrieving tables'));
+        return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
     }
 
     return res.json(
@@ -121,9 +120,38 @@ async function getManyTablesByFilter(req, res, next) {
     );
 }
 
+async function updateTable(req, res, next) {
+    if (!req.session.user) {
+        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+    }
+
+    const userId = req.session.user.userid;
+    const { table_id } = req.params;
+    const status = req.body.status;
+
+    try {
+        const userRole = await usersService.checkRole(userId);
+        if (userRole !== 2) {
+            return next(new ApiError(403, 'Forbidden: Bạn không có quyền chỉnh sửa thông tin này!', { code: 'FORBIDDEN' }));
+        }
+
+        const result = await tableService.updateTable(table_id, status);
+        if (result && result.success) {
+            return res.json({ success: true, message: result.message });
+        } else {
+            return next(new ApiError(404, 'Không tìm thấy bàn!'));
+        }
+    } catch (error) {
+        console.log(error);
+        return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
+    }
+}
+
+
 module.exports = {
     getTable,
     createTable,
     deleteTable,
     getManyTablesByFilter,
+    updateTable,
 };
