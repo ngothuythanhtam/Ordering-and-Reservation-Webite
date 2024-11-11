@@ -1,7 +1,6 @@
 const knex = require('../database/knex');
 const { fail } = require('../jsend');
-const Paginator = require('./paginator');
-const bcrypt = require('bcrypt');
+const Paginator = require('./receipt.paginator');
 function receiptRepository() {
     return knex('receipt');
 }
@@ -50,10 +49,6 @@ async function createReceipt(id, payload) {
     });
 }
 
-const checkExistItem = async (id) => {
-    const item = await knex('menu_items').where({ item_id: id }).select('item_id').first();
-    return item ? item.item_id : null;
-};
 async function addItemToReceipt(id, payload) {
     const { item_id, quantity } = payload;
     return await knex.transaction(async trx => {
@@ -107,237 +102,58 @@ async function addItemToReceipt(id, payload) {
         return { success: true, message: 'Thêm vào giỏ hàng thành công!' };
     });
 }
-const getIDReceipt_Pending = async (userid) => {
-    const order = await knex('receipt')
-        .where({ 
-            userid: userid,
-            status: 'Pending'
-        })
-        .select('order_id')
-        .first();
-    return order ? order.order_id : null;
-};
-const checkExistIteminCart = async (order_id,id) => {
-    const exist = await knex('order_item')
-        .where({order_id: order_id, item_id: id })
-        .first();
-    return exist;
-};
-async function deleteItemFromReceipt(id, payload) {
-    const { item_id, quantity } = payload;
-    const updatedItem = await knex.transaction(async trx => {
-        const receipt = await trx('receipt')
-            .select('order_id', 'reservation_id')
-            .where({ 
-                userid: id,
-                status: 'Pending'
-            })
-            .first();
-        if (!receipt) {
-            return null;
-        }
-        const order_id = receipt.order_id;
-        console.log('Order ID:', order_id);
-        const existingItem = await trx('order_item')
-            .where({ order_id: order_id, item_id: item_id })
-            .first();
 
-        const newQuantity = existingItem.quantity - quantity;
-
-        if (newQuantity > 0) {
-            const updatedPrice = (existingItem.price / existingItem.quantity) * newQuantity;
-            await trx('order_item')
-                .where({ order_id: order_id, item_id: item_id })
-                .update({
-                    quantity: newQuantity,
-                    price: updatedPrice,
-                });
-        } else {
-            await trx('order_item')
-                .where({ order_id: order_id, item_id: item_id })
-                .del();
-        }
-
-        const itemCount = await trx('order_item')
-            .where('order_id', order_id)
-            .count('* as count')
-            .first();
-
-        if (itemCount.count === 0 && receipt.reservation_id === null) {
-            await trx('receipt').where('order_id', order_id).del();
-            return { success: true, message: 'Không có mặt hàng nào trong giỏ hàng.' };
-        }
-
-        const total_price = await trx('order_item')
-            .where('order_id', order_id)
-            .sum('price as total')
-            .first();
-
-        await trx('receipt')
-            .where('order_id', order_id)
-            .update({ total_price: total_price.total });
-
-        return { success: true, message: 'Cập nhật thành công' };
-    });
-    return updatedItem;
-}
-
-async function sttOrderCustomer(id, payload) {
-    const { status } = payload;
-    const updatedStatus = await knex.transaction(async trx => {
-        console.log(id, status);
-        const receipt = await trx('receipt')
-            .select('order_id')
-            .where({ 
-                userid: id,
-                status: 'Pending'
-            })
-            .first();
-        if (!receipt) {
-            const error = new Error('No pending receipt found for this user');
-            error.statusCode = 404; 
-            throw error;
-        }
-        console.log('Status to update:', status);
-        const result = await trx('receipt')
-            .where({ order_id: receipt.order_id })
-            .update({status});
-        if (result === 0) throw new Error('No changes made.');
-        return {
-            success: true,
-            message: `Receipt status updated to ${status}`,
-            order_id: receipt.order_id
-        };
-    });
-    return updatedStatus;
-}
-async function sttCancelCustomer(id, payload) {
-    const { status } = payload;
-    const updatedStatus = await knex.transaction(async trx => {
-        console.log(id, status);
-        const receipt = await trx('receipt')
-            .select('order_id')
-            .where({ 
-                userid: id,
-                status: 'Ordered'
-            })
-            .first();
-        if (!receipt) {
-            const error = new Error('No pending receipt found for this user');
-            error.statusCode = 404;
-            throw error;
-        }
-        const result = await trx('receipt')
-            .where({ order_id: receipt.order_id })
-            .update({ status });
-        if (result === 0)throw new Error('No changes made.');
-        return {
-            success: true,
-            message: `Receipt status updated to ${status}`,
-            order_id: receipt.order_id
-        };
-    });
-    return updatedStatus;
-}
-
-async function getManyReceipts(id, query) {
-    const { status, page = 1, limit = 5 } = query;
-    const { userid }= id;
-    const paginator = new Paginator(page, limit);
-    
-    if (!userid) {
-        return null;
-    }
-    let results = await receiptRepository()
-        .where((builder) => {
-            if (['Pending', 'Ordered', 'Completed', 'Canceled'].includes(status)) {
-                builder.where('status', status);
-            }
-            if (userid) {
-                builder.where('userid', userid);
-            }
-        })
-        .select(
-            knex.raw('count(order_id) OVER() AS recordCount'),
-            'order_id',
-            'userid',
-            'staff_id',
-            'reservation_id',
-            'order_date',
-            'total_price',
-            'status'
-        )
-        .limit(paginator.limit)
-        .offset(paginator.offset);
-    let totalRecords = 0;
-    results = results.map((result) => {
-        totalRecords = result.recordCount;
-        delete result.recordCount;
-        return result;
-    });
-    return {
-        metadata: paginator.getMetadata(totalRecords),
-        receipts: results,
-    };
-}
-
-
-// Verify receipt function
 async function staffVerifyReceipt(order_id, staffId, status) {
-    // Fetch the receipt based on order_id
-    const order_id_int = parseInt(order_id, 10);
-    const receiptData = await receiptRepository().where({ order_id: order_id_int }).first();
-    console.log(receiptData)
-    
-    if (!receiptData) throw new Error('Receipt not found');
+  const order_id_int = parseInt(order_id, 10);
+  const receiptData = await receiptRepository().where({ order_id: order_id_int }).first();
+  console.log(receiptData)
+  
+  if (!receiptData) throw new Error('Không tìm thấy hóa đơn nào!');
 
-    // Format the receipt data
-    const receipt = readReceipt(receiptData);
-
-    // Check if the status is 'Ordered'
+  const receipt = readReceipt(receiptData);
+  
+  try {
+    // Hóa đơn ở trạng thái Ordered mới được xác nhận
     if (receipt.status !== 'Ordered') {
-        throw new Error('Receipt status is not "Ordered"');
+      throw new Error('Không thể xác nhận nếu hóa đơn chưa được Ordered!');
     }
 
-    // Update the status to 'Completed'
-    await receiptRepository()
+    // Xác nhật trạng thái hóa đơn "Hủy" hoặc "Hoàn thành"
+    await knex.transaction(async (trx) => {
+      await trx('receipt')
         .where({ order_id })
         .update({ 
-            status: status,
-            staff_id: staffId
-         });
+          status: status,
+          staff_id: staffId
+        });
 
-    // Check if reservation_id is present
-    if (receipt.reservation_id) {
-        // Fetch table_id and reservation_id based on order_id
-        const reservationDetails = await knex('restaurant_table')
-            .join('reservation', 'restaurant_table.table_id', 'reservation.table_id')
-            .join('receipt', 'reservation.reservation_id', 'receipt.reservation_id')
-            .where('receipt.order_id', order_id)
-            .select('restaurant_table.table_id', 'reservation.reservation_id')
-            .first();
+      if (receipt.reservation_id) {
+        const reservationDetails = await trx('restaurant_table')
+          .join('reservation', 'restaurant_table.table_id', 'reservation.table_id')
+          .join('receipt', 'reservation.reservation_id', 'receipt.reservation_id')
+          .where('receipt.order_id', order_id)
+          .select('restaurant_table.table_id', 'reservation.reservation_id')
+          .first();
 
         if (reservationDetails) {
-            const { table_id, reservation_id } = reservationDetails;
+          const { table_id, reservation_id } = reservationDetails;
 
-            // Update both table status and reservation status
-            await knex.transaction(async (trx) => {
-                if (table_id) {
-                    await trx('restaurant_table')
-                        .where({ table_id })
-                        .update({ status: 'available' });
-                }
-
-                if (reservation_id) {
-                    await trx('reservation')
-                        .where({ reservation_id })
-                        .update({ status: 'completed' });
-                }
-            });
+          // Khi hóa đơn được cập nhật trạng thái cũng cập nhật trjang thái đơn đặt bàn
+          if (reservation_id) {
+            await trx('reservation')
+              .where({ reservation_id })
+              .update({ status: status });
+          }
         }
-    }
+      }
+      await trx.commit();
+    });
 
-    return { success: true, message: 'Receipt verified and updated successfully' };
+    return { success: true, message: `Hóa đơn được cập nhật trạng thái là ${status} thành công!` };
+  } catch (error) {
+    console.error("Có lỗi khi thay đổi trạng thái hóa đơn:", error);
+    throw new Error(error.message);
+  }
 }
 
 async function staffGetManyReceipts(query) {
@@ -377,68 +193,70 @@ async function staffGetManyReceipts(query) {
 async function getReceiptById(order_id, trx = null) {
     console.log('Looking for receipt with order_id:', order_id); // Debug log
 
-    // Query to get basic receipt info
-    const receiptQuery = receiptRepository()
-        .where('receipt.order_id', order_id)
-        .select(
-            'receipt.order_id',
-            'receipt.userid',
-            'receipt.staff_id',
-            'receipt.reservation_id',
-            'receipt.order_date',
-            'receipt.total_price',
-            'receipt.status',
-            'users.username as user_name',
-            'staff.username as staff_name',
-            'restaurant_table.table_number'
-        )
-        .leftJoin('users as users', 'users.userid', 'receipt.userid')
-        .leftJoin('users as staff', 'staff.userid', 'receipt.staff_id')
-        .leftJoin('reservation', 'reservation.reservation_id', 'receipt.reservation_id')
-        .leftJoin('restaurant_table', 'restaurant_table.table_id', 'reservation.table_id');
+    try {
+        // Lấy chi tiết hóa đơn
+        const receiptQuery = receiptRepository()
+            .where('receipt.order_id', order_id)
+            .select(
+                'receipt.order_id',
+                'receipt.userid',
+                'receipt.staff_id',
+                'receipt.reservation_id',
+                'receipt.order_date',
+                'receipt.total_price',
+                'receipt.status',
+                'users.username as user_name',
+                'staff.username as staff_name',
+                'restaurant_table.table_number'
+            )
+            .leftJoin('users as users', 'users.userid', 'receipt.userid')
+            .leftJoin('users as staff', 'staff.userid', 'receipt.staff_id')
+            .leftJoin('reservation', 'reservation.reservation_id', 'receipt.reservation_id')
+            .leftJoin('restaurant_table', 'restaurant_table.table_id', 'reservation.table_id');
 
-    const receipt = trx ? await receiptQuery.transacting(trx).first() : await receiptQuery.first();
+        // Thực thi truy vấn trong transaction nếu có
+        const receipt = trx ? await receiptQuery.transacting(trx).first() : await receiptQuery.first();
 
-    if (!receipt) {
-        console.log('No receipt found for order_id:', order_id); // Log when no receipt is found
-        return {
-            status: 'fail',
-            message: 'Receipt not found'
-        };
+        if (!receipt) {
+            console.log('No receipt found for order_id:', order_id); // Log khi không có hóa đơn nào trùng khớp
+            return {
+                status: 'fail',
+                message: 'Receipt not found'
+            };
+        }
+
+        console.log('Receipt found:', receipt); // Log the receipt if found
+
+        // Lấy chi tiết món ăn bằng order_id
+        const orderItemsQuery = receiptRepository()
+            .from('order_item')
+            .where('order_item.order_id', order_id)
+            .select(
+                'order_item.order_item_id',
+                'order_item.quantity',
+                'order_item.price',
+                'menu_items.item_id',
+                'menu_items.item_name',
+                'menu_items.item_price'
+            )
+            .join('menu_items', 'order_item.item_id', 'menu_items.item_id');
+
+        // Thực thi truy vấn trong transaction nếu có
+        const orderItems = trx ? await orderItemsQuery.transacting(trx) : await orderItemsQuery;
+
+        // Thêm danh sách món ăn vào hóa đơn
+        receipt.order_items = orderItems;
+        return receipt;
+
+    } catch (error) {
+        console.error('Error fetching receipt by order_id:', error);
+        throw new Error('Error fetching receipt by order_id');
     }
-
-    console.log('Receipt found:', receipt); // Log the receipt if found
-
-    // Get order items
-    const orderItems = await receiptRepository()
-        .from('order_item')
-        .where('order_item.order_id', order_id)
-        .select(
-            'order_item.order_item_id',
-            'order_item.quantity',
-            'order_item.price',
-            'menu_items.item_name',
-            'menu_items.item_price'
-        )
-        .join('menu_items', 'order_item.item_id', 'menu_items.item_id');
-
-    // Add order items to the receipt
-    receipt.order_items = orderItems;
-
-    return receipt;
 }
 
-
 module.exports = {
-    getIDReceipt_Pending,
-    checkExistIteminCart,
-    checkExistItem,
     createReceipt,
     addItemToReceipt,
-    deleteItemFromReceipt,
-    sttOrderCustomer,
-    sttCancelCustomer,
-    getManyReceipts,
     staffVerifyReceipt,
     staffGetManyReceipts,
     getReceiptById,

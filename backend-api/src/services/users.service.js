@@ -166,6 +166,7 @@ const checkRole = async (userid) => {
         throw error; 
     }
 };
+
 module.exports = {
     getManyUsersByRole,
     checkExistUser,
@@ -176,5 +177,5 @@ module.exports = {
     createUser,
     getUserById,
     updateUser,
-    deleteUser
+    deleteUser,
 };

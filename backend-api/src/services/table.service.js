@@ -6,13 +6,6 @@ function TableRepository() {
     return knex('restaurant_table');
 }
 
-async function getTableById(table_id) {
-    return TableRepository().where('table_id', table_id).select('*').first();
-}
-
-async function getTableByNumber(table_number) {
-    return TableRepository().where('table_number', table_number).select('*').first();
-}
 
 function readTable(payload) {
     return {
@@ -21,6 +14,15 @@ function readTable(payload) {
         status: payload.status,
     };
 }
+
+async function getTableById(table_id) {
+    return TableRepository().where('table_id', table_id).select('*').first();
+}
+
+async function getTableByNumber(table_number) {
+    return TableRepository().where('table_number', table_number).select('*').first();
+}
+
 async function createTable(payload) { 
     const table = readTable(payload);
     return await knex.transaction(async trx => {
@@ -29,7 +31,7 @@ async function createTable(payload) {
             .first();
         if (existingTable) {
             return {
-                message: 'Bàn này đã tồn tại, không thể insert!'
+                message: 'Tên bàn đã tồn tại, vui lòng nhập tên khác!'
             };
         }
         const [tableId] = await trx('restaurant_table').insert(table);
@@ -83,7 +85,24 @@ async function getManyTables(query) {
     };
 }
 
+async function updateTable(table_id, status) {
+    // Kiểm tra giá trị của status
+    if (status !== 'available' && status !== 'occupied') {
+        console.error(`Trạng thái không hợp lệ: ${status}`);
+        throw new Error("Trạng thái không hợp lệ. Chỉ chấp nhận 'available' hoặc 'occupied'");
+    }
 
+    const table_id_int = parseInt(table_id, 10);
+    const tableData = await TableRepository().where({ table_id: table_id_int }).first();
+
+    if (!tableData) throw new Error('Không tìm thấy bàn!');
+
+    await TableRepository()
+        .where({ table_id: table_id_int })
+        .update({ status });
+
+    return { success: true, message: `Cập nhật trạng thái bàn là '${status}' thành công` };
+}
 
 module.exports = {
     getTableById,
@@ -91,4 +110,5 @@ module.exports = {
     createTable,
     deleteTable,
     getManyTables,
+    updateTable,
 };

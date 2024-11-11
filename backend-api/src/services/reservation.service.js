@@ -4,71 +4,81 @@ const {unlink} = require('node:fs')
 const ApiError = require('../api-error');
 
 function reservationRepository() {
-    return knex('reservation'); // table from database
+    return knex('reservation');
 }
 
-async function createReservation(useremail, table_number, reservationData) {
+async function staffCreateReservation(useremail, table_number, reservationData) {
+    const trx = await knex.transaction();
+
     try {
-        // Fetch the user details by email
-        const user = await knex('users')
-            .select('userid', 'username', 'useremail')
+        // Lấy thông tin user từ email dược nhập
+        const user = await trx('users')
+            .select('userid', 'username', 'useremail', 'userphone')
             .where({ useremail })
             .first();
 
+        // Nếu không tìm thấy user thông báo lỗi
         if (!user) {
-            throw new Error('User not found');
+            throw new Error('Không có người dùng trùng khớp với email đã nhập!');
         }
 
-        // Fetch table details based on table_number
-        const table = await knex('restaurant_table')
+        // Lấy thông tin bàn từ số bàn được nhập
+        const table = await trx('restaurant_table')
             .select('table_id', 'table_number', 'seating_capacity', 'status')
             .where({ table_number })
             .first();
 
         if (!table) {
-            throw new Error('Table not found');
+            throw new Error('Không có bàn trùng khớp với số bàn đã nhập!');
         }
 
-        if (table.status !== 'available') {
-            throw new Error('Table is not available');
-        }
-
-        // Insert new reservation
-        const [newReservationId] = await knex('reservation').insert({
+        // Insert dữ liệu mới vào reservation
+        const [newReservationId] = await trx('reservation').insert({
             userid: user.userid,
             table_id: table.table_id,
             reservation_date: reservationData.reservation_date,
             special_request: reservationData.special_request || null,
-            status: 'booked'  // Default reservation status
+            status: 'booked'  // Khi đặt bàn thì trạng thái đơn là booked
         });
 
-        // Update table status to 'reserved'
-        await knex('restaurant_table')
-            .where({ table_id: table.table_id })
-            .update({ status: 'reserved' });
-
-        // Return the newly created reservation details along with user and table info
-        return {
+        // Đồng thời khi đặt bàn thành công, receipt cũng được tạo ra
+        const [newReceiptId] = await trx('receipt').insert({
+            userid: user.userid,
             reservation_id: newReservationId,
-            reservation_date: reservationData.reservation_date,
-            special_request: reservationData.special_request || null,
-            status: 'booked',
-            user: {
-                username: user.username,
-                useremail: user.useremail,
+            order_date: trx.fn.now(),
+            status: 'Ordered'
+        });
+
+        // Nếu tất cả các quy trình được thực hiện thành công thì commit giao dịch
+        await trx.commit();
+
+        // Trả về và hiển thị thông tin đã được cập nhật
+        return {
+            reservation: {
+                reservation_id: newReservationId,
+                reservation_date: reservationData.reservation_date,
+                special_request: reservationData.special_request || null,
+                status: 'booked',
+                user: {
+                    username: user.username,
+                    useremail: user.useremail,
+                },
             },
-            table: {
-                table_number: table.table_number,
-                seating_capacity: table.seating_capacity,
-                table_status: 'reserved'  // Updated status
+            receipt: {
+                receipt_id: newReceiptId,
+                order_date: new Date(),
+                status: 'Ordered'
             }
         };
 
     } catch (error) {
-        console.error("Error creating reservation:", error);
-        throw new Error(error.message || "Could not create reservation");
+        // Rollback giao dịch nếu 1 trong các quy trình không thành công
+        await trx.rollback();
+        console.error("Có lỗi khi tạo mới reservation:", error);
+        throw new Error(error.message || "Không thể tạo đơn đặt bàn");
     }
 }
+
  
 async function getReservationById(reservation_id, trx = null) {
     const query = reservationRepository()
@@ -121,22 +131,8 @@ async function getManyReservations(query) {
     };
 }
 
-async function getReservationByStatus(status) {
-    try {
-        // Fetch reservations by status
-        const reservations = await knex('reservation')
-            .where({ status })
-            .select('reservation_id', 'status', 'reservation_date', 'special_request');
-
-        return reservations;
-    } catch (error) {
-        console.error('Error fetching reservations by status:', error);
-        throw new Error('Could not fetch reservations by status.');
-    }
-}
 module.exports = {
-    createReservation,
     getReservationById,
     getManyReservations,
-    getReservationByStatus,
+    staffCreateReservation,
 };
