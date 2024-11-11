@@ -91,17 +91,18 @@ components:
           description: Số lượng chỗ ngồi
         status:
           type: string
-          enum: ['available', 'reserved', 'occupied']
+          enum: ['available', 'occupied']
           default: 'available'
           description: Trạng thái bàn
-    
+
     TableStatus:
       type: object
       properties:
         status:
           type: string
-          enum: [available, reserved, occupied]
-          description: New status for the table
+          enum: ['available', 'occupied']
+          default: 'available'
+          description: Trạng thái bàn
     
     Reservation:
       type: object
@@ -348,6 +349,9 @@ components:
               order_item_id:
                 type: integer
                 description: Mã của mục trong đơn hàng
+              item_id:
+                type: integer
+                description: Mã món ăn trong hóa đơn
               item_name:
                 type: string
                 description: Tên món ăn
