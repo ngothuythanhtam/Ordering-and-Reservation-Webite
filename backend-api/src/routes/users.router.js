@@ -35,7 +35,6 @@ module.exports.setup = (app) => {
  *                 format: password
  *                 description: Mật khẩu tài khoản của người dùng
  *     tags:
- *       - users
  *       - (staff)
  *     responses:
  *       200:
@@ -64,7 +63,6 @@ module.exports.setup = (app) => {
  *     summary: Logout
  *     description: Logout into System
  *     tags:
- *       - users
  *       - (staff)
  *     responses:
  *       200:
@@ -134,7 +132,6 @@ module.exports.setup = (app) => {
  *                 writeOnly: true
  *                 description: Ảnh đại diện người dùng
  *     tags:
- *       - users
  *       - (staff)
  *     responses:
  *       201:
@@ -169,7 +166,6 @@ router.all('/',methodNotAllowed);
  *     summary: Get user by ID
  *     description: Get user by ID
  *     tags:
- *       - users
  *       - (staff)
  *     responses:
  *       200:
@@ -211,7 +207,6 @@ router.get('/info/', usersController.getUser);
  *           schema:
  *             $ref: '#/components/schemas/UserUpdate'
  *     tags:
- *       - users
  *       - (staff)
  *     responses:
  *       200:
@@ -263,7 +258,6 @@ router.put('/updateProfile/:id/',avatarUpload, usersController.updateUser);
  *                 type: integer
  *                 description: Mã người dùng
  *     tags:
- *       - users
  *       - (staff)
  *     responses:
  *       200:
