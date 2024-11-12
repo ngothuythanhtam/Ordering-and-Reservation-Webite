@@ -10,7 +10,7 @@ import Swal from 'sweetalert2';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 
 const queryClient = useQueryClient();
-const isLoading = ref(false);
+const isLoading = ref('');
 const router = useRouter();
 const route = useRoute();
 const totalPages = ref(1);

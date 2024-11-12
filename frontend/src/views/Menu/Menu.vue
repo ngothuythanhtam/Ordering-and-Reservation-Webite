@@ -17,6 +17,7 @@ const selectedIndex = ref(-1);
 const searchText = ref('');
 const selectedStatus = ref(''); 
 const selectedType = ref(''); 
+const isLoading = ref('');
 
 const currentPage = computed(() => {
     const page = Number(route.query?.page);
@@ -178,9 +179,8 @@ watch(currentPage, () => {
             </div>
 
             <ItemList v-if="filteredItems.length > 0" :items="filteredItems" v-model:selectedIndex="selectedIndex" />
-                
             <p v-else>
-                Không có món nào.
+                Hệ thống đang tìm món...
             </p>
 
             <div class="mt-4 d-flex justify-content-center align-items-center">

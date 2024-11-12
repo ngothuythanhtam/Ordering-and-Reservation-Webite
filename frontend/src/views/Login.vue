@@ -21,7 +21,7 @@
 import { makeUserService } from '@/services/users.service.js';
 const userService = makeUserService();
 export default {
-  data() {
+  data() {  
     return {
       useremail: '',
       userpwd: '',

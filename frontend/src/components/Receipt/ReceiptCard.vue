@@ -179,11 +179,7 @@ function changeCurrentPage(page) {
             <p class="card-text">Trạng thái của đơn hàng: {{ receipt.status }}</p>
 
             <div class="buttons mt-3" v-if="receipt.status==='Ordered'">
-                <button v-if="!receiptDetails.table_number && receipt.total_price > 0" class="btn btn-success" @click="onUpdateReceipt('Completed')">
-                    <i class="fas fa-check"></i> Hoàn thành
-                </button>
-
-                <div v-if="receiptDetails.table_number && receipt.total_price === 0">
+                <div>
                     <button class="btn btn-danger" @click="onUpdateReceipt('Canceled')">
                         <i class="fas fa-times"></i> Hủy
                     </button>
