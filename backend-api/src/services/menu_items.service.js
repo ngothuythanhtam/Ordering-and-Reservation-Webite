@@ -1,21 +1,8 @@
 const knex = require('../database/knex');
 const Paginator = require('./paginator');
-const {unlink} = require('node:fs')
-const ApiError = require('../api-error');
 
 function ItemRepository() {
     return knex('menu_items'); // table from database
-}
-
-function readItem(payload) {
-    return {
-        item_name: payload.item_name,
-        item_type: payload.item_type,
-        item_description: payload.item_description,
-        item_price: parseFloat(payload.item_price), // Ensure price is a number
-        item_status: payload.item_status,
-        img_url: payload.img_url || null,
-    };
 }
 
 async function getManyItems(query) {

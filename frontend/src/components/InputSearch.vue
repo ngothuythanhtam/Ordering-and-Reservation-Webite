@@ -29,17 +29,17 @@
   display: flex;
   max-width: 1200px;
 }
-.input-group .form-control {
+.input-group .form-control{
   height: 60px;
   padding: 15px;        
   font-size: 18px;     
-  border-radius: 30px 0 0 30px; 
+  border-radius: 10px; 
 }
 .input-group .btn {
   margin-top: 0px;
   height: 60px;
   padding: 10px 20px;    
   font-size: 18px;       
-  border-radius: 30px;   
+  border-radius: 10px;   
 }
 </style>

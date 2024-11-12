@@ -45,11 +45,11 @@ const updateUserMutation = useMutation({
     message.value = 'You updated fail';
   }
 });
+
 const deleteUserMutation = useMutation({
   mutationFn: () => UserService.deleteUser(),
   onSuccess: () => {
     queryClient.invalidateQueries(['users']);
-    isLoggedIn.value = false;
     localStorage.clear();
     router.push({ name: 'Login' });
   },
@@ -57,29 +57,32 @@ const deleteUserMutation = useMutation({
     console.error('Error', error);
   }
 });
+
 async function onUpdateUser(user) {
   console.log("Updating user: ", user);
   updateUserMutation.mutate(user);
 }
+
 async function onDeleteUser() {
-  if (confirm('Do you want to delete this account??')) {
+  if (confirm('Are you sure you want to delete this account? This action cannot be undone.')) {
     deleteUserMutation.mutate();
   }
 }
+
 onMounted(() => {
   isLoading.value = true;
   fetchUserMutation.mutate();
 });
 </script>
+
 <template>
   <div v-if="isLoading" class="page">
     <p>Loading...</p>
   </div>
   <div v-else-if="isError" class="page">
-    <p>Fail loading user...</p>
+    <p>Failed to load user...</p>
   </div>
   <div v-else class="page">
-    <h4>Updating User</h4>
     <UpdateForm
       :user="user"
       @submit:user="onUpdateUser"

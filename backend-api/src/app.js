@@ -8,7 +8,6 @@ const session = require('express-session');
 const cors = require('cors');
 const menu_itemsRouter = require('./routes/menu_items.router');
 const tableRouter = require('./routes/table.router');
-const reservationRouter = require('./routes/reservation.router');
 
 const{
     resourceNotFound,
@@ -46,8 +45,6 @@ usersRouter.setup(app);
 receiptsRouter.setup(app);
 menu_itemsRouter.setup(app);
 tableRouter.setup(app);
-reservationRouter.setup(app);
-
 app.use(resourceNotFound);
 app.use(handleError);
 module.exports = app;

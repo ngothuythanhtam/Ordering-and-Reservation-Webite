@@ -1,5 +1,5 @@
 <script setup>
-import { ref, useTemplateRef, watch } from 'vue';
+import { ref, useTemplateRef } from 'vue';
 import { Form, Field, ErrorMessage } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import { z } from 'zod';
@@ -48,10 +48,6 @@ function submitUser(values) {
         formData.append('useravatarFile', avatarFileElement.files[0]);
     }
     $emit('submit:user', formData);
-}
-
-function deleteUser() {
-    $emit('delete:user', props.user.userid);
 }
 </script>
 
@@ -102,15 +98,11 @@ function deleteUser() {
         </div>
         <div class="mb-3">
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i> Register
-            </button>
-            <button v-if="user?.userid" type="button" class="ms-2 btn btn-danger" @click="deleteUser">
-                <i class="fas fa-trash"></i> Delete
+                Register
             </button>
         </div>
     </Form>
 </template>
-
 <style scoped>
 .form-container {
     max-width: 600px;
@@ -121,60 +113,143 @@ function deleteUser() {
     background-color: #f9f9f9;
 }
 
-.avatar-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.mb-3.w-50.h-50 {
+    width: 200px !important;
+    height: 200px !important;
+    margin: 0 auto 20px;
+    position: relative;
     cursor: pointer;
 }
 
-.input-group {
+.img-fluid.img-thumbnail {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    display: block;
+}
+
+.mb-3.w-50.h-50::before {
+    content: 'Change Photo';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
     display: flex;
-    flex-direction: column;
-    margin-bottom: 15px;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1;
 }
-
-.input-group label {
-    font-weight: 500;
-    margin-bottom: 5px;
+.mb-3.w-50.h-50:hover::before {
+    opacity: 1;
 }
-
-.input-group .form-control {
-    padding: 10px;
-    border-radius: 5px;
+.mb-3 {
+    margin-bottom: 1.5rem;
+}
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 400;
+    color: #333;
+}
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.form-control:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .error-feedback {
-    color: red;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #dc3545;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid #dc3545;
+    border-radius: 4px;
+    background-color: rgba(220, 53, 69, 0.1);
     font-size: 0.875rem;
 }
 
-.form-actions {
+.mb-3:last-child {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    gap: 15px;
+    margin-top: 2rem;
 }
 
-.form-actions button {
-    padding: 8px 16px;
+.btn {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
     font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn i {
+    margin-right: 8px;
+    font-size: 1.1rem;
 }
 
 .btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: #ff8d79;
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-primary:hover {
+    background-color: #ff6347;
+    box-shadow: 0 4px 8px rgba(40, 47, 54, 0.3);
+    transform: translateY(-1px);
 }
 
 .btn-danger {
     background-color: #dc3545;
-    border-color: #dc3545;
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
 }
 
-.img-thumbnail {
-    max-width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-bottom: 15px;
+.btn-danger:hover {
+    background-color: #b02a37;
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+    transform: translateY(-1px);
+}
+
+.d-none {
+    display: none;
+}
+
+@media (max-width: 480px) {
+    .mb-3:last-child {
+        flex-direction: column;
+    }
+    .btn {
+        width: 100%;
+    }
+    .ms-2 {
+        margin-left: 0 !important;
+    }
 }
 </style>

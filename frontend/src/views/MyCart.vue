@@ -1,31 +1,23 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router'; // Ensure you're using useRoute to access route params
-import UserCard from '@/components/UserCard.vue';
-import getUser from '@/services/users.service.js'; // Assuming this is a function that fetches the user
+import { ref , onMounted, watch } from 'vue';
+import MyCart from '@/components/MyCart.vue';
+import ReceiptService from '@/services/receipt.service'; // Assuming this is a function that fetches the user
+const cartData = ref(null);
 
-const route = useRoute();
-const user = ref(null);
-const error = ref(null);
-
-const fetchUserData = async () => {
+onMounted(async () => {
   try {
-    const fetchedUser = await getUser.getUser();
-    user.value = fetchedUser;
-    error.value = null; // Reset error if the fetch is successful
-  } catch (err) {
-    console.error("Unable to fetch user data:", err);
-    error.value = true;
+    const response = await ReceiptService.myCart();
+    cartData.value = response;
+    console.log('Hóa đơn:', response);
+  } catch (error) {
+    console.error('Failed to load cart data:', error);
   }
-};
-onMounted(fetchUserData);
-watch(route, fetchUserData);
+});
 </script>
 <template>
   <div>
     <h1 style="display: flex; align-items: center; justify-content: center; margin-top: 80px;">My Cart</h1>
-    <div v-if="!user">Loading user data...</div>
-    <div v-else-if="error">Failed to load user data.</div>
-    <UserCard v-if="user" :user="user" @submit:user="handleUpdateProfile" />
+    <MyCart v-if="cartData" :receiptData="cartData" />
+    <p v-else>Loading cart data...</p>
   </div>
 </template>

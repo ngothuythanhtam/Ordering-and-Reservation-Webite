@@ -5,20 +5,14 @@ function TableRepository() {
     return knex('restaurant_table');
 }
 async function getManyTableByStatus(query) {
-    const { status, page = 1, limit = 5 } = query;
+    const { table_number , page = 1, limit = 5 } = query;
     const paginator = new Paginator(page, limit);
     let results = await TableRepository()
-        .where((builder) => {
-            if (status !== undefined) {
-                builder.where('status', status);
-            }
-        })
         .select(
             knex.raw('count(table_id) OVER() AS recordCount'),
             'table_id',
             'table_number',
             'seating_capacity',
-            'status',
         )
         .limit(paginator.limit)
         .offset(paginator.offset);

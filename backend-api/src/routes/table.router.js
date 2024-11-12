@@ -28,10 +28,9 @@ module.exports.setup = (app) => {
  *             schema:
  *               type: object
  *               properties:
- *                 status:
+ *                 table_number:
  *                   type: string
- *                   description: The response status
- *                   enum: [success]
+ *                   description: The response name
  *                 data:
  *                   type: object
  *                   properties:

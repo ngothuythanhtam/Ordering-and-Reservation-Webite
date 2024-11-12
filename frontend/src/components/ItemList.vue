@@ -1,36 +1,55 @@
 <script setup>
 import ItemCard from '@/components/ItemCard.vue';
-import { ref } from 'vue';
 import AddtoCart from '@/components/AddtoCart.vue';
+import { ref } from 'vue';
 import receiptService from '@/services/receipt.service';
-defineProps({
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
+
+const props = defineProps({
   items: { type: Array, default: () => [] },
   selectedIndex: { type: Number, default: -1 },
 });
-const $emit = defineEmits(['update:selectedIndex']);
-// ------------------ ADD TO CART ------------------ //
+
+const emit = defineEmits(['update:selectedIndex']);
+const queryClient = useQueryClient();
+
 const showAddItemForm = ref(false);
 const quantity = ref(1);
-const selectedIndex = ref(-1);// Chỉ số của sản phẩm đã chọn
+const selectedItem = ref(null);
+
+const { mutate: addToCartMutation, isLoading, isError, error } = useMutation({
+  mutationFn: async ({ item, quantity }) => {
+    if (!localStorage.getItem('userid')) {
+      throw new Error('Bạn phải đăng nhập trước khi thêm món vào giỏ hàng. Nếu chưa có tài khoản vui lòng đăng ký!');
+    }
+    return receiptService.addItemToReceipt({
+      item_id: item.item_id,
+      quantity: quantity
+    });
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries(['cart']);
+    alert('Sản phẩm đã được thêm vào giỏ hàng!');
+    closeAddItemForm();
+  },
+  onError: (err) => {
+    console.log(err.message);
+  }
+});
 
 const openAddItemForm = (item) => {
-  selectedIndex.value = item; // Lưu sản phẩm đã chọn
-  showAddItemForm.value = true; // Hiển thị form
-};
-const closeAddItemForm = () => {
-  showAddItemForm.value = false;
-  selectedIndex.value = null; // Reset sản phẩm đã chọn
+  selectedItem.value = item;
+  showAddItemForm.value = true;
 };
 
-const addToCart = async ({ item, quantity }) => {
+const closeAddItemForm = () => {
+  showAddItemForm.value = false;
+  selectedItem.value = null;
+};
+
+const handleAddToCart = ({ item, quantity }) => {
   if (item) {
-    try {
-      await receiptService.addItemToReceipt({ item_id: item.item_id, quantity: quantity });
-      alert('Sản phẩm đã được thêm vào giỏ hàng!');
-      closeAddItemForm();
-    } catch (error) {
-      console.error('Không thể thêm sản phẩm vào giỏ hàng:', error);
-    }
+    addToCartMutation({ item, quantity });
   }
 };
 </script>
@@ -40,11 +59,17 @@ const addToCart = async ({ item, quantity }) => {
     <div class="card" 
       v-for="(item, index) in items" 
       :key="item.item_id" 
-      :class="{ active: index === selectedIndex }"
+      :class="{ 
+        active: index === selectedIndex,
+        'cursor-not-allowed opacity-50': isLoading 
+      }"
       @click="openAddItemForm(item)">
 
-      <div class="card-body" style="padding-left:5px;margin-bottom: -25px;">
-        <h5 class="card-title">{{ item.item_name }}</h5>
+      <div class="card-body" style="padding-left:5px;">
+        <h5 class="card-title"
+        style="font-weight: 500;
+        font-size: 21px;
+        ">{{ item.item_name }}</h5>
       </div>
       <ItemCard
         :key="item.item_id"
@@ -52,42 +77,97 @@ const addToCart = async ({ item, quantity }) => {
       />
     </div>
   </div>
-
-  <!-- Form Thêm vào giỏ hàng chỉ hiển thị một lần -->
+  <div v-if="isError" class="error-message">
+    {{ error.message }}
+  </div>
+  <!-- Add to Cart Form -->
   <div v-if="showAddItemForm">
     <AddtoCart 
-      :selectedIndex="selectedIndex" 
-      :showForm="showAddItemForm" 
+      :selectedIndex="selectedItem" 
+      :showForm="showAddItemForm"
+      :isLoading="isLoading"
       @close="closeAddItemForm" 
-      @add="addToCart" 
+      @add="handleAddToCart" 
     />
   </div>
 </template>
 
-<style>
+<style scoped>
 .item-row {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  justify-content: space-around;
+  justify-content: center;
 }
+
 .item-row > * {
   flex: 1 1 250px;
   max-width: 300px;
-  height: 320px;
+  height: 350px;
   background-color: #f8f9fa;
   border: 1px solid #ddd;
-  padding: 15px;
   border-radius: 8px;
-  transition: transform 0.2s ease-in-out;
+  padding: 20px;
+  box-sizing: border-box;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
+
 .item-row > *:hover {
-  transform: scale(1.05); 
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-.selected {
-  border: 2px solid #ffb700; 
+
+.card-body {
+  flex-grow: 1;
+  padding: 10px 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.card-body p {
+  font-size: 0.9rem;
+  color: #777;
+}
+
+.error-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: red;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border: 1px solid red;
+  border-radius: 4px;
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
 button {
   margin-top: 10px;
+  padding: 8px 12px;
+  font-size: 1rem;
+  background-color: #ff6347;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
 }
 </style>

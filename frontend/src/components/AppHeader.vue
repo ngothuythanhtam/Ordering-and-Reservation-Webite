@@ -1,7 +1,6 @@
 <script setup>
-import { computed, ref, watchEffect,provide } from 'vue';
+import { ref, watchEffect,provide } from 'vue';
 import { useRouter } from 'vue-router';
-import { useQuery, useMutation } from '@tanstack/vue-query';
 import makeUserService from '@/services/users.service';
 
 const router = useRouter();
@@ -31,35 +30,26 @@ watchEffect(() => {
   <header class="app-header">
     <div class="container">
       <div class="logo">
-        <!-- Logo (you can replace the "#" with your actual logo path) -->
-        <img src="#" alt="App Logo" />
+        <h1>Savorly</h1>
       </div>
 
       <nav class="navigation">
         <ul>
           <li><router-link to="/">Home</router-link></li>
-          <li><router-link to="/about">Activity</router-link></li>
-          <li><router-link to="/services">Order Now</router-link></li>
-          <li><router-link to="/contact">Reservation</router-link></li>
+          <li><router-link to="/history/">Activity</router-link></li>
         </ul>
       </nav>
       <div class="user-options">
-        <!-- Show Login and Register buttons if not logged in -->
         <button v-if="!isLoggedIn" @click="login">Login</button>
         <button v-if="!isLoggedIn" @click="register">Register</button>
-
-        <!-- Show avatar and Logout button if logged in -->
         <div v-if="isLoggedIn" class="logged-in-options">
-          <!-- <img :src="useravatar" alt="User Avatar" class="avatar" /> -->
-          <router-link to="/info/" class="profile-link">Profile</router-link>
+          <router-link to="/info/" class="profile-link" style="margin-right: 0px;">Profile</router-link>
           <router-link to="/mycart/" class="profile-link">
             <div class="search-cart">
               <a href="/cart" class="cart ms-3">
                 <i class="fas fa-shopping-cart"></i>
-                <span class="number badge bg-danger">!</span>
               </a>
-          </div>
-          My Cart</router-link>
+          </div></router-link>
           <button @click="logout" class="logout-btn">Logout</button>
         </div>
       </div>
@@ -68,142 +58,136 @@ watchEffect(() => {
 </template>
 
 <style scoped>
-.app-header {
-  background-color: #a99b7d;
-  color: #fff;
-  padding: 10px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.container {
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f4f4f4;
+  color: #333;
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.app-header {
+  background-color: #fff;
+  border-bottom: 2px solid #eaeaea;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 10px 0;
+}
+
+.app-header .container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 20px;
 }
 
-.logo img {
-  height: 50px;
+.logo h1 {
+  font-size: 2rem;
+  color: #ff6347;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.logo h1:hover {
+  color: #e5533d;
 }
 
 .navigation ul {
   list-style: none;
-  margin: 0;
-  padding: 0;
   display: flex;
+  gap: 20px;
 }
 
-.navigation ul li {
-  margin-right: 20px;
+.navigation li {
+  font-size: 1rem;
+  font-weight: 500;
 }
 
-.navigation ul li a {
-  color: #fff;
-  text-decoration: none;
-  font-weight: bold;
+.navigation li a {
+  color: #333;
+  transition: color 0.3s ease;
 }
 
-.navigation ul li a:hover {
-  text-decoration: underline;
+.navigation li a:hover {
+  color: #ff6347;
+  font-weight: 600;
 }
 
 .user-options {
-  margin-left: -20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
-.user-options button {
-  background-color: #fff;
-  color: #333;
-  border: none;
+button {
+  background-color: #ff6347;
+  color: #fff;
   padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
-  font-weight: bold;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
 }
 
-.user-options button:hover {
-  background-color: #e8b079;
+button:hover {
+  background-color: #e5533d;
 }
 
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%; /* Circular avatar */
-  object-fit: cover; /* Prevent distortion */
-  margin-right: 10px;
+.logout-btn {
+  background-color: #333;
+}
+
+.logout-btn:hover {
+  background-color: #e5533d;
 }
 
 .logged-in-options {
   display: flex;
   align-items: center;
+  gap: 15px;
 }
 
 .profile-link {
-  color: #fff;
-  margin-right: 20px;
-  text-decoration: none;
-  font-weight: bold;
+  color: #333;
+  font-weight: 500;
+  padding: 8px 16px;
+  background-color: #f4f4f4;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  margin: 0;
 }
 
 .profile-link:hover {
-  text-decoration: underline;
+  background-color: #ff6347;
+  color: #fff;
 }
-
-.logout-btn {
-  background-color: #fff;
+.profile-link:hover .cart{
+  color: #fff;
+}
+.search-cart{
+  margin-left: -20px;
+}
+.search-cart .cart {
   color: #333;
-  border: none;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-weight: bold;
+  font-size: 1.5rem;
 }
-
-.logout-btn:hover {
-  background-color: #e8b079;
-}
-.search-cart {
-  display: flex;
-  align-items: center;
-  margin-left: auto; /* Đẩy về bên phải */
-  gap: 20px; /* Khoảng cách giữa search và cart */
-}
-
-.search {
-  display: flex;
-  align-items: center;
-  background-color: white;
-  border-radius: 20px;
-  padding: 5px 15px;
-}
-
-.search input {
-  border: none;
-  padding: 8px;
-  width: 200px;
-  font-size: 1rem;
-  outline: none;
-}
-
-.cart {
-  color: white;
-  text-decoration: none;
-  position: relative;
-  font-size: 1.2rem;
-  padding: 5px;
-}
-
-.number {
-  background-color: red;
-  color: white;
-  border-radius: 50%;
-  padding: 2px 6px;
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  font-size: 0.8rem;
-  font-weight: bold;
+.search-cart:hover .cart {
+  color: #ffffff;
 }
 </style>

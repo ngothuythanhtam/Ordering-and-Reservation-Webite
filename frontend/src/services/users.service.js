@@ -45,7 +45,6 @@ function makeUserService() {
             body: user,
         });
     }
-
     async function getUser() {
         const userid = localStorage.getItem('userid');
         const { user } = await efetch(`${baseUrl}/info/`);
@@ -54,7 +53,6 @@ function makeUserService() {
             useravatar: user.useravatar ?? DEFAULT_AVATAR
         };
     }
-
     async function updateUser(user) {
         const userid = localStorage.getItem('userid');
         return efetch(`${baseUrl}/updateProfile/`, {

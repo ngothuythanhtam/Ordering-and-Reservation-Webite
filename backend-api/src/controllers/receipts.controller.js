@@ -56,8 +56,8 @@ async function addReservation(req, res, next) {
         if (!req.body) {
             return next(new ApiError(400, 'Thiếu thông tin đặt bàn hoặc ngày đặt bàn.'));
         }
-        const checktable = await receiptsService.checktable(req.body.table_number);
-        if (!checktable) {
+        const checktable = await receiptsService.checktable(req.body.table_number, req.body.reservation_date);
+        if (checktable) {
             return next(new ApiError(401, 'Bàn này đã được đặt bởi khách hàng khác hoặc không có sẵn!'));
         }
         //Kiểm tra người dùng có đang đặt bàn chưa
@@ -121,10 +121,11 @@ async function verifyCustomer(req, res, next) {
                 return next(new ApiError(404, 'Không tìm thấy bàn liên quan đến đơn đặt của bạn!'));
             }
             console.log("Mã bàn: ",tableInfo);
-            const tableAvailable = await receiptsService.checktableid(tableInfo.table_id);
-            if (!tableAvailable) {
+            const tableAvailable = await receiptsService.checktableid(tableInfo.table_id,tableInfo.reservation_date);
+            if (tableAvailable) {
                 return next(new ApiError(401, 'Bàn này đã được đặt bởi khách hàng khác hoặc không có sẵn!'));
             }
+            console.log("Kết quả kiểm tra bàn có sẵn:", tableAvailable);
         } else {
             // Nếu không có reservationId thì set reservation_id = null
             req.body.reservation_id = null;
@@ -147,10 +148,8 @@ async function cancelCustomer(req, res, next) {
     }
     console.log(req.session.user.userid);
     const  id  = req.session.user.userid;
-    const { status } = req.body;
     try {
-        const updated = await receiptsService.sttCancelCustomer(id, {status});
-        console.log(status)
+        const updated = await receiptsService.sttCancelCustomer(id,req.body);
         if (updated && updated.success) {
             return res.json(JSend.success({ message: 'Hủy đơn thành công!' }));
         } else {
@@ -219,32 +218,6 @@ async function getCart(req, res, next) {
     }
 }
 
-async function getReceiptById(req, res, next) {
-    try {
-        console.log(req.query.order_id);
-        // Kiểm tra xem người dùng đã đăng nhập hay chưa
-        if (!req.session.user) {
-            return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
-        }
-        const id = req.session.user.userid;
-
-        const result = await receiptsService.getReceiptById(id, req.query.order_id);
-        
-        // Kiểm tra nếu không tìm thấy hóa đơn
-        if (!result) return next(new ApiError(404, 'Không tìm thấy hóa đơn với ID này.'));
-
-        // Trả về kết quả nếu thành công
-        return res.status(200).json({
-            status: 'success',
-            receipt: result.receipt,
-            reservation: result.reservation,
-            items: result.items
-        });
-    } 
-    catch (error) {
-        return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
-    }
-}
 module.exports = {
     getCart,
     addReservation,
@@ -253,6 +226,5 @@ module.exports = {
     deleteItemFromReceipt,
     verifyCustomer,
     cancelCustomer,
-    getReceiptsByFilter,
-    getReceiptById
+    getReceiptsByFilter
 }

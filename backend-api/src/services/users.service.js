@@ -1,13 +1,52 @@
 const knex = require('../database/knex');
 const Paginator = require('./paginator');
 const {unlink} = require('node:fs')
-const ApiError = require('../api-error');
 const bcrypt = require('bcrypt'); 
 
 function userRepository() {
     return knex('users');
 }
+function readUser(payload) {
+    return {
+        userrole: payload.userrole,
+        username: payload.username,
+        userbirthday: payload.userbirthday,
+        userphone: payload.userphone,
+        useremail: payload.useremail,
+        userpwd: payload.userpwd,
+        useraddress: payload.useraddress,
+        useravatar: payload.useravatar,
+    };
+}
 
+const checkExistEmail = async (email) => {
+    const user = await knex('users').where({ useremail: email }).first();
+    return user;
+};
+const checkExistPhone = async (phone) => {
+    const user = await knex('users').where({ userphone: phone }).first();
+    return user;
+
+};
+const checkExistUser= async (id) => {
+    const user = await knex('users').where({ userid: id }).first();
+    return user;
+};
+
+async function login(email, password) {
+    const user = await knex('users').where({ useremail: email }).first();
+    const isMatch = await bcrypt.compare(password, user.userpwd);
+
+    if (!isMatch) {
+        throw new Error('Mật khẩu không chính xác.');
+    }
+    return {
+        userid: user.userid,
+        useremail: user.useremail,
+        userrole: user.userrole,
+        useravatar: user.useravatar
+    };
+}
 async function getManyUsersByRole(userrole, query) {  
     const { page = 1, limit = 5 } = query;  
     const paginator = new Paginator(page, limit);
@@ -44,47 +83,6 @@ async function getManyUsersByRole(userrole, query) {
         console.error("Error fetching users:", error);
         throw new Error("Could not fetch users.");
     }
-}
-
-const checkExistEmail = async (email) => {
-    const user = await knex('users').where({ useremail: email }).first();
-    return user;
-};
-const checkExistPhone = async (phone) => {
-    const user = await knex('users').where({ userphone: phone }).first();
-    return user;
-
-};
-const checkExistUser= async (id) => {
-    const user = await knex('users').where({ userid: id }).first();
-    return user;
-};
-
-async function login(email, password) {
-    const user = await knex('users').where({ useremail: email }).first();
-    const isMatch = await bcrypt.compare(password, user.userpwd);
-
-    if (!isMatch) {
-        throw new Error('Mật khẩu không chính xác.');
-    }
-    return {
-        userid: user.userid,
-        useremail: user.useremail,
-        userrole: user.userrole,
-        useravatar: user.useravatar
-    };
-}
-function readUser(payload) {
-    return {
-        userrole: payload.userrole,
-        username: payload.username,
-        userbirthday: payload.userbirthday,
-        userphone: payload.userphone,
-        useremail: payload.useremail,
-        userpwd: payload.userpwd,
-        useraddress: payload.useraddress,
-        useravatar: payload.useravatar,
-    };
 }
 async function createUser(payload) {
     const user = readUser(payload);
@@ -124,9 +122,6 @@ async function updateUser(id, payload) {
     }
     return { ...updatedUser, ...update };
 }
-
-const fs = require('fs').promises;
-
 async function deleteUser(id) {
     const deleteUser = await userRepository()
         .where('userid', id)

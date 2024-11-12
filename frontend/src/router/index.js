@@ -5,6 +5,7 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
+    meta: { requiresAuth: false }
   },
   {
     path: '/:pathMatch(.*)*',
@@ -17,7 +18,8 @@ const routes = [
     component: () => import('@/views/Login.vue'),
     beforeEnter: (to, from, next) => {
       if (localStorage.getItem('isLoggedIn') === 'true') {
-        next('/');
+        if(localStorage.getItem('userrole')==2) next('/');
+        else next('/');
       } else {
         next();
       }
@@ -51,6 +53,12 @@ const routes = [
     path: '/mycart/',
     name: 'MyCart',
     component: () => import('@/views/MyCart.vue'),
+    meta: { requiresAuth: true } // Chỉ cho phép truy cập nếu đã đăng nhập
+  },
+  {
+    path: '/history/',
+    name: 'History',
+    component: () => import('@/views/Activity.vue'),
     meta: { requiresAuth: true } // Chỉ cho phép truy cập nếu đã đăng nhập
   },
 ];

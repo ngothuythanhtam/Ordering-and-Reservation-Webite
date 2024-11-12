@@ -82,3 +82,49 @@ const pages = computed(() => {
     </ul>
   </nav>
 </template>
+<style scoped>
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.page-item {
+  margin: 0 5px;
+}
+
+.page-link {
+  display: inline-block;
+  padding: 8px 16px;
+  color: #fff;
+  background-color: #ecbab6;
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.page-link:hover {
+  background-color: #e03f31;
+  transform: scale(1.05);
+}
+
+.page-link:disabled {
+  background-color: #ecbab6;
+  color: #bbb;
+  cursor: not-allowed;
+}
+
+.page-item.active .page-link {
+  background-color: #ff6347;
+  border-color: #ff6347;
+}
+
+.page-item.disabled .page-link {
+  background-color: #efc4c0;
+  border: none;
+  color: white;
+  cursor: not-allowed;
+}
+</style>

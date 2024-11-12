@@ -27,7 +27,6 @@ function makeTableService() {
         data.items = data.items.map((table) => {
             return { ...table };
         });
-        console.log("Dữ liệu đã được Fetch: ", data);
         return data;
     }
     return {

@@ -14,41 +14,57 @@ function handleSubmit() {
   router.push('/updateProfile/');
 }
 </script>
-
 <template>
   <div class="user-card">
-    <div class="d-flex align-items-center">
+    <h1 style="display: flex; 
+      align-items: center; 
+      justify-content: flex-start; 
+      margin: 20px;
+      font-family: 'Playfair Display', serif; 
+      color: black; 
+      font-weight: 700;
+      font-size: 40px;">
+      Hi,
+      <div style="color: #ff6347;
+      padding-left: 15px;
+      font-size: 40px;"> {{ user.username }}</div>
+      <i class="fas fa-grin-beam" style="margin-left: 15px; 
+      color: #333;
+      font-size: 30px;"></i>!
+
+    </h1>
+    <div class="d-flex align-items-center justify-content-center">
       <div class="p-1">
         <img class="user-avatar" :src="user.useravatar" alt="User Avatar" />
       </div>
       <div class="user-info">
         <div class="info-row">
-          <strong>Full Name:</strong>
+          <strong>Full Name</strong>
           <p>{{ user.username }}</p>
         </div>
 
         <div class="info-row">
-          <strong>Email:</strong>
+          <strong>Email</strong>
           <p>{{ user.useremail }}</p>
         </div>
 
         <div class="info-row">
-          <strong>Address:</strong>
+          <strong>Address</strong>
           <p>{{ user.useraddress }}</p>
         </div>
 
         <div class="info-row">
-          <strong>Phone:</strong>
+          <strong>Phone</strong>
           <p>{{ user.userphone }}</p>
         </div>
 
         <div class="info-row">
-          <strong>Birthday:</strong>
+          <strong>Birthday</strong>
           <p>{{ formatDate(user.userbirthday) }}</p>
         </div>
 
         <div class="info-row">
-          <strong>Role:</strong>
+          <strong>Role</strong>
           <p>{{ user.userrole }}</p>
         </div>
 
@@ -59,15 +75,18 @@ function handleSubmit() {
     </div>
   </div>
 </template>
+
 <style scoped>
 
 .user-card {
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.222);
-  padding: 20px;
-  max-width: 650px;
-  margin: 20px auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  max-width: 600px;
+  margin: 40px auto;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
 }
 
 .user-avatar {
@@ -75,52 +94,72 @@ function handleSubmit() {
   height: 250px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #ddd;
+  border: 4px solid #ddd;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
 .user-info {
-  margin-left: 30px;
-  display: inline-block;
-  vertical-align: top;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-.user-info strong {
-  color: #333;
-  font-size: 16px;
-}
-
-.user-info p {
-  font-size: 20px;
-  color: #555;
-  margin: 5px 0;
+h1 {
+  text-align: center;
+  color: #ff6347;
+  margin-bottom: 30px;
 }
 
 .info-row {
-  margin-bottom: 15px;
+  margin-bottom: 18px;
+  width: 100%;
 }
 
 .info-row strong {
   color: #333;
   font-weight: bold;
+  font-size: 16px;
 }
 
 .info-row p {
+  color: #555;
+  font-size: 20px;
   margin: 5px 0;
-  color: #666;
 }
 
 .update-btn {
-  background-color: #6fd572;
+  background-color: #ff7a66;
   color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
+  padding: 12px 25px;
+  border-radius: 8px;
   border: none;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 18px;
+  width: 100%;
   transition: background-color 0.3s;
+  text-align: center;
+  margin-top: 20px;
 }
 
 .update-btn:hover {
-  background-color: #45a049;
+  background-color: #e5533d;
 }
-</style> -->
+
+.update-btn:focus {
+  outline: none;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+@media screen and (max-width: 768px) {
+  .user-card {
+    padding: 20px;
+    max-width: 100%;
+  }
+  .user-avatar {
+    width: 150px;
+    height: 150px;
+  }
+}
+</style>

@@ -1,10 +1,8 @@
 <script setup>
   import { computed } from 'vue';
-
   const props = defineProps({
     item: { type: Object, required: true },
   });
-
   const itemStatus = computed(() => {
     return props.item.item_status === 1 ? 'Available' : 'Unavailable';
   });
@@ -22,7 +20,7 @@
 
     <div class="p-1">
         <strong>Status:</strong>
-        {{ itemStatus }} <!-- Hiển thị status đã được tính toán -->
+        {{ itemStatus }}
     </div>
   </div>
 </template>
