@@ -4,6 +4,17 @@ const ApiError = require('../api-error');
 const JSend = require('../jsend');
 
 async function getTable(req, res, next) {
+    if (!req.session.user) {
+        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+    }
+
+    const userId = req.session.user.userid;
+    console.log("staffid: ", userId)
+    const userRole = await usersService.checkRole(userId);
+    
+    if (userRole !== 2) {
+        return next(new ApiError(403, 'Forbidden: Bạn không có quyền chỉnh sửa thông tin này!'));
+    }
     const { table_id } = req.params;  
 
     if (!table_id) {
@@ -94,6 +105,17 @@ async function deleteTable(req, res, next) {
 }
 
 async function getManyTablesByFilter(req, res, next) {
+    if (!req.session.user) {
+        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+    }
+
+    const userId = req.session.user.userid;
+    console.log("staffid: ", userId)
+    const userRole = await usersService.checkRole(userId);
+    
+    if (userRole !== 2) {
+        return next(new ApiError(403, 'Forbidden: Bạn không có quyền chỉnh sửa thông tin này!'));
+    }
     let result = {
         tables: [],
         metadata: {

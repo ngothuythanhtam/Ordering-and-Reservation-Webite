@@ -4,6 +4,17 @@ const ApiError = require('../api-error');
 const JSend = require('../jsend');
 
 async function getItemsByFilter(req, res, next) {
+    if (!req.session.user) {
+        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+    }
+
+    const userId = req.session.user.userid;
+    console.log("staffid: ", userId)
+    const userRole = await usersService.checkRole(userId);
+    
+    if (userRole !== 2) {
+        return next(new ApiError(403, 'Forbidden: Bạn không có quyền chỉnh sửa thông tin này!'));
+    }
     let result = {
         items: [],
         metadata: {
@@ -56,39 +67,47 @@ async function deleteAllItems(req, res, next) {
 }
 
 async function getItem(req, res, next) {
-  const { item_id } = req.params;
+    if (!req.session.user) {
+        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+    }
 
-  try {
+    const userId = req.session.user.userid;
+    console.log("staffid: ", userId)
+    const userRole = await usersService.checkRole(userId);
+    
+    if (userRole !== 2) {
+        return next(new ApiError(403, 'Forbidden: Bạn không có quyền chỉnh sửa thông tin này!'));
+    }
+    const { item_id } = req.params;
+    try {
     console.log(`Received item_id: ${item_id}`);
     const item = await menu_itemsService.getItemById(parseInt(item_id, 10));
     console.log({ item_id, item });
 
     if (!item) {
-      return next(new ApiError(404, 'Item not found'));
+        return next(new ApiError(404, 'Item not found'));
     }
 
     return res.json(JSend.success({ item }));
-  } catch (error) {
+    } catch (error) {
     console.error(error);
     return next(new ApiError(500, `Error retrieving item with id=${item_id}`));
-  }
-}
+    }
+    }
 
 async function createItem(req, res, next) {
-    // Kiểm tra nếu session không tồn tại hoặc không có userid
     if (!req.session.user) {
-        return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
     }
-    console.log(req.session.user.userid);
 
-    // Lấy userID từ session
-    const userId  = req.session.user.userid;
+    const userId = req.session.user.userid;
+    console.log("staffid: ", userId)
+    const userRole = await usersService.checkRole(userId);
+
+    if (userRole !== 2) {
+        return next(new ApiError(403, 'Forbidden: Bạn không có quyền chỉnh sửa thông tin này!'));
+    }
     try {
-
-        // Kiểm tra vai trò người dùng
-        const userRole = await usersService.checkRole(userId);
-        if (userRole == 2  ) {
-            
 
         if (!req.body?.item_name || typeof req.body.item_name !== 'string') {
             return next(new ApiError(400, 'Invalid input', { code: 'INVALID_INPUT' }));
@@ -113,12 +132,7 @@ async function createItem(req, res, next) {
           .json(
             JSend.success({ 
               item
-            })
-          );}
-          else{
-            return next(new ApiError(403, 'Forbidden: You do not have permission to add menu items', { code: 'FORBIDDEN' }));
-        
-          }
+            }));
     } catch (error) {
         console.error(error);
         return next(new ApiError(500, 'An error occurred while creating the new menu item'));
@@ -215,20 +229,7 @@ async function deleteItem(req, res, next) {
     }
 }
 
-async function getItemByName(req, res, next) {
-  const {name } = req.params;
 
-  try {
-    const item = await menu_itemsService.getItemByName(name);
-    if (!item) {
-      return next(new ApiError(404, 'Contact not found'));
-    }
-    return res.json(JSend.success({ item }));
-  } catch (error) {
-    console.log(error);
-    return next(new ApiError(500, `Error retrieving item with item_name=${name}`));
-  }
-}
 
 module.exports = {
     getItemsByFilter,
@@ -237,5 +238,4 @@ module.exports = {
     createItem,
     updateItem,
     deleteItem,
-    getItemByName,
 };
