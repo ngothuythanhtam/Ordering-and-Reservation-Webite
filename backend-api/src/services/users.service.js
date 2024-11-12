@@ -1,13 +1,52 @@
 const knex = require('../database/knex');
 const Paginator = require('./paginator');
 const {unlink} = require('node:fs')
-const ApiError = require('../api-error');
 const bcrypt = require('bcrypt'); 
 
 function userRepository() {
     return knex('users');
 }
+function readUser(payload) {
+    return {
+        userrole: payload.userrole,
+        username: payload.username,
+        userbirthday: payload.userbirthday,
+        userphone: payload.userphone,
+        useremail: payload.useremail,
+        userpwd: payload.userpwd,
+        useraddress: payload.useraddress,
+        useravatar: payload.useravatar,
+    };
+}
 
+const checkExistEmail = async (email) => {
+    const user = await knex('users').where({ useremail: email }).first();
+    return user;
+};
+const checkExistPhone = async (phone) => {
+    const user = await knex('users').where({ userphone: phone }).first();
+    return user;
+
+};
+const checkExistUser= async (id) => {
+    const user = await knex('users').where({ userid: id }).first();
+    return user;
+};
+
+async function login(email, password) {
+    const user = await knex('users').where({ useremail: email }).first();
+    const isMatch = await bcrypt.compare(password, user.userpwd);
+
+    if (!isMatch) {
+        throw new Error('Mật khẩu không chính xác.');
+    }
+    return {
+        userid: user.userid,
+        useremail: user.useremail,
+        userrole: user.userrole,
+        useravatar: user.useravatar
+    };
+}
 async function getManyUsersByRole(userrole, query) {  
     const { page = 1, limit = 5 } = query;  
     const paginator = new Paginator(page, limit);
@@ -44,62 +83,6 @@ async function getManyUsersByRole(userrole, query) {
         console.error("Error fetching users:", error);
         throw new Error("Could not fetch users.");
     }
-}
-
-async function getUserByMail(useremail) {
-    return userRepository()
-        .where('useremail', useremail)
-        .select(
-            'userid',
-            'userrole',
-            'username',
-            'userbirthday',
-            'userphone',
-            'useremail',
-            'useraddress',
-            'useravatar'
-        )
-        .first();
-}
-
-const checkExistEmail = async (email) => {
-    const user = await knex('users').where({ useremail: email }).first();
-    return user;
-};
-const checkExistPhone = async (phone) => {
-    const user = await knex('users').where({ userphone: phone }).first();
-    return user;
-
-};
-const checkExistUser= async (id) => {
-    const user = await knex('users').where({ userid: id }).first();
-    return user;
-};
-
-async function login(email, password) {
-    const user = await knex('users').where({ useremail: email }).first();
-    const isMatch = await bcrypt.compare(password, user.userpwd);
-
-    if (!isMatch) {
-        throw new Error('Mật khẩu không chính xác.');
-    }
-    return {
-        userid: user.userid,
-        useremail: user.useremail,
-        userrole: user.userrole,
-    };
-}
-function readUser(payload) {
-    return {
-        userrole: payload.userrole,
-        username: payload.username,
-        userbirthday: payload.userbirthday,
-        userphone: payload.userphone,
-        useremail: payload.useremail,
-        userpwd: payload.userpwd,
-        useraddress: payload.useraddress,
-        useravatar: payload.useravatar,
-    };
 }
 async function createUser(payload) {
     const user = readUser(payload);
@@ -139,39 +122,20 @@ async function updateUser(id, payload) {
     }
     return { ...updatedUser, ...update };
 }
-
-async function deleteUser(userid, payload) {
-    const user = await userRepository()
-        .where('userid', userid)
-        .select('userrole')
+async function deleteUser(id) {
+    const deleteUser = await userRepository()
+        .where('userid', id)
+        .select('useravatar')
         .first();
-
-    if (!user) {
+    if (!deleteUser) {
         return null;
     }
-    else if (userid == payload.requestId || user.userrole == 3) {
-        const deleteUser = await userRepository()
-            .where('userid',payload.requestId)
-            .select('useravatar')
-            .first();
-
-        if (!deleteUser) {
-            return null;
-        }
-
-        return await knex.transaction(async trx => {
-            await trx('accounts').where('userid', payload.requestId).del();
-            await trx('users').where('userid', payload.requestId).del();
-
-            if (
-                deleteUser.useravatar &&
-                deleteUser.useravatar.startsWith('/public/uploads')
-            ) {
-                unlink(`.${deleteUser.useravatar}`, () => {});
-            }
-            return deleteUser;
-        });
+    await userRepository().where('userid', id).del();
+    if (deleteUser.useravatar && 
+        deleteUser.useravatar.startsWith('/public/uploads')) {
+        unlink(`.${deleteUser.useravatar}`, () => {});
     }
+    return deleteUser;
 }
 const checkRole = async (userid) => {
     try {
@@ -185,7 +149,6 @@ const checkRole = async (userid) => {
 
 module.exports = {
     getManyUsersByRole,
-    getUserByMail,
     checkExistUser,
     checkExistEmail,
     checkExistPhone,

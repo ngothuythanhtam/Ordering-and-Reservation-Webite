@@ -120,20 +120,6 @@ components:
         seating_capacity:
           type: integer
           description: Số lượng chỗ ngồi
-        status:
-          type: string
-          enum: ['available', 'reserved', 'occupied']
-          default: 'available'
-          description: Trạng thái bàn
-    
-    TableStatus:
-      type: object
-      properties:
-        status:
-          type: string
-          enum: [available, reserved, occupied]
-          description: New status for the table
-    
     Reservation:
       type: object
       properties:
@@ -237,8 +223,7 @@ components:
           type: string
           format: binary
           writeOnly: true
-          description: Ảnh đại diện người dùng
-
+          description: Ảnh đại diện người dùng 
     UserUpdate: 
       type: object
       properties:
@@ -461,19 +446,9 @@ components:
         type: string
       description: Filter by menu item name
 
-    tableStatusParam:
-      in: query
-      name: status
-      required: true
-      schema:
-        type: string
-        enum: ['available', 'reserved', 'occupied']
-      description: Filter by table status
-
     seating_capacity:
       in: query
       name: seating_capacity
-      required: true
       schema:
         type: integer
       description: Find table by number
@@ -481,7 +456,6 @@ components:
     itemNameParam:
       name: name
       description: Menu Item Name
-      required: true
       in: path
       schema:
         type: string

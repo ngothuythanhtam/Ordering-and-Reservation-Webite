@@ -2,20 +2,6 @@ const usersService = require('../services/users.service');
 const ApiError = require('../api-error');
 const JSend = require('../jsend');
 
-async function getUserByMail(req, res, next) {
-  const { useremail } = req.query;  
-  try {
-    const users = await usersService.getUserByMail(useremail); 
-    if (!users) {
-      return next(new ApiError(404, 'useremail not found'));
-    }
-    return res.json(JSend.success({ users }));
-  } catch (error) {
-    console.log(error);
-    return next(new ApiError(500, `Error retrieving user with useremail=${useremail}`));
-  }
-}
-
 async function login(req, res, next) {
     const { useremail, userpwd } = req.body;
     try {
@@ -31,11 +17,15 @@ async function login(req, res, next) {
             userid: user.userid,
             useremail: user.useremail,
             userrole: user.userrole,
+            useravatar: user.useravatar
         };
-        console.log(req.session.user.userid);
+        console.log(req.session.user.userid,req.session.user.useravatar );
         req.session.save(err => {
             if (err) return next(err);
-            return res.status(200).json(JSend.success({ message: 'Đăng nhập thành công!' }));
+            return res.status(200).json(JSend.success({ 
+                message: 'Đăng nhập thành công!', 
+                data: req.session.user, 
+            }));
         });
     } catch (error) {
         return next(new ApiError(500, error.message));
@@ -94,37 +84,21 @@ async function createUser(req, res, next) {
     }
 }
 
-// async function getUser(req, res, next) {
-//     const { id } = req.params;
-//     try {
-//         const user = await usersService.getUserById(id);
-//         if (!user) {
-//             return next(new ApiError(404,'Không tìm thấy người dùng.'));
-//         }
-//         return res.json(JSend.success({ user }));
-//     } catch (error) {
-//         return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
-//     }
-// }
-
 async function getUser(req, res, next) {
     if (!req.session.user) {
         return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
     }
     console.log(req.session.user.userid);
     const id = req.session.user.userid;
-    // Kiểm tra xem userid có tồn tại không
     if (!id) {
         return next(new ApiError(401, 'Bạn cần đăng nhập để xem thông tin người dùng.'));
     }
-        // Lấy thông tin người dùng từ database
     const user = await usersService.getUserById(id);
     if (!user) {
         return next(new ApiError(404, 'Không tìm thấy người dùng.'));
     }
     return res.json(JSend.success({ user }));
 }
-
 
 async function updateUser(req, res, next) {
     if (Object.keys(req.body).length === 0 && !req.file) {
@@ -133,7 +107,7 @@ async function updateUser(req, res, next) {
     if (!req.session.user) {
         return res.json(JSend.success('Vui lòng đăng nhập để thực hiện tác vụ này!'));
     }
-    const { id } = req.session.user.userid;
+    const id = req.session.user.userid;
     try {
         const updated = await usersService.updateUser(id, {
             ...req.body,
@@ -151,22 +125,21 @@ async function updateUser(req, res, next) {
     }
 }
 async function deleteUser(req, res, next) {
-    const { id } = req.params;
-    const { requestId } = req.body; 
-
+    if (!req.session.user) {
+        return next(new ApiError(401, 'Vui lòng đăng nhập để thực hiện tác vụ này!'));
+    }
     try {
-        const deleted = await usersService.deleteUser(id,{ requestId });
+        const deleted = await usersService.deleteUser(req.session.user.userid);
         if (!deleted) {
             return next(new ApiError(404, 'Không thể xóa người dùng.'));
         }
-        return res.json(JSend.success(`Thành công xóa người dùng ${id}`));
+        return res.json(JSend.success(`Thành công xóa người dùng ${req.session.user.userid}`));
     } catch (error) {
         return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
     }
 }
 
 module.exports = {
-    getUserByMail,
     login,
     logout,
     createUser,

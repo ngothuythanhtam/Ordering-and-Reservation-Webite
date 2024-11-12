@@ -15,47 +15,6 @@ module.exports.setup = (app) => {
 
 /**
  * @swagger
- * /api/users/email:
- *   get:
- *     summary: Get user by email
- *     description: Get user by email
- *     parameters:
- *       - $ref: '#/components/parameters/useremailParam'
- *     tags:
- *       - User
- *     responses:
- *       200:
- *         description: Get user by email
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   description: The response status
- *                   enum: [success]
- *                 data:
- *                   type: object
- *                   properties:
- *                     user_by_mail:
- *                       type: array
- *                       items:
- *                         $ref: '#/components/schemas/Users'
- *       400:
- *         description: Invalid request, missing or invalid fields
- *         $ref: '#/components/responses/400'
- *       404:
- *         description: Not Found
- *         $ref: '#/components/responses/404'
- *       500:
- *         description: Internal server error
- *         $ref: '#/components/responses/500'
- */
-    router.get('/email', usersController.getUserByMail);
-  
-  /**
- * @swagger
  * /api/users/login/:
  *   post:
  *     summary: Login
@@ -235,12 +194,10 @@ router.all('/',methodNotAllowed);
 router.get('/info/', usersController.getUser);
 /**
  * @swagger
- * /api/users/updateProfile/{id}:
+ * /api/users/updateProfile/:
  *   put:
  *     summary: Update user by ID 
  *     description: Update user by ID
- *     parameters:
- *       - $ref: '#/components/parameters/userIdParam'
  *     requestBody:
  *       required: true
  *       content:
@@ -278,26 +235,14 @@ router.get('/info/', usersController.getUser);
  *         description: Internal Server Error - Unexpected error on the server
  *         $ref: '#/components/responses/500'
  */
-router.put('/updateProfile/:id/',avatarUpload, usersController.updateUser); 
+router.put('/updateProfile/',avatarUpload, usersController.updateUser); 
 
 /**
  * @swagger
- * /api/users/deleteAccount/{id}:
+ * /api/users/deleteAccount/:
  *   delete:
  *     summary: Delete user by ID
  *     description: Delete user by ID
- *     parameters:
- *       - $ref: '#/components/parameters/userIdParam'
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               requestId:
- *                 type: integer
- *                 description: Mã người dùng
  *     tags:
  *       - users
  *     responses:
@@ -312,6 +257,6 @@ router.put('/updateProfile/:id/',avatarUpload, usersController.updateUser);
  *         $ref: '#/components/responses/500'
  * 
  */    
-router.delete('/deleteAccount/:id',avatarUpload, usersController.deleteUser);
-router.all('/:id',methodNotAllowed);
+    router.delete('/deleteAccount/', avatarUpload, usersController.deleteUser);
+    router.all('/:id',methodNotAllowed);
 };
