@@ -1,17 +1,61 @@
 const express = require('express');
-const tableController = require('../controllers/table.controller');
+const tableControllerCustomer = require('../controllers/Customer/table.controller');
+const tableControllerStaff = require('../controllers/Staff/table.controller');
 const { methodNotAllowed } = require('../controllers/errors.controller');
-const avatarUpload = require('../middlewares/avatar-upload.middleware'); 
+const imgUpload = require('../middlewares/img-upload.middleware');
 
 const multer = require('multer');
 const upload = multer();
 const router = express.Router();
 module.exports.setup = (app) => {
     app.use('/api/table', router);
+/**
+ * @swagger
+ * /api/table/table_status:
+ *   get:
+ *     summary: Get many tables by filter status
+ *     description: Retrieve tables by filtering status
+ *     parameters:
+ *       - $ref: '#/components/parameters/limitParam'
+ *       - $ref: '#/components/parameters/pageParam'
+ *     tags:
+ *       - Table
+ *     responses:
+ *       200:
+ *         description: A list of filtered table
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 table_number:
+ *                   type: string
+ *                   description: The response name
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     items:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/Table'
+ *                     metadata:
+ *                       $ref: '#/components/schemas/PaginationMetadata'
+ *       400:
+ *         description: Invalid request, missing or invalid fields
+ *         $ref: '#/components/responses/400'
+ *       404:
+ *         description: Not Found
+ *         $ref: '#/components/responses/404'
+ *       500:
+ *         description: Internal server error
+ *         $ref: '#/components/responses/500'
+ */
+    router.get('/table_status', tableControllerCustomer.getTableByFilter);
+
 
 /**
  * @swagger
- * /api/table:
+ * /api/table/ByStaff:
  *   get:
  *     summary: Get many tables by filtering
  *     description: Retrieve many tables by filtering
@@ -57,11 +101,11 @@ module.exports.setup = (app) => {
  *         description: Internal server error
  *         $ref: '#/components/responses/500'
  */
-    router.get('/', tableController.getManyTablesByFilter)
+    router.get('/ByStaff', tableControllerStaff.getManyTablesByFilter)
 
 /**
  * @swagger
- * /api/table/{table_id}:
+ * /api/table/ByStaff/{table_id}:
  *   get:
  *     summary: Get table by id
  *     description: Get table by id
@@ -102,11 +146,11 @@ module.exports.setup = (app) => {
  *         description: Internal server error
  *         $ref: '#/components/responses/500'
  */
-    router.get('/:table_id', tableController.getTable);
+    router.get('/ByStaff/:table_id', tableControllerStaff.getTable);
 
 /**
  * @swagger
- * /api/table:
+ * /api/table/ByStaff:
  *   post:
  *     summary: Create a new table
  *     description: Chỉ có Staff mới có thể thực hiện tác vụ này!!!
@@ -140,11 +184,11 @@ module.exports.setup = (app) => {
  *       400:
  *         description: Bad Request - Invalid input or missing parameters
  */
-    router.post('/', avatarUpload,tableController.createTable);
+    router.post('/ByStaff', imgUpload,tableControllerStaff.createTable);
 
 /**
  * @swagger
- * /api/table/{table_id}:
+ * /api/table/ByStaff/{table_id}:
  *   delete:
  *     summary: Delete table by id
  *     description: Delete table by id
@@ -171,8 +215,7 @@ module.exports.setup = (app) => {
  *         description: Internal server error
  *         $ref: '#/components/responses/500'
  */   
-    router.delete('/:table_id', avatarUpload, tableController.deleteTable); 
-    
+    router.delete('/ByStaff/:table_id', imgUpload, tableControllerStaff.deleteTable); 
     // Catch all methods that are not allowed for these routes and return 405 error
     router.all('/', methodNotAllowed);
 };

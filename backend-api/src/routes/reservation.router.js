@@ -1,5 +1,5 @@
 const express = require('express');
-const reservationController = require('../controllers/reservation.controller');
+const reservationController = require('../controllers/Staff/reservation.controller');
 const { methodNotAllowed } = require('../controllers/errors.controller');
 const imgUpload = require('../middlewares/img-upload.middleware');
 

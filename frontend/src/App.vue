@@ -1,9 +1,9 @@
 <script setup>
-import Navbar from '@/components/Navbar.vue';
+  import AppHeader from '@/components/Customer/AppHeader.vue';
 </script>
 
 <template>
-  <Navbar />
+  <AppHeader />
   <div class="container mt-3">
     <router-view />
   </div>
@@ -11,7 +11,7 @@ import Navbar from '@/components/Navbar.vue';
 
 <style>
 .page {
-  max-width: 100%;
+  max-width: 400px;
   margin: auto;
 }
 </style>

@@ -1,17 +1,68 @@
 const express = require('express');
-const menu_itemsController = require('../controllers/menu_items.controller');
+const menu_itemsControllerCustomer = require('../controllers/Customer/menu_items.controller');
+const menu_itemsControllerStaff = require('../controllers/Staff/menu_items.controller');
 const { methodNotAllowed } = require('../controllers/errors.controller');
-const imgUpload = require('../middlewares/img-upload.middleware');
 
 const multer = require('multer');
 const upload = multer();
+const imgUpload = require('../middlewares/img-upload.middleware');
 const router = express.Router();
 module.exports.setup = (app) => {
     app.use('/api/menu_items', router);
 
 /**
  * @swagger
- * /api/menu_items:
+ * /api/menu_items/name:
+ *   get:
+ *     summary: Get menu items by name
+ *     description: Retrieve menu items by item name
+ *     parameters:
+ *       - in: query
+ *         name: item_name
+ *         schema:
+ *           type: string
+ *         description: Filter by menu item name
+ *       - $ref: '#/components/parameters/limitParam'
+ *       - $ref: '#/components/parameters/pageParam'
+ *     tags:
+ *       - User / Menu
+ *     responses:
+ *       200:
+ *         description: A list of filtered menu items
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   description: The response status
+ *                   enum: [success]
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     items:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/MenuItem'
+ *                     metadata:
+ *                       $ref: '#/components/schemas/PaginationMetadata'
+ *       400:
+ *         description: Invalid request, missing or invalid fields
+ *         $ref: '#/components/responses/400'
+ *       404:
+ *         description: Not Found
+ *         $ref: '#/components/responses/404'
+ *       500:
+ *         description: Internal server error
+ *         $ref: '#/components/responses/500'
+ */
+    router.get('/name', menu_itemsControllerCustomer.getItemByName);
+
+
+/**
+ * @swagger
+ * /api/menu_items/ByStaff:
  *   get:
  *     summary: Get menu items by filter
  *     description: Retrieve menu items by item filter
@@ -57,11 +108,11 @@ module.exports.setup = (app) => {
  *         description: Internal server error
  *         $ref: '#/components/responses/500'
  */
-    router.get('/', menu_itemsController.getItemsByFilter);
+    router.get('/ByStaff', menu_itemsControllerStaff.getItemsByFilter);
 
 /**
  * @swagger
- * /api/menu_items:
+ * /api/menu_items/ByStaff:
  *   post:
  *     summary: Staff create a new menu item
  *     description: Add a new menu item to the database
@@ -97,11 +148,11 @@ module.exports.setup = (app) => {
  *         description: Internal server error
  *         $ref: '#/components/responses/500'
  */
-    router.post('/',imgUpload, menu_itemsController.createItem);
+    router.post('/ByStaff',imgUpload, menu_itemsControllerStaff.createItem);
 
 /**
  * @swagger
- * /api/menu_items/{item_id}:
+ * /api/menu_items/ByStaff/{item_id}:
  *   get:
  *     summary: Get item by id
  *     description: Get item by id
@@ -137,11 +188,11 @@ module.exports.setup = (app) => {
  *         description: Internal server error
  *         $ref: '#/components/responses/500'
  */
-    router.get('/:item_id', menu_itemsController.getItem);
+    router.get('/ByStaff/:item_id', menu_itemsControllerStaff.getItem);
 
 /**
  * @swagger
- * /api/menu_items/{item_id}:
+ * /api/menu_items/ByStaff/{item_id}:
  *   put:
  *     summary: Staff update item by id
  *     description: Update an existing menu item by id
@@ -182,11 +233,11 @@ module.exports.setup = (app) => {
  *         description: Internal server error
  *         $ref: '#/components/responses/500'
  */
-    router.put('/:item_id', imgUpload, menu_itemsController.updateItem);
+    router.put('/ByStaff/:item_id', imgUpload, menu_itemsControllerStaff.updateItem);
 
 /**
  * @swagger
- * /api/menu_items/{item_id}:
+ * /api/menu_items/ByStaff/{item_id}:
  *   delete:
  *     summary: Staff delete item by id
  *     description: Delete an existing menu item by id
@@ -208,12 +259,12 @@ module.exports.setup = (app) => {
  *         description: Internal server error
  *         $ref: '#/components/responses/500'
  */
-    router.delete('/:item_id', menu_itemsController.deleteItem);
+    router.delete('/ByStaff/:item_id', menu_itemsControllerStaff.deleteItem);
     router.all('/:item_id', methodNotAllowed);
 
 /**
  * @swagger
- * /api/menu_items:
+ * /api/menu_items/ByStaff:
  *   delete:
  *     summary: Staff delete all items
  *     description: Delete all menu items
@@ -233,7 +284,7 @@ module.exports.setup = (app) => {
  *         description: Internal server error
  *         $ref: '#/components/responses/500'
  */
-    router.delete('/', menu_itemsController.deleteAllItems);
+    router.delete('/ByStaff/', menu_itemsControllerStaff.deleteAllItems);
 
     // Catch all methods that are not allowed for these routes and return 405 error
     router.all('/', methodNotAllowed);

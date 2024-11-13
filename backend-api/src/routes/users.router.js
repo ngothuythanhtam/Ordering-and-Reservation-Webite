@@ -1,19 +1,13 @@
 const express = require('express');
-const usersController = require('../controllers/users.controller');
+const usersController = require('../controllers/Customer/users.controller');
 const { methodNotAllowed } = require('../controllers/errors.controller');
-const imgUpload = require('../middlewares/img-upload.middleware');
 
 const avatarUpload = require('../middlewares/avatar-upload.middleware');
-const authMiddleware = require('../middlewares/authMiddleware');  
 const router = express.Router(); 
-
-const multer = require('multer');
-const upload = multer();
-
 module.exports.setup = (app) => { 
     app.use('/api/users', router);
-  
-  /**
+
+/**
  * @swagger
  * /api/users/login/:
  *   post:
@@ -35,7 +29,7 @@ module.exports.setup = (app) => {
  *                 format: password
  *                 description: Mật khẩu tài khoản của người dùng
  *     tags:
- *       - (staff)
+ *       - users
  *     responses:
  *       200:
  *         description: Login success
@@ -63,7 +57,7 @@ module.exports.setup = (app) => {
  *     summary: Logout
  *     description: Logout into System
  *     tags:
- *       - (staff)
+ *       - users
  *     responses:
  *       200:
  *         description: Logout success
@@ -132,7 +126,7 @@ module.exports.setup = (app) => {
  *                 writeOnly: true
  *                 description: Ảnh đại diện người dùng
  *     tags:
- *       - (staff)
+ *       - users
  *     responses:
  *       201:
  *         description: A new user
@@ -166,7 +160,7 @@ router.all('/',methodNotAllowed);
  *     summary: Get user by ID
  *     description: Get user by ID
  *     tags:
- *       - (staff)
+ *       - users
  *     responses:
  *       200:
  *         description: A user
@@ -194,12 +188,10 @@ router.all('/',methodNotAllowed);
 router.get('/info/', usersController.getUser);
 /**
  * @swagger
- * /api/users/updateProfile/{id}:
+ * /api/users/updateProfile/:
  *   put:
  *     summary: Update user by ID 
  *     description: Update user by ID
- *     parameters:
- *       - $ref: '#/components/parameters/userIdParam'
  *     requestBody:
  *       required: true
  *       content:
@@ -207,7 +199,7 @@ router.get('/info/', usersController.getUser);
  *           schema:
  *             $ref: '#/components/schemas/UserUpdate'
  *     tags:
- *       - (staff)
+ *       - users
  *     responses:
  *       200:
  *         description: An updated user
@@ -237,28 +229,16 @@ router.get('/info/', usersController.getUser);
  *         description: Internal Server Error - Unexpected error on the server
  *         $ref: '#/components/responses/500'
  */
-router.put('/updateProfile/:id/',avatarUpload, usersController.updateUser); 
+router.put('/updateProfile/',avatarUpload, usersController.updateUser); 
 
 /**
  * @swagger
- * /api/users/deleteAccount/{id}:
+ * /api/users/deleteAccount/:
  *   delete:
  *     summary: Delete user by ID
  *     description: Delete user by ID
- *     parameters:
- *       - $ref: '#/components/parameters/userIdParam'
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               requestId:
- *                 type: integer
- *                 description: Mã người dùng
  *     tags:
- *       - (staff)
+ *       - users
  *     responses:
  *       200:
  *         description: User deleted
@@ -271,7 +251,6 @@ router.put('/updateProfile/:id/',avatarUpload, usersController.updateUser);
  *         $ref: '#/components/responses/500'
  * 
  */    
-router.delete('/deleteAccount/:id',avatarUpload, usersController.deleteUser);
-
-router.all('/:id',methodNotAllowed);
+    router.delete('/deleteAccount/', avatarUpload, usersController.deleteUser);
+    router.all('/:id',methodNotAllowed);
 };

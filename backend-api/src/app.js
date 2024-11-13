@@ -13,7 +13,7 @@ const reservationRouter = require('./routes/reservation.router');
 const{
     resourceNotFound,
     handleError,
-} = require('./controllers/errors.controller')
+} = require('./controllers/Customer/errors.controller')
 const { specs, swaggerUi } = require('./docs/swagger');
 const app = express();
 const multer = require('multer');
@@ -32,6 +32,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
     return res.json(JSend.success());
+});
+app.get('/api-docs/session', (req, res) => {
+    if (req.session.user && req.session.user.userid) {
+        res.json({ userId: req.session.user.userid });
+    } else {
+        res.status(401).json({ message: 'Chưa đăng nhập' });
+    }
 });
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
