@@ -2,9 +2,7 @@
 import { computed } from 'vue';
 import Navbar from '@/components/Staff/Navbar.vue';
 import AppHeader from './components/Customer/AppHeader.vue';
-
 const userrole = localStorage.getItem('userrole');
-
 const isStaffRole = computed(() => userrole === '2');
 </script>
 
