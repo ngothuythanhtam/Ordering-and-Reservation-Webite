@@ -88,26 +88,6 @@ components:
           writeOnly: true # Used in POST/PUT/PATCH
           description: The file of the image to upload for the menu item
     
-    Favorite:
-      type: object
-      required:
-        - userid
-        - item_id
-      properties:
-        fav_id:
-          type: integer
-          description: Unique identifier for the favorite entry
-        userid:
-          type: integer
-          description: ID of the user
-        item_id:
-          type: integer
-          description: ID of the menu item
-      example:
-        fav_id: 1
-        userid: 123
-        item_id: 456
-    
     Table:
       type: object
       properties:
