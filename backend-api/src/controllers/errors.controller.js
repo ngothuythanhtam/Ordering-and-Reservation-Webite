@@ -3,7 +3,6 @@ const JSend = require('../jsend');
 
 function methodNotAllowed(req, res, next) { 
     if (req.route) { 
-    // Determine which HTTP methods are supported 
         const httpMethods = Object.keys(req.route.methods) 
             .filter((method) => method !== '_all') 
             .map((method) => method.toUpperCase()); 

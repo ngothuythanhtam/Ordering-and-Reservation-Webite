@@ -27,7 +27,6 @@ async function getItemsByFilter(req, res, next) {
     };
 
     try {
-        // Pass query parameters (e.g., item_name, item_type, item_status) for filtering
         result = await menu_itemsService.getManyItems(req.query);
     } catch (error) {
         console.error(error);

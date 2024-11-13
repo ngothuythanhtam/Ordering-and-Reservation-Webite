@@ -90,7 +90,6 @@ async function staffCreateReservation(req, res, next) {
     };
 
     try {
-        // Gọi hàm từ service
         const result = await reservationService.staffCreateReservation(useremail, table_number, reservationData);
 
         res.status(201).json({

@@ -36,17 +36,14 @@ async function getTable(req, res, next) {
 }
 
 async function createTable(req, res, next) {
-    // Kiểm tra nếu session không tồn tại hoặc không có userid
     if (!req.session.user) {
         return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
     }
     console.log(req.session.user.userid);
 
-    // Lấy userID từ session
     const userId  = req.session.user.userid;
     
     try {
-        // Kiểm tra vai trò người dùng
         const userRole = await usersService.checkRole(userId);
         if (userRole !== 2  ) {
             return next(new ApiError(403, 'Forbidden: Bạn không có quyền để thêm bàn mới!', { code: 'FORBIDDEN' }));
@@ -74,17 +71,14 @@ async function createTable(req, res, next) {
 }
 
 async function deleteTable(req, res, next) {
-    // Kiểm tra nếu session không tồn tại hoặc không có userid
     if (!req.session.user) {
         return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
     }
     console.log(req.session.user.userid);
 
-    // Lấy userID từ session
     const userId  = req.session.user.userid;
 
     try {
-        // Kiểm tra vai trò người dùng
         const userRole = await usersService.checkRole(userId);
         if (userRole !== 2  ) {
             return next(new ApiError(403, 'Forbidden: staff mới được vô C', { code: 'FORBIDDEN' }));

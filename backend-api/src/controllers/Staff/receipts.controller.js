@@ -3,7 +3,6 @@ const usersService = require('../../services/Customer/users.service');
 const ApiError = require('../../api-error');
 const JSend = require('../../jsend');
 
-// Verify Receipt Controller
 async function staffVerifyReceipt(req, res, next) {
     if (!req.session.user) {
         return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
