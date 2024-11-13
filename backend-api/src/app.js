@@ -12,7 +12,7 @@ const tableRouter = require('./routes/table.router');
 const{
     resourceNotFound,
     handleError,
-} = require('./controllers/errors.controller')
+} = require('./controllers/Customer/errors.controller')
 const { specs, swaggerUi } = require('./docs/swagger');
 const app = express();
 const multer = require('multer');

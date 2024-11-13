@@ -1,6 +1,6 @@
 const express = require('express');
-const tableController = require('../controllers/table.controller');
-const { methodNotAllowed } = require('../controllers/errors.controller');
+const tableController = require('../controllers/Customer/table.controller');
+const { methodNotAllowed } = require('../controllers/Customer/errors.controller');
 const imgUpload = require('../middlewares/img-upload.middleware');
 
 const multer = require('multer');
