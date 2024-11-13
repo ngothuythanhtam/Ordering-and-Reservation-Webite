@@ -7,15 +7,14 @@ const multer = require('multer');
 const upload = multer();
 const router = express.Router();
 module.exports.setup = (app) => {
-    app.use('/api/v1/table', router);
+    app.use('/api/table', router);
 /**
  * @swagger
- * /api/v1/table/table_status:
+ * /api/table/table_status:
  *   get:
  *     summary: Get many tables by filter status
  *     description: Retrieve tables by filtering status
  *     parameters:
- *       - $ref: '#/components/parameters/tableStatusParam'
  *       - $ref: '#/components/parameters/limitParam'
  *       - $ref: '#/components/parameters/pageParam'
  *     tags:

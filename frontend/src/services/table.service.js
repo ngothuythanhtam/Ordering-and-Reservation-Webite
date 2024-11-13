@@ -19,7 +19,7 @@ async function efetch(url, options = {}) {
 }
 
 function makeTableService() {
-    const baseUrl = '/api/v1/table';
+    const baseUrl = '/api/table';
 
     async function fetchTables(page, limit = 4) {
         let url = `${baseUrl}/table_status?&limit=${limit}&page=${page}`;

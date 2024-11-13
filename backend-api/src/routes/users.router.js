@@ -1,15 +1,9 @@
 const express = require('express');
 const usersController = require('../controllers/users.controller');
 const { methodNotAllowed } = require('../controllers/errors.controller');
-const imgUpload = require('../middlewares/img-upload.middleware');
 
 const avatarUpload = require('../middlewares/avatar-upload.middleware');
-const authMiddleware = require('../middlewares/authMiddleware');  
 const router = express.Router(); 
-
-const multer = require('multer');
-const upload = multer();
-
 module.exports.setup = (app) => { 
     app.use('/api/users', router);
 

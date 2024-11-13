@@ -5,7 +5,7 @@ function TableRepository() {
     return knex('restaurant_table');
 }
 async function getManyTableByStatus(query) {
-    const { table_number , page = 1, limit = 5 } = query;
+    const { page = 1, limit = 5 } = query;
     const paginator = new Paginator(page, limit);
     let results = await TableRepository()
         .select(
