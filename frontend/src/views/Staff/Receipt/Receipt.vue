@@ -1,10 +1,10 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import ReceiptCard from '@/components/Receipt/ReceiptCard.vue';
-import ReceiptList from '@/components/Receipt/ReceiptList.vue';
-import MainPagination from '@/components/MainPagination.vue';
-import ReceiptsService from '@/services/receipt.service';
+import ReceiptCard from '@/components/Staff/Receipt/ReceiptCard.vue';
+import ReceiptList from '@/components/Staff/Receipt/ReceiptList.vue';
+import MainPagination from '@/components/Staff/MainPagination.vue';
+import ReceiptsService from '@/services/Staff/receipt.service';
 import { useMutation } from '@tanstack/vue-query';
 
 const router = useRouter();

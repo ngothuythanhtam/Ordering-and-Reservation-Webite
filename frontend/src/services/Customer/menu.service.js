@@ -21,7 +21,7 @@ async function efetch(url, options = {}) {
 }
 
 function makeMenuService() {
-    const baseUrl = '/api/v1/menu_items';
+    const baseUrl = '/api/menu_items';
 
     async function fetchItems(page, limit = 8) {
         let url = `${baseUrl}/name/?page=${page}&limit=${limit}`;

@@ -1,11 +1,11 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import InputSearch from '@/components/InputSearch.vue';
-import TableList from '@/components/Table/TableList.vue';
-import TableForm from '@/components/Table/TableForm.vue';
-import MainPagination from '@/components/MainPagination.vue';
-import tablesService from '@/services/tables.service';
+import InputSearch from '@/components/Staff/InputSearch.vue';
+import TableList from '@/components/Staff/Table/TableList.vue';
+import TableForm from '@/components/Staff/Table/TableForm.vue';
+import MainPagination from '@/components/Staff/MainPagination.vue';
+import tablesService from '@/services/Staff/tables.service';
 import Swal from 'sweetalert2';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 

@@ -1,12 +1,12 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import ReservationCard from '@/components/Reservation/ReservationCard.vue';
-import ReservationList from '@/components/Reservation/ReservationList.vue';
-import MainPagination from '@/components/MainPagination.vue';
-import ReservationsService from '@/services/reservation.service';
-import InputSearch from '@/components/InputSearch.vue';
-import ReservationForm from '@/components/Reservation/ReservationForm.vue';
+import ReservationCard from '@/components/Staff/Reservation/ReservationCard.vue';
+import ReservationList from '@/components/Staff/Reservation/ReservationList.vue';
+import MainPagination from '@/components/Staff/MainPagination.vue';
+import ReservationsService from '@/services/Staff/reservation.service';
+import InputSearch from '@/components/Staff/InputSearch.vue';
+import ReservationForm from '@/components/Staff/Reservation/ReservationForm.vue';
 import Swal from 'sweetalert2';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 

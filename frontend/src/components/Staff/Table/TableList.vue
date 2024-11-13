@@ -1,6 +1,6 @@
 <script setup>
 import { defineProps, defineEmits, ref } from 'vue';
-import tablesService from '@/services/tables.service';
+import tablesService from '@/services/Staff/tables.service';
 import Swal from 'sweetalert2';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 const isLoading = ref(false);

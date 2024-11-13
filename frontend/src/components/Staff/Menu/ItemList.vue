@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
-import ItemCard from '@/components/Menu/ItemCard.vue';
+import ItemCard from '@/components/Staff/Menu/ItemCard.vue';
 
 const props = defineProps({
   items: { type: Array, default: () => [] },

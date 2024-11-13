@@ -284,7 +284,7 @@ module.exports.setup = (app) => {
  *         description: Internal server error
  *         $ref: '#/components/responses/500'
  */
-    router.delete('/ByStaff/', menu_itemsControllerStaff.deleteAllItems);
+    router.delete('/ByStaff', menu_itemsControllerStaff.deleteAllItems);
 
     // Catch all methods that are not allowed for these routes and return 405 error
     router.all('/', methodNotAllowed);

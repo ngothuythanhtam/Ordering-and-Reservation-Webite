@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
-import ItemForm from '@/components/Menu/ItemForm.vue';
-import itemsService from '@/services/items.service';
+import ItemForm from '@/components/Staff/Menu/ItemForm.vue';
+import itemsService from '@/services/Staff/items.service';
 import { useMutation } from '@tanstack/vue-query';
 import Swal from 'sweetalert2';
 

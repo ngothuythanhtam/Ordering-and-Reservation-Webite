@@ -171,7 +171,7 @@ function deleteItem() {
   background-color: #d8c3a5;
   padding: 0px;
   border-radius: 10px;
-  margin-top: 10px;
+  margin-top: 25px;
   color: #565551;
 }
 

@@ -3,8 +3,8 @@ import { ref, onMounted  } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import Swal from 'sweetalert2';
-import ItemForm from '@/components/Menu/ItemForm.vue';
-import itemsService from '@/services/items.service';
+import ItemForm from '@/components/Staff/Menu/ItemForm.vue';
+import itemsService from '@/services/Staff/items.service';
 
 const props = defineProps({
     item_id: { type: String, required: true },

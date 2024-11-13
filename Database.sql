@@ -113,6 +113,6 @@ select * from restaurant_table;
 select * from users;
 SHOW CREATE TABLE reservation;
 
-update reservation
-set status = "booked"
-where reservation_id=1;
+update receipt
+set  status= "Ordered"
+where order_id=1;

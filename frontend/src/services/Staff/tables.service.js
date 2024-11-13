@@ -23,7 +23,7 @@ function makeTableService(){
     const baseUrl = '/api/table';
 
     async function fetchTables(page, limit = 10) {
-        let url = `${baseUrl}?page=${page}&limit=${limit}`;
+        let url = `${baseUrl}/ByStaff/?page=${page}&limit=${limit}`;
         const data = await efetch(url);
 
         data.tables = data.tables.map((table) => {
@@ -35,27 +35,27 @@ function makeTableService(){
     }
 
     async function fetchTable(table_id) {
-        const { table } = await efetch(`${baseUrl}/${table_id}`);
+        const { table } = await efetch(`${baseUrl}/ByStaff/${table_id}`);
         return {
             ...table,
         };
     }
 
     async function createTable(table) {
-        return efetch(baseUrl, {
+        return efetch(`${baseUrl}/ByStaff`, {
             method: 'POST',
             body: table,
         });
     }
 
     async function deleteTable(table_id) {
-        return efetch(`${baseUrl}/${table_id}`, {
+        return efetch(`${baseUrl}/ByStaff/${table_id}`, {
             method: 'DELETE',
         });
     }
 
     async function getTables(page, limit = 10) {
-        let url = `${baseUrl}?page=${page}&limit=${limit}`;
+        let url = `${baseUrl}/ByStaff/?page=${page}&limit=${limit}`;
         const data = await efetch(url);
         data.tables = data.tables.map((table) => {
             return {

@@ -1,8 +1,8 @@
 <script setup>
 import { defineProps, defineEmits, ref, onMounted, watch, computed } from 'vue';
-import ReceiptsService from '@/services/receipt.service';
+import ReceiptsService from '@/services/Staff/receipt.service';
 import Swal from 'sweetalert2';
-import MainPagination from '@/components/MainPagination.vue';
+import MainPagination from '@/components/Staff/MainPagination.vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 
 const props = defineProps({

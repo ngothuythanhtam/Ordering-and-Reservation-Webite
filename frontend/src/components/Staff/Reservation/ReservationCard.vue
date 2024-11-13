@@ -1,6 +1,6 @@
 <script setup>
 import { defineProps, defineEmits, ref, onMounted, watch } from 'vue';
-import ReservationsService from '@/services/reservation.service';
+import ReservationsService from '@/services/Staff/reservation.service';
 
 const props = defineProps({
     reservation: { type: Object, required: true }

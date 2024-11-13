@@ -1,10 +1,10 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import InputSearch from '@/components/InputSearch.vue';
-import ItemList from '@/components/Menu/ItemList.vue';
-import MainPagination from '@/components/MainPagination.vue';
-import itemsService from '@/services/items.service';
+import InputSearch from '@/components/Staff/InputSearch.vue';
+import ItemList from '@/components/Staff/Menu/ItemList.vue';
+import MainPagination from '@/components/Staff/MainPagination.vue';
+import itemsService from '@/services/Staff/items.service';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import Swal from 'sweetalert2';
 
