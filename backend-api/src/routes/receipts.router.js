@@ -1,6 +1,6 @@
 const express = require('express'); 
-const receiptsController = require('../controllers/receipts.controller'); 
-const { methodNotAllowed } = require('../controllers/errors.controller'); 
+const receiptsController = require('../controllers/Customer/receipts.controller'); 
+const { methodNotAllowed } = require('../controllers/Customer/errors.controller'); 
 const avatarUpload = require('../middlewares/avatar-upload.middleware'); 
 const router = express.Router(); 
 

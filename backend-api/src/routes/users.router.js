@@ -1,6 +1,6 @@
 const express = require('express');
-const usersController = require('../controllers/users.controller');
-const { methodNotAllowed } = require('../controllers/errors.controller');
+const usersController = require('../controllers/Customer/users.controller');
+const { methodNotAllowed } = require('../controllers/Customer/errors.controller');
 
 const avatarUpload = require('../middlewares/avatar-upload.middleware');
 const router = express.Router(); 
