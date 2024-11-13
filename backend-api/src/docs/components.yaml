@@ -89,20 +89,6 @@ components:
         seating_capacity:
           type: integer
           description: Số lượng chỗ ngồi
-        status:
-          type: string
-          enum: ['available', 'occupied']
-          default: 'available'
-          description: Trạng thái bàn
-
-    TableStatus:
-      type: object
-      properties:
-        status:
-          type: string
-          enum: ['available', 'occupied']
-          default: 'available'
-          description: Trạng thái bàn
     
     Reservation:
       type: object
@@ -167,7 +153,7 @@ components:
           description: The reservation has created at time
         status:
           type: string
-          description: useraddress
+          description: reservation status
     CreateReservation:
       type: object
       properties:
@@ -513,14 +499,6 @@ components:
         type: string
       description: Filter by menu item name
 
-    tableStatusParam:
-      in: query
-      name: status
-      required: true
-      schema:
-        type: string
-        enum: ['available', 'reserved', 'occupied']
-      description: Filter by table status
 
     seating_capacity:
       in: query

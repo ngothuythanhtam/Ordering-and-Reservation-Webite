@@ -17,7 +17,6 @@ const totalPages = ref(1);
 const tables = ref([]);
 const selectedIndex = ref(-1);
 const searchText = ref('');
-const selectedStatus = ref(''); // Trạng thái được chọn
 const seatingCapacityFilter = ref(''); // Bộ lọc chỗ ngồi
 const isOpen = ref(false);
 const closeModal = () => {
@@ -58,8 +57,8 @@ const currentPage = computed(() => {
 // Filtered and searchable tables
 const searchableTables = computed(() =>
     tables.value.map((table) => {
-        const { table_number, seating_capacity, status } = table;
-        return [table_number, seating_capacity, status]
+        const { table_number, seating_capacity} = table;
+        return [table_number, seating_capacity]
             .filter(Boolean)
             .join(' ')
             .toLowerCase();
@@ -70,9 +69,8 @@ const searchableTables = computed(() =>
 const filteredTables = computed(() => {
     return tables.value.filter((table, index) => {
         const matchesSearchText = searchableTables.value[index].includes(searchText.value.toLowerCase());
-        const matchesStatus = !selectedStatus.value || table.status === selectedStatus.value;
         const matchesSeatingCapacity = !seatingCapacityFilter.value || table.seating_capacity == seatingCapacityFilter.value;
-        return matchesSearchText && matchesStatus && matchesSeatingCapacity;
+        return matchesSearchText && matchesSeatingCapacity;
     });
 });
 
@@ -141,7 +139,6 @@ async function deleteTable(table_id) {
 const newTable = ref({
     table_number: '',
     seating_capacity: 1,
-    table_satus: 'available',
 });
 
 const mutation = useMutation({
@@ -186,12 +183,6 @@ onMounted(() => {
                 <InputSearch v-model="searchText" placeholder="Tìm kiếm bàn" />
                 <input id="seatingFilter" type="number" class="form-control" v-model="seatingCapacityFilter" min="1"
                     placeholder="Nhập số chỗ ngồi" style="width: 180px;" />
-            
-                <select id="statusFilter" class="form-control" v-model="selectedStatus" style="width: 180px;">
-                    <option value="">Tất cả trạng thái</option>
-                    <option value="available">Bàn còn trống</option>
-                    <option value="occupied">Bàn đã có khách</option>
-                </select>
 
                 <button class="btn btn-sm btn-primary" @click="fetchTables">
                     <i class="fas fa-redo"></i> Làm mới

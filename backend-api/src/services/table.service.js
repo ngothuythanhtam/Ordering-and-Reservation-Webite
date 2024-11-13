@@ -9,9 +9,9 @@ function TableRepository() {
 
 function readTable(payload) {
     return {
+        table_id: payload.table_id,
         table_number: payload.table_number,
         seating_capacity: payload.seating_capacity,
-        status: payload.status,
     };
 }
 
@@ -67,7 +67,6 @@ async function getManyTables(query) {
             'table_id',
             'table_number',
             'seating_capacity',
-            'status',
         )
         .limit(paginator.limit)
         .offset(paginator.offset);
@@ -85,24 +84,6 @@ async function getManyTables(query) {
     };
 }
 
-async function updateTable(table_id, status) {
-    // Kiểm tra giá trị của status
-    if (status !== 'available' && status !== 'occupied') {
-        console.error(`Trạng thái không hợp lệ: ${status}`);
-        throw new Error("Trạng thái không hợp lệ. Chỉ chấp nhận 'available' hoặc 'occupied'");
-    }
-
-    const table_id_int = parseInt(table_id, 10);
-    const tableData = await TableRepository().where({ table_id: table_id_int }).first();
-
-    if (!tableData) throw new Error('Không tìm thấy bàn!');
-
-    await TableRepository()
-        .where({ table_id: table_id_int })
-        .update({ status });
-
-    return { success: true, message: `Cập nhật trạng thái bàn là '${status}' thành công` };
-}
 
 module.exports = {
     getTableById,
@@ -110,5 +91,4 @@ module.exports = {
     createTable,
     deleteTable,
     getManyTables,
-    updateTable,
 };

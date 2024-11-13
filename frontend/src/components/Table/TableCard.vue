@@ -17,7 +17,6 @@ function handleDelete() {
         <div class="card-body">
             <h5 class="card-title">{{ table.table_number }}</h5>
             <p class="card-text">Chỗ ngồi: {{ table.seating_capacity }}</p>
-            <p class="card-text">Trạng thái: {{ table.status }}</p>
             <button class="btn btn-danger" @click="handleDelete">
                 <i class="fas fa-trash"></i> Xóa
             </button>

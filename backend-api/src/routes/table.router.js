@@ -171,56 +171,7 @@ module.exports.setup = (app) => {
  *         description: Internal server error
  *         $ref: '#/components/responses/500'
  */   
-    router.delete('/:table_id', avatarUpload, tableController.deleteTable);
-    
-/**
- * @swagger
- * /api/table/{table_id}:
- *   put:
- *     summary: Update table status by table ID
- *     description: Update the status of a table to either "available" or "occupied" using form-data
- *     parameters:
- *       - in: path
- *         name: table_id
- *         required: true
- *         schema:
- *           type: integer
- *         description: The ID of the table to update
- *     requestBody:
- *       required: true
- *       content:
- *         multipart/form-data:
- *           schema:
- *             type: object
- *             properties:
- *               status:
- *                 type: string
- *                 enum: [available, occupied]
- *                 description: The new status of the table
- *     tags:
- *       - (staff)
- *     responses:
- *       200:
- *         description: Successfully updated table status
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Table status updated to occupied successfully"
- *       400:
- *         description: Bad request
- *       404:
- *         description: Table not found
- *       500:
- *         description: Internal server error
- */
-    router.put('/:table_id',upload.none(), tableController.updateTable);
+    router.delete('/:table_id', avatarUpload, tableController.deleteTable); 
     
     // Catch all methods that are not allowed for these routes and return 405 error
     router.all('/', methodNotAllowed);

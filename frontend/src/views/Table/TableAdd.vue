@@ -4,7 +4,6 @@ import TableForm from '@/components/Table/TableForm.vue';
 import tablesService from '@/services/tables.service';
 import { useMutation } from '@tanstack/vue-query';
 import Swal from 'sweetalert2';
-import errorMap from 'zod/lib/locales/en';
 
 const newTable = ref({
     table_number: '',

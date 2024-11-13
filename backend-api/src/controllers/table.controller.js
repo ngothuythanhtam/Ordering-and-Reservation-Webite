@@ -142,38 +142,10 @@ async function getManyTablesByFilter(req, res, next) {
     );
 }
 
-async function updateTable(req, res, next) {
-    if (!req.session.user) {
-        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
-    }
-
-    const userId = req.session.user.userid;
-    const { table_id } = req.params;
-    const status = req.body.status;
-
-    try {
-        const userRole = await usersService.checkRole(userId);
-        if (userRole !== 2) {
-            return next(new ApiError(403, 'Forbidden: Bạn không có quyền chỉnh sửa thông tin này!', { code: 'FORBIDDEN' }));
-        }
-
-        const result = await tableService.updateTable(table_id, status);
-        if (result && result.success) {
-            return res.json({ success: true, message: result.message });
-        } else {
-            return next(new ApiError(404, 'Không tìm thấy bàn!'));
-        }
-    } catch (error) {
-        console.log(error);
-        return next(new ApiError(500, 'Lỗi hệ thống, vui lòng thử lại sau.'));
-    }
-}
-
 
 module.exports = {
     getTable,
     createTable,
     deleteTable,
     getManyTablesByFilter,
-    updateTable,
 };
