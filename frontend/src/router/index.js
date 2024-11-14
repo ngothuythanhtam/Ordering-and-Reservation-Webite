@@ -118,16 +118,18 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+  if (to.meta.title) {
+    document.title = to.meta.title;
+  }
+  next();
+  
   const userRole = localStorage.getItem('userrole');
   
   if (to.path === '/' && userRole === '2') {
     return next('/staff/menu'); 
   }
 
-  if (to.meta.title) {
-    document.title = to.meta.title;
-  }
-  next();
+  
 });
 
 export default router;

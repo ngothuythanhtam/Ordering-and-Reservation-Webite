@@ -72,8 +72,8 @@ function submitReserv(values) {
         </div>
 
         <div class="mb-3">
-            <label for="reservation_date" class="form-label">Ngày đặt</label>
-            <Field name="reservation_date" type="datetime-local" placeholder="Ngày lấy bàn" class="form-control" :value="reservation?.reservation_date" />
+            <label for="reservation_date" class="form-label">Ngày lấy bàn</label>
+            <Field name="reservation_date" type="date" placeholder="Ngày lấy bàn" class="form-control" :value="reservation?.reservation_date" />
             <ErrorMessage name="reservation_date" class="error-feedback" />
         </div>
 
