@@ -1,7 +1,5 @@
 <script setup>
 import { defineProps, defineEmits, ref } from 'vue';
-import tablesService from '@/services/Staff/tables.service';
-import Swal from 'sweetalert2';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 const isLoading = ref(false);
 const isError = ref(false);
@@ -13,28 +11,6 @@ const props = defineProps({
     selectedIndex: { type: Number, default: -1 },
 });
 const emit = defineEmits(['update:selectedIndex', 'delete', 'submit:table']);
-
-// Function to display success notification
-function showSuccessMessage() {
-    Swal.fire({
-        icon: 'success',
-        title: 'Thành công!',
-        text: 'Bàn được cập nhật thành công. Hãy làm mới lại trang!',
-        timer: 2000,
-        showConfirmButton: false
-    });
-}
-
-// Function to display error notification
-function showErrorMessage(error) {
-    Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
-        text: `Có lỗi xảy ra: ${error.message}`,
-        timer: 3000,
-        showConfirmButton: false
-    });
-}
 
 function handleDelete() {
     emit('delete', props.table.table_id);

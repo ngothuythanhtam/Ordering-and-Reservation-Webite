@@ -345,7 +345,6 @@ module.exports.setup = (app) => {
  */
     router.get('/mycart/', receiptsControllerCustomer.getCart);
 
-
 /**
  * @swagger
  * /api/receipts/verify/ByStaff/{order_id}:
@@ -492,5 +491,7 @@ module.exports.setup = (app) => {
  *         $ref: '#/components/responses/500'
  */
     router.get('/ByStaff/:order_id', receiptsControllerStaff.staffGetReceipt);
+
+
     router.all('/',methodNotAllowed);
 }; 

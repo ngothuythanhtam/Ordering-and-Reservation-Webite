@@ -106,7 +106,7 @@ module.exports.setup = (app) => {
 
 /**
  * @swagger
- * /api/reservation:
+ * /api/reservation/ByStaff:
  *   post:
  *     summary: Staff create a new reservation for customer
  *     description: Create a reservation by providing useremail, reservation_date, party_size, and optional special_request.
@@ -225,7 +225,7 @@ module.exports.setup = (app) => {
  *                   type: string
  *                   description: Internal server error message
  */
-    router.post('/', upload.none(),reservationController.staffCreateReservation);
+    router.post('/ByStaff', upload.none(),reservationController.staffCreateReservation);
     
     // Catch all methods that are not allowed for these routes and return 405 error
     router.all('/', methodNotAllowed);

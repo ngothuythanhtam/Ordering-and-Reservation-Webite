@@ -3,7 +3,6 @@ import Menu from '@/views/Staff/Menu/Menu.vue';
 import Table from '@/views/Staff/Table/Table.vue';
 import Reservation from '@/views/Staff/Reservation/Reservation.vue';
 import Receipt from '@/views/Staff/Receipt/Receipt.vue';
-import MyAccount from '@/views/Staff/Account/MyAccount.vue';
 import Home from '@/views/Customer/Home.vue';
 
 const routes = [
@@ -33,12 +32,7 @@ const routes = [
     component: Table,
     meta: { requiresAuth: true }
   },
-  {
-    path: '/staff/table/add',
-    name: 'table.add',
-    component: () => import('@/views/Staff/Table/TableAdd.vue'),
-    meta: { requiresAuth: true }
-  },
+
   {
     path: '/staff/reservation',
     name: 'reservation',
@@ -51,12 +45,7 @@ const routes = [
     component: Receipt,
     meta: { requiresAuth: true }
   },
-  {
-    path: '/staff/MyAccount',
-    name: 'MyAccount',
-    component: MyAccount,
-    meta: { requiresAuth: true }
-  },
+
   // Customer routes
   {
     path: '/',

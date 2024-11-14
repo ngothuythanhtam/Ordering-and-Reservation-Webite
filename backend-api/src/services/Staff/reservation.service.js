@@ -1,5 +1,6 @@
 const knex = require('../../database/knex');
 const Paginator = require('./paginator');
+const receiptService = require('../../services/Customer/users.service');
 
 function reservationRepository() {
     return knex('reservation');
@@ -7,7 +8,6 @@ function reservationRepository() {
 
 async function staffCreateReservation(useremail, table_number, reservationData) {
     const trx = await knex.transaction();
-
     try {
         // Lấy thông tin user từ email dược nhập
         const user = await trx('users')
@@ -22,7 +22,7 @@ async function staffCreateReservation(useremail, table_number, reservationData) 
 
         // Lấy thông tin bàn từ số bàn được nhập
         const table = await trx('restaurant_table')
-            .select('table_id', 'table_number', 'seating_capacity', 'status')
+            .select('table_id', 'table_number', 'seating_capacity')
             .where({ table_number })
             .first();
 
@@ -30,13 +30,36 @@ async function staffCreateReservation(useremail, table_number, reservationData) 
             throw new Error('Không có bàn trùng khớp với số bàn đã nhập!');
         }
 
+        // Kiểm tra xem bàn có được đặt vào ngày mong muốn không
+        const existingReservation = await trx('reservation')
+            .where({
+                table_id: table.table_id,
+                reservation_date: reservationData.reservation_date
+            })
+            .andWhereNot({ status: 'canceled' }) // Loại bỏ các đặt bàn đã hủy
+            .first();
+
+        if (existingReservation) {
+            // Nếu đã có đặt bàn, kiểm tra trạng thái của reservation và receipt
+            const existingReceipt = await trx('receipt')
+                .where({
+                    reservation_id: existingReservation.reservation_id
+                })
+                .first();
+
+            if (existingReservation.status === 'confirmed' && existingReceipt.status === 'Ordered') {
+                throw new Error('Table is already confirmed and the order has been placed, it cannot be booked again.');
+            }
+        }
+      
+
         // Insert dữ liệu mới vào reservation
         const [newReservationId] = await trx('reservation').insert({
             userid: user.userid,
             table_id: table.table_id,
             reservation_date: reservationData.reservation_date,
             special_request: reservationData.special_request || null,
-            status: 'booked'  // Khi đặt bàn thì trạng thái đơn là booked
+            status: 'confirmed'
         });
 
         // Đồng thời khi đặt bàn thành công, receipt cũng được tạo ra
@@ -56,7 +79,7 @@ async function staffCreateReservation(useremail, table_number, reservationData) 
                 reservation_id: newReservationId,
                 reservation_date: reservationData.reservation_date,
                 special_request: reservationData.special_request || null,
-                status: 'booked',
+                status: 'confirmed',
                 user: {
                     username: user.username,
                     useremail: user.useremail,
@@ -76,7 +99,6 @@ async function staffCreateReservation(useremail, table_number, reservationData) 
         throw new Error(error.message || "Không thể tạo đơn đặt bàn");
     }
 }
-
  
 async function getReservationById(reservation_id, trx = null) {
     const query = reservationRepository()

@@ -156,6 +156,7 @@ watch(currentPage, () => {
                     <select id="statusFilter" v-model="selectedStatus" class="form-control" >
                         <option value="">Tất cả trạng thái</option>
                         <option value="booked">booked</option>
+                        <option value="confirmed">confirmed</option>
                         <option value="completed">completed</option>
                         <option value="canceled">canceled</option>
                     </select>

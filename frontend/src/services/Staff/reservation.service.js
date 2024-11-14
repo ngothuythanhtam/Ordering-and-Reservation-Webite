@@ -34,13 +34,6 @@ function makeReservationService(){
         return data;
     }
 
-    // async function fetchReservation(reservation_id) {
-    //     const { reservation } = await efetch(`${baseUrl}/${reservation_id}`);
-    //     return {
-    //         ...reservation,
-    //     };
-    // }
-
     async function fetchReservation(reservation_id) {
         const response = await efetch(`${baseUrl}/${reservation_id}`);
         const { reservation_info: reservation } = response
@@ -63,7 +56,7 @@ function makeReservationService(){
     }
 
     async function createReserv(reservation) {
-        return efetch(baseUrl, {
+        return efetch(`${baseUrl}/ByStaff`, {
             method: 'POST',
             body: reservation,
         });
