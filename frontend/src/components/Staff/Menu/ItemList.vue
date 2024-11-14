@@ -60,6 +60,7 @@ const closeModal = () => {
   grid-template-columns: repeat(5, minmax(150px, 1fr));
   gap: 0px;
   row-gap: 50px;
+  column-gap: 5px;
 }
 
 .item-card {
@@ -70,7 +71,7 @@ const closeModal = () => {
   border-radius: 8px;
   transition: transform 0.2s, box-shadow 0.2s;
   background-color: #d8c3a5;
-  width: 250px;
+  width: 280px;
 }
 
 .item-card.active,
