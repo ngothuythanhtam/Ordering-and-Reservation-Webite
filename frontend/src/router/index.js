@@ -8,42 +8,44 @@ import Home from '@/views/Customer/Home.vue';
 const routes = [
   // Staff routes
   {
-    path: '/staff/menu',
-    name: 'menu',
-    component: Menu,
-    meta: { requiresAuth: true }
+  path: '/staff/menu',
+  name: 'menu',
+  component: Menu,
+  meta: {
+    requiresAuth: true, title: 'Quản lý Menu'}
   },
+
   {
     path: '/staff/menu/items/:item_id',
     name: 'item.edit',
     component: () => import('@/views/Staff/Menu/ItemEdit.vue'),
     props: (route) => ({ item_id: route.params.item_id }),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, title: 'Chỉnh sửa món ăn' }
   },
   {
     path: '/staff/menu/items/add',
     name: 'item.add',
     component: () => import('@/views/Staff/Menu/ItemAdd.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, title: 'Thêm món ăn vào menu' }
   },
   {
     path: '/staff/table',
     name: 'table',
     component: Table,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true ,title: 'Quản lý bàn'}
   },
 
   {
     path: '/staff/reservation',
     name: 'reservation',
     component: Reservation,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, title: 'Quản lý đơn đặt bàn' }
   },
   {
     path: '/staff/receipt',
     name: 'receipt',
     component: Receipt,
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, title: 'Quản lý hóa đơn' }
   },
 
   // Customer routes
@@ -51,7 +53,7 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: false, title: 'Trang chủ' }
   },
   {
     path: '/:pathMatch(.*)*',
@@ -71,42 +73,42 @@ const routes = [
         next();
       }
     },
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: false , title: 'Đăng nhập'}
   },
   {
     path: '/logout/',
     name: 'Logout',
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, title: 'Đăng xuất' }
   },
   {
     path: '/registration/',
     name: 'Register',
     component: () => import('@/views/Customer/Register.vue'),
-    meta: { requiresAuth: false }
+    meta: { requiresAuth: false, title: 'Đăng ký' }
   },
   {
     path: '/info/',
     name: 'Profile',
     component: () => import('@/views/Customer/Profile.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true , title: 'Trang cá nhân'}
   },
   {
     path: '/updateProfile/',
     name: 'UpdateUser',
     component: () => import('@/views/Customer/UpdateUser.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true , title: 'Chỉnh sửa trang cá nhân'}
   },
   {
     path: '/mycart/',
     name: 'MyCart',
     component: () => import('@/views/Customer/MyCart.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true , title: 'Giỏ hàng'}
   },
   {
     path: '/history/',
     name: 'History',
     component: () => import('@/views/Customer/Activity.vue'),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true , title: 'Lịch sử đơn hàng'}
   },
 ];
 
@@ -115,15 +117,16 @@ const router = createRouter({
   routes,
 });
 
-// Global navigation guard
 router.beforeEach((to, from, next) => {
   const userRole = localStorage.getItem('userrole');
   
-  // Redirect to /staff/menu if role is '2' and navigating to root
   if (to.path === '/' && userRole === '2') {
-    return next('/staff/menu');
+    return next('/staff/menu'); 
   }
 
+  if (to.meta.title) {
+    document.title = to.meta.title;
+  }
   next();
 });
 
