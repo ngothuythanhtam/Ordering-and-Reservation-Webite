@@ -7,7 +7,7 @@ const JSend = require('../../jsend');
 
 async function getReservation(req, res, next) {
     if (!req.session.user) {
-        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        return next(new ApiError(401, 'Please log in!'));
     }
 
     const userId = req.session.user.userid;
@@ -15,30 +15,30 @@ async function getReservation(req, res, next) {
     const userRole = await usersService.checkRole(userId);
     
     if (userRole !== 2) {
-        return next(new ApiError(403, 'Forbidden: Bạn không có quyền chỉnh sửa thông tin này!'));
+        return next(new ApiError(403, 'Forbidden: You do not have permission to edit this information!'));
     }
     const { reservation_id } = req.params;  
 
     if (!reservation_id) {
-        return next(new ApiError(400, 'reservation_id là bắt buộc'));
+        return next(new ApiError(400, 'reservation_id is required'));
     }
 
     try {
         const reservation = await reservationService.getReservationById(reservation_id); 
         console.log({ reservation_info: reservation }); 
         if (!reservation) {
-            return next(new ApiError(404, 'Không tìm thấy reservation nào!'));
+            return next(new ApiError(404, 'No reservation found!'));
         }
         return res.json(JSend.success({ reservation_info: reservation }));  
     } catch (error) {
         console.error(error);
-        return next(new ApiError(500, `Không thể lấy thông tin reservationtừ id = ${reservation_id}`));
+        return next(new ApiError(500, `Unable to get reservation information from id = ${reservation_id}`));
     }
 }
 
 async function getReservationByFilter(req, res, next) {
     if (!req.session.user) {
-        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        return next(new ApiError(401, 'Please log in!'));
     }   
     const userId = req.session.user.userid;
     console.log("staffid: ", userId)
@@ -75,7 +75,7 @@ async function getReservationByFilter(req, res, next) {
 
 async function staffCreateReservation(req, res, next) {
     if (!req.session.user) {
-        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        return next(new ApiError(401, 'Please log in!'));
     }
 
     const userId = req.session.user.userid;
@@ -83,7 +83,7 @@ async function staffCreateReservation(req, res, next) {
     const userRole = await usersService.checkRole(userId);
     
     if (userRole !== 2) {
-        return next(new ApiError(403, 'Forbidden: Bạn không có quyền để tạo đơn đặt bàn!'));
+        return next(new ApiError(403, 'Forbidden: You do not have permission!'));
     }
     const { useremail, table_number } = req.body;
     const reservationData = {
@@ -92,7 +92,7 @@ async function staffCreateReservation(req, res, next) {
     };
     const checktable = await receiptsService.checktable(table_number, reservationData.reservation_date);
     if (checktable) {
-        return next(new ApiError(401, 'Bàn này đã có người đặt trùng thời gian. Vui lòng chọn ngày khác hoặc bàn khác!'));
+        return next(new ApiError(401, 'This table is already booked for that time. Please choose a different date or table!'));
     }
     console.log(checktable);
 
@@ -101,12 +101,12 @@ async function staffCreateReservation(req, res, next) {
 
         res.status(201).json({
             status: 'success',
-            message: 'Tạo đơn đặt bàn thành công',
+            message: 'Successfully created a table reservation order',
             data: result
         });
     } catch (error) {
         console.error(error);
-        next(new ApiError(500, error.message || 'Lỗi! Không thể tạo đơn đặt bàn.'));
+        next(new ApiError(500, error.message || 'Error! Unable to create table reservation.'));
     }
 }
 
