@@ -30,7 +30,7 @@ const { mutate: bookTable, isLoading, isError, error } = useMutation({
   },
   onSuccess: () => {
     queryClient.invalidateQueries(['tables']);
-    alert('Đã thêm bàn thành công!');
+    alert('Book a table successfully!');
     showForm.value = false;
   },
   onError: (err) => {
