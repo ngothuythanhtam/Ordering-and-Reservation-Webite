@@ -64,7 +64,7 @@ const Order = async () => {
     router.push({ name: 'Home' });
   } catch (error) {
     console.error('Error:', error);
-    alert(error.response?.data?.message || 'Xin lỗi vì sự bất tiện này! Đã có người đặt bàn trước bạn. Vui lòng xóa và chọn bàn khác');
+    alert(error.response?.data?.message || 'Someone has booked this table before you. Please delete and choose another table!');
   }
 };
 // Định dạng ngày tháng

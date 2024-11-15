@@ -103,7 +103,7 @@ const handleAddToCart = ({ item, quantity }) => {
 .item-row > * {
   flex: 1 1 250px;
   max-width: 300px;
-  height: 290px;
+  height: auto;
   background-color: #f8f9fa;
   border: 1px solid #ddd;
   border-radius: 8px;
