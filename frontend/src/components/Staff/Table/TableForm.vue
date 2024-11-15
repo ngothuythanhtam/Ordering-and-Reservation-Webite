@@ -12,14 +12,14 @@ const $emit = defineEmits(['submit:table', 'delete:table']);
 let validationSchema = toTypedSchema(
     z.object({
         table_number: z.string()
-            .min(2, { message: 'Tên bàn phải ít nhất 2 ký tự.' })
-            .max(255, { message: 'Tên bàn tối đa 255 ký tự.' }),
+            .min(2, { message: 'Table name must be at least 2 characters.' })
+            .max(255, { message: 'Table name maximum 255 characters.' }),
         seating_capacity: z.number()
-            .positive({ message: 'Chỗ ngồi phải lớn hơn 0.' })
-            .max(10, { message: 'Chỗ ngồi tối đa 1 bàn là 10.' }),
+            .positive({ message: 'Seating capacity must be greater than 0.' })
+            .max(10, { message: 'Maximum seating per table is 10.' }),
         status: z.enum([
             'available', 'reserved', 'occupied'
-        ], { message: 'Trạng thái không hợp lệ.' })
+        ], { message: 'Invalid status' })
         .optional(),
     })
 );
@@ -38,17 +38,17 @@ function submitTable(values) {
 <template>
     <Form :validation-schema="validationSchema" @submit="submitTable" >
         <div class="mb-3">
-            <label for="table_number" class="form-label">Tên bàn</label>
+            <label for="table_number" class="form-label">Table</label>
             <Field name="table_number" type="text" class="form-control" :value="table?.table_number" />
             <ErrorMessage name="table_number" class="error-feedback" />
         </div>
         <div class="mb-3">
-            <label for="seating_capacity" class="form-label">Số chỗ ngồi</label>
+            <label for="seating_capacity" class="form-label">Seating Capacity</label>
             <Field name="seating_capacity" type="number" placeholder="Chỗ ngồi" class="form-control" :value="table?.seating_capacity"/>
             <ErrorMessage name="seating_capacity" class="error-feedback" />
         </div>
         <div class="mb-2 mt-5 d-flex justify-content-center">
-            <button class="save-btn btn"><i class="fas fa-save"></i> Lưu</button>
+            <button class="save-btn btn"><i class="fas fa-save"></i> Save</button>
         </div>
     </Form>
 </template>

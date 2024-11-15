@@ -22,7 +22,7 @@ const addToCart = () => {
         <div v-if="selectedIndex">
             <h4 style="color: black;">{{ selectedIndex.item_name }}</h4>
             <p>Description: {{ selectedIndex.item_description}}</p>
-            <label for="quantity">Số lượng:</label>
+            <label for="quantity">Quantity:</label>
             <input style="margin-left: 30px;
             width: 100px;
             border-radius: 5px;

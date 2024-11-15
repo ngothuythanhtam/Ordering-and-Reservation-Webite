@@ -17,10 +17,10 @@ const description = ref('');
 const { mutate: bookTable, isLoading, isError, error } = useMutation({
   mutationFn: async () => {
     if (!localStorage.getItem('userid')) {
-      throw new Error('Bạn phải đăng nhập trước khi thêm bàn! Nếu chưa có tài khoản vui lòng đăng ký!');
+      throw new Error("You must log in before making reservation. If you don't have an account, please register!");
     }
     if (!date.value || !description.value) {
-      throw new Error('Vui lòng nhập ngày và mô tả!');
+      throw new Error('Please select date and type your requirement!');
     }
     return ReceiptService.addTableToReceipt({
       table_number: selectedTable.value.table_number,
@@ -54,7 +54,7 @@ function handleAddTableToReceipt(table) {
       :class="{ active: index === selectedIndexTable }">
       <div class="card-body">
         <h5 class="card-title">{{ table.table_number }}</h5>
-        <p class="card-text">Sức chứa: {{ table.seating_capacity }}</p>
+        <p class="card-text">Capacity: {{ table.seating_capacity }}</p>
         <button @click.stop="handleAddTableToReceipt(table)" 
           class="btn btn-primary" id="addtable">+</button>
       </div>
@@ -64,21 +64,21 @@ function handleAddTableToReceipt(table) {
   <!-- Form Đặt bàn -->
   <div v-if="showForm" class="card" id="cardbookTable">
     <div class="form-container">
-      <h4>Thông tin đặt bàn</h4>
-      <p><strong>Bàn:</strong> {{ selectedTable?.table_number }}</p>
-      <p><strong>Sức chứa:</strong> {{ selectedTable?.seating_capacity }}</p>
+      <h4>Your Reservation</h4>
+      <p><strong>Table:</strong> {{ selectedTable?.table_number }}</p>
+      <p><strong>Seating Capacity:</strong> {{ selectedTable?.seating_capacity }}</p>
 
       <div class="form-group">
-        <label for="date">Ngày đặt</label>
+        <label for="date">Date to use</label>
         <input type="date" id="date" v-model="date" class="form-control" required />
       </div>
-      <p style="margin-top: 10px;margin-bottom: 0px;"><strong>Chú ý: Bạn chỉ có thể đặt 1 bàn cho mỗi hóa đơn</strong></p>
+      <p style="margin-top: 10px;margin-bottom: 0px; margin-bottom: 10px; font-weight: 300; color: red;"><strong>Note: You can only book 1 table per bill</strong></p>
       <div class="form-group">
-        <label for="description">Mô tả</label>
+        <label for="description">Requirement</label>
         <textarea id="description" v-model="description" class="form-control"></textarea>
       </div>
       <button @click="bookTable" class="btn btn-success" :disabled="isLoading" style="margin-right: 20px;">
-        {{ isLoading ? 'Đang đặt...' : 'Đặt bàn' }}
+        {{ isLoading ? 'Placing...' : 'Đặt bàn' }}
       </button>
       <button @click="showForm = false" class="btn btn-secondary">Hủy</button>
       <div v-if="isError" class="error-message">

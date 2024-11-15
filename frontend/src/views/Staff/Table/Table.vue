@@ -30,8 +30,8 @@ const openModal = () => {
 function showSuccessMessage() {
     Swal.fire({
         icon: 'success',
-        title: 'Thành công!',
-        text: 'Thành công!',
+        title: 'Success!',
+        text: 'Upated successfully!',
         timer: 2000,
         showConfirmButton: false
     });
@@ -41,8 +41,8 @@ function showSuccessMessage() {
 function showErrorMessage(error) {
     Swal.fire({
         icon: 'error',
-        title: 'Lỗi',
-        text: `${error.message}`,
+        title: 'Error',
+        text: `Error: ${error.message}`,
         timer: 3000,
         showConfirmButton: false
     });
@@ -117,14 +117,14 @@ const deleteTableMutation = useMutation({
 
 async function deleteTable(table_id) {
     const result = await Swal.fire({
-        title: 'Bạn có chắc muốn xóa?',
-        text: 'Hành động này không thể hoàn tác!',
+        title: 'Do you want to delete this table?',
+        text: 'This action can not be undone!',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Xóa',
-        cancelButtonText: 'Hủy'
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Exit'
     });
     if (result.isConfirmed) {
         try {
@@ -178,24 +178,24 @@ onMounted(() => {
         <div class="mt-4">
             <div class="d-flex my-3 gap-4 align-items-center ">
                 <h4 class="mb-0">
-                    Thông tin bàn <i class="fa-solid fa-utensils"></i>
+                    Table Information <i class="fa-solid fa-utensils"></i>
                 </h4>
-                <InputSearch v-model="searchText" placeholder="Tìm kiếm bàn" />
+                <InputSearch v-model="searchText" placeholder="Type to search table..." />
                 <input id="seatingFilter" type="number" class="form-control" v-model="seatingCapacityFilter" min="1"
-                    placeholder="Nhập số chỗ ngồi" style="width: 180px;" />
+                    placeholder="Type number" style="width: 180px; height: 40px" />
 
                 <button class="btn btn-sm btn-primary" @click="fetchTables">
-                    <i class="fas fa-redo"></i> Làm mới
+                    <i class="fas fa-redo"></i> Refresh
                 </button>
                 <button @click="openModal" class="btn btn-sm btn-success" >
-                    <i class="fas fa-plus"></i> Thêm mới
+                    <i class="fas fa-plus"></i> New Table
                 </button>
                 <div v-if="isOpen" class="modal-overlay" >
                     <div class="modal-content">
                         <button class="close-button" @click="closeModal"><i class="fa-solid fa-xmark"></i></button>
                         <div class="content-inner">
                         <TableForm :table="newTable" @submit:table="onAddTable" />
-                        <p v-if="mutation.isLoading">Đang thêm bàn mới...</p>
+                        <p v-if="mutation.isLoading">Adding new table...</p>
                         </div>
                     </div>
                 </div>
@@ -203,7 +203,7 @@ onMounted(() => {
 
             <TableList v-if="filteredTables.length > 0" :tables="filteredTables"
                 v-model:selectedIndex="selectedIndex" :table="selectedTable" @delete="deleteTable" />
-            <p v-else>Không có bàn nào.</p>
+            <p v-else>No table found.</p>
 
             <div class="mt-3 d-flex flex-wrap justify-content-round align-items-center">
                 <MainPagination :total-pages="totalPages" :current-page="currentPage"
@@ -244,6 +244,8 @@ button.btn-primary {
     color: #EAE7DC;
     font-size: 16px;
     font-weight: 500;
+    height: 40px;
+    width: 100px;
 }
 
 button.btn-primary:hover {
@@ -256,6 +258,8 @@ button.btn-success {
     color: #EAE7DC;
     font-size: 16px;
     font-weight: 500;
+    height: 40px;
+    width: 120px;
 }
 
 button.btn-success:hover {

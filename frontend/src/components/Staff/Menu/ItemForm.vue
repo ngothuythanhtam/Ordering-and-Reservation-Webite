@@ -103,7 +103,7 @@ function deleteItem() {
 
       <div class="row mb-3">
         <div class="col-6">
-          <label for="item_name" class="form-label">Tên</label>
+          <label for="item_name" class="form-label">Name</label>
           <Field name="item_name" type="text" class="form-control" :value="item?.item_name" />
           <ErrorMessage name="item_name" class="error-feedback" />
         </div>
@@ -112,9 +112,9 @@ function deleteItem() {
 
       <div class="row mb-3">
         <div class="col-4">
-          <label for="item_type" class="form-label">Loại món</label>
+          <label for="item_type" class="form-label">Type</label>
           <Field as="select" name="item_type" class="form-control" :value ="item?.item_type" style="width: 200px;">
-            <option value="">Chọn loại món</option>
+            <option value="">Filter By Type</option>
             <option value="Course">Course</option>
             <option value="Salad">Salad</option>
             <option value="Soup">Soup</option>
@@ -129,7 +129,7 @@ function deleteItem() {
           <ErrorMessage name="item_type" class="error-feedback" />
         </div>
         <div class="col-4">
-          <label for="item_price" class="form-label">Giá</label>
+          <label for="item_price" class="form-label">Price</label>
           <Field name="item_price" type="number" placeholder="Giá" class="form-control" :value="item?.item_price" style="width: 200px;"/>
           <ErrorMessage name="item_price" class="error-feedback" />
         </div>
@@ -137,25 +137,25 @@ function deleteItem() {
           <Field name="item_status" type="checkbox" class="form-check-input" :model-value="item?.item_status" :value="1"
           :unchecked-value="0" />
           <label for="item_status" class="form-check-label ms-2">
-            <strong>Có sẵn</strong>
+            <strong>Available</strong>
           </label>
         </div>
       </div>
 
       <div class="row mb-3">
-        <label for="item_description" class="form-label" style="padding: 5px; padding-top: 0;">Mô tả</label>
+        <label for="item_description" class="form-label" style="padding: 5px; padding-top: 0;">Description</label>
         <Field name="item_description" type="text" class="form-control description-field" :value="item?.item_description" />
         <ErrorMessage name="item_description" class="error-feedback" />
       </div>
 
       <div class="mb-3 mt-4 d-flex" style="padding-left: 0px; padding-top: 0;">
         <button class="btn btn-primary me-2" type="submit">
-          <i class="fas fa-save"></i> Lưu
+          <i class="fas fa-save"></i> Save
         </button>
         <button v-if="item?.item_id" type="button" class="btn btn-danger" @click="deleteItem"
           @mouseover="hoverDelete = true" @mouseleave="hoverDelete = false"
           :style="{ backgroundColor: hoverDelete ? '#dc3545' : '#ff4d4d' } ">
-          <i class="fas fa-trash"></i> Xóa
+          <i class="fas fa-trash"></i> Delete
         </button>
       </div>
 

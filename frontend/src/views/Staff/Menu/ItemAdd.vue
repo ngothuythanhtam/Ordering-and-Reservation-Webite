@@ -20,8 +20,8 @@ const newItem = ref({
 function showSuccessMessage() {
   Swal.fire({
     icon: 'success',
-    title: 'Thành công!',
-    text: 'Cập nhật món ăn thành công!',
+    title: 'Success!',
+    text: 'New item has been added!',
     timer: 2000,
     showConfirmButton: false
   });
@@ -31,8 +31,8 @@ function showSuccessMessage() {
 function showErrorMessage(error) {
   Swal.fire({
     icon: 'error',
-    title: 'Lỗi',
-    text: `Có lỗi xảy ra: ${error.message || 'Không rõ lỗi'}`,
+    title: 'Error',
+    text: `Error: ${error.message || 'Unknown Error'}`,
     timer: 3000,
     showConfirmButton: false
   });
@@ -63,7 +63,7 @@ function onAddItem(newItem) {
         @submit:item="onAddItem" 
       />
       <p v-if="message">{{ message }}</p>
-      <p v-if="mutation.isLoading">Đang thêm món mới...</p>
+      <p v-if="mutation.isLoading">Adding new item...</p>
     </div>
   </div>
 </template>

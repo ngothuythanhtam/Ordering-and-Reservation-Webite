@@ -14,19 +14,19 @@ const validationSchema = toTypedSchema(
     z.object({
         useremail: z
             .string()
-            .email({ message: 'Email không hợp lệ' })
-            .min(2, { message: 'Email phải có ít nhất 2 ký tự' })
-            .max(255, { message: 'Email không được vượt quá 255 ký tự' }),
+            .email({ message: 'Invalid Email' })
+            .min(2, { message: 'Email must have at least 2 characters.' })
+            .max(255, { message: 'Email must not exceed 255 characters.' }),
         table_number: z
             .string()
-            .min(1, { message: 'Vui lòng chọn số bàn' })
-            .max(10, { message: 'Số bàn không hợp lệ' }),
+            .min(1, { message: 'Please type table name.' })
+            .max(10, { message: 'Invalid Name' }),
         reservation_date: z
             .string()
-            .min(1, { message: 'Vui lòng chọn ngày đặt bàn' }),
+            .min(1, { message: 'Please select a reservation date.' }),
         special_request: z
             .string()
-            .max(255, { message: 'Yêu cầu không được vượt quá 255 ký tự' })
+            .max(255, { message: 'Requirement must not exceed 255 characters.' })
             .optional()
             .nullable()
     })
@@ -60,32 +60,32 @@ function submitReserv(values) {
 <template>
     <Form :validation-schema="validationSchema" @submit="submitReserv">
         <div class="mb-3">
-            <label for="useremail" class="form-label">Email khách hàng</label>
-            <Field name="useremail" type="email" class="form-control" placeholder="Email khách hàng" :value="reservation?.useremail" />
+            <label for="useremail" class="form-label">Customer Email</label>
+            <Field name="useremail" type="email" class="form-control" placeholder="Customer Email" :value="reservation?.useremail" />
             <ErrorMessage name="useremail" class="error-feedback" />
         </div>
 
         <div class="mb-3">
-            <label for="table_number" class="form-label">Số bàn</label>
-            <Field name="table_number" type="text" placeholder="Số bàn" class="form-control" :value="reservation?.table_number" />
+            <label for="table_number" class="form-label">Table</label>
+            <Field name="table_number" type="text" placeholder="Table" class="form-control" :value="reservation?.table_number" />
             <ErrorMessage name="table_number" class="error-feedback" />
         </div>
 
         <div class="mb-3">
-            <label for="reservation_date" class="form-label">Ngày lấy bàn</label>
-            <Field name="reservation_date" type="date" placeholder="Ngày lấy bàn" class="form-control" :value="reservation?.reservation_date" />
+            <label for="reservation_date" class="form-label">Date to use</label>
+            <Field name="reservation_date" type="date" placeholder="Date to use" class="form-control" :value="reservation?.reservation_date" />
             <ErrorMessage name="reservation_date" class="error-feedback" />
         </div>
 
         <div class="mb-3">
-            <label for="special_request" class="form-label">Yêu cầu</label>
-            <Field name="special_request" type="text" placeholder="Yêu cầu của khách hàng" class="form-control" :value="reservation?.special_request" />
+            <label for="special_request" class="form-label">Requirement</label>
+            <Field name="special_request" type="text" placeholder="Requirement" class="form-control" :value="reservation?.special_request" />
             <ErrorMessage name="special_request" class="error-feedback" />
         </div>
 
         <div class="mb-2 mt-5 d-flex justify-content-center">
             <button type="submit" class="save-btn btn">
-                <i class="fas fa-save"></i> Lưu
+                <i class="fas fa-save"></i> Save
             </button>
         </div>
     </Form>

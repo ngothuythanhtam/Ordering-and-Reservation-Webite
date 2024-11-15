@@ -38,7 +38,7 @@ const cancelOrderMutation = useMutation({
 });
 
 const confirmCancel = (order_id) => {
-  if (confirm('Are you sure you want to cancel this order?')) {
+  if (confirm('Are you sure that you want to cancel this order?')) {
     cancelOrderMutation.mutate({ order_id, status: 'Canceled' });
   }
 };

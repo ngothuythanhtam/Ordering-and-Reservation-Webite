@@ -20,7 +20,7 @@ const selectedItem = ref(null);
 const { mutate: addToCartMutation, isLoading, isError, error } = useMutation({
   mutationFn: async ({ item, quantity }) => {
     if (!localStorage.getItem('userid')) {
-      throw new Error('Bạn phải đăng nhập trước khi thêm món vào giỏ hàng. Nếu chưa có tài khoản vui lòng đăng ký!');
+      throw new Error("You must log in before adding items to your cart. If you don't have an account, please register!");
     }
     return receiptService.addItemToReceipt({
       item_id: item.item_id,
@@ -29,7 +29,7 @@ const { mutate: addToCartMutation, isLoading, isError, error } = useMutation({
   },
   onSuccess: () => {
     queryClient.invalidateQueries(['cart']);
-    alert('Sản phẩm đã được thêm vào giỏ hàng!');
+    alert('Product has been added to cart!');
     closeAddItemForm();
   },
   onError: (err) => {
@@ -103,7 +103,7 @@ const handleAddToCart = ({ item, quantity }) => {
 .item-row > * {
   flex: 1 1 250px;
   max-width: 300px;
-  height: 350px;
+  height: 290px;
   background-color: #f8f9fa;
   border: 1px solid #ddd;
   border-radius: 8px;

@@ -31,8 +31,8 @@ const openModal = () => {
 function showSuccessMessage() {
     Swal.fire({
         icon: 'success',
-        title: 'Thành công!',
-        text: 'Thành công!',
+        title: 'Success!',
+        text: 'Updated successfully!',
         timer: 2000,
         showConfirmButton: false
     });
@@ -42,8 +42,8 @@ function showSuccessMessage() {
 function showErrorMessage(error) {
     Swal.fire({
         icon: 'error',
-        title: 'Lỗi',
-        text: `Có lỗi xảy ra: ${error.message}`,
+        title: 'Error',
+        text: `Error: ${error.message}`,
         timer: 3000,
         showConfirmButton: false
     });
@@ -147,25 +147,25 @@ watch(currentPage, () => {
         <div class="page mb-5">
                 <div class="top-controls">
                     <h4>
-                        Thông tin đơn đặt bàn <i class="fas fa-calendar-check"></i>&nbsp;
+                        Reservation Information <i class="fas fa-calendar-check"></i>
                     </h4>
-                    <InputSearch v-model="searchText" placeholder="Nhập thông tin cần tìm" />
+                    <InputSearch v-model="searchText" placeholder="Type here to search"/>
                     
-                    <input id="userFilter" type="number" v-model="UserFilter" min="1" placeholder="Nhập ID khách hàng" class="form-control" style="width: 180px;"/>
+                    <input id="userFilter" type="number" v-model="UserFilter" min="1" placeholder="Customer ID" class="form-control" style="width: 180px;"/>
 
                     <select id="statusFilter" v-model="selectedStatus" class="form-control" >
-                        <option value="">Tất cả trạng thái</option>
-                        <option value="booked">booked</option>
-                        <option value="confirmed">confirmed</option>
-                        <option value="completed">completed</option>
-                        <option value="canceled">canceled</option>
+                        <option value="">All</option>
+                        <option value="booked">Booked</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="completed">Completed</option>
+                        <option value="canceled">Canceled</option>
                     </select>
 
                     <button class="refresh-button btn btn-primary" @click="fetchReservs(currentPage)">
-                        <i class="fas fa-redo"></i> Làm mới
+                        <i class="fas fa-redo"></i> Refresh
                     </button>
                     <button @click="openModal" class="add-button btn btn-success">
-                        <i class="fa-solid fa-plus"></i> &nbsp; Đặt bàn cho khách
+                        <i class="fa-solid fa-plus"></i> &nbsp; New Reservation
                     </button>
                 
                 </div>
@@ -183,14 +183,14 @@ watch(currentPage, () => {
 
                 <div class="main-content mt-4">
                     <div class="reserv-list">
-                        <h5>Danh sách đặt bàn</h5>
+                        <h5>Reservation List</h5>
                         <ReservationList @click="closeModal" v-if="filteredReservations.length > 0" :reservations="filteredReservations" v-model:selectedIndex="selectedIndex" />
-                        <p v-else>Không có đơn đặt bàn nào.</p>
+                        <p v-else>No reservation found.</p>
                     </div>
 
                     <div class="reserv-card">
-                        <h5>Chi tiết đơn đặt bàn <i class="fas fa-calendar-check"></i></h5>
-                        <p v-if="!selectedReservation">Chưa chọn đơn đặt bàn</p>
+                        <h5>Reservation Details <i class="fas fa-calendar-check"></i></h5>
+                        <p v-if="!selectedReservation">Select a specific reservation.</p>
                         <ReservationCard v-if="selectedReservation" :reservation="selectedReservation" />
                     </div>
                 </div>
@@ -284,6 +284,8 @@ button.btn-primary {
     color: #EAE7DC;
     font-size: 16px;
     font-weight: 500;
+    height: 40px;
+    width: 100px;
 }
 
 button.btn-primary:hover {
@@ -296,6 +298,8 @@ button.btn-success {
     color: #EAE7DC;
     font-size: 16px;
     font-weight: 500;
+    height: 40px;
+    width: 180px;
 }
 
 button.btn-success:hover {

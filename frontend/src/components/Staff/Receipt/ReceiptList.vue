@@ -22,7 +22,7 @@ async function handleItemClick(order_id, index) {
             :key="receipt.order_id"
             @click="handleItemClick(receipt.order_id, index)"
         >
-            <p>ID: {{ receipt.order_id }}</p>
+            <p>ID #{{ receipt.order_id }}</p>
         </li>
     </ul>
 </template>

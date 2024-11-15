@@ -17,7 +17,7 @@ async function staffCreateReservation(useremail, table_number, reservationData) 
 
         // Nếu không tìm thấy user thông báo lỗi
         if (!user) {
-            throw new Error('Không có người dùng trùng khớp với email đã nhập!');
+            throw new Error('There are no users matching the email entered!');
         }
 
         // Lấy thông tin bàn từ số bàn được nhập
@@ -27,7 +27,7 @@ async function staffCreateReservation(useremail, table_number, reservationData) 
             .first();
 
         if (!table) {
-            throw new Error('Không có bàn trùng khớp với số bàn đã nhập!');
+            throw new Error('There are no tables matching the table number entered!');
         }
 
         // Kiểm tra xem bàn có được đặt vào ngày mong muốn không
@@ -95,8 +95,8 @@ async function staffCreateReservation(useremail, table_number, reservationData) 
     } catch (error) {
         // Rollback giao dịch nếu 1 trong các quy trình không thành công
         await trx.rollback();
-        console.error("Có lỗi khi tạo mới reservation:", error);
-        throw new Error(error.message || "Không thể tạo đơn đặt bàn");
+        console.error("There was an error when creating a new reservation:", error);
+        throw new Error(error.message || "Unable to create table reservation");
     }
 }
  

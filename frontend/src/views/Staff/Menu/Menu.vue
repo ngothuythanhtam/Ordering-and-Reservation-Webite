@@ -48,8 +48,8 @@ const filteredItems = computed(() => {
 function showSuccessMessage() {
     Swal.fire({
         icon: 'success',
-        title: 'Thành công!',
-        text: 'Cập nhật món ăn thành công!',
+        title: 'Success!',
+        text: 'Updated successfully!',
         timer: 2000,
         showConfirmButton: false
     });
@@ -58,8 +58,8 @@ function showSuccessMessage() {
 function showErrorMessage(error) {
     Swal.fire({
         icon: 'error',
-        title: 'Lỗi',
-        text: `Có lỗi xảy ra: ${error.message || 'Không rõ lỗi'}`,
+        title: 'Error',
+        text: `Error: ${error.message || 'Unknown Error'}`,
         timer: 3000,
         showConfirmButton: false
     });
@@ -97,14 +97,14 @@ const deleteAllItemsMutation = useMutation({
 
 async function onDeleteItems() {
     const result = await Swal.fire({
-        title: 'Bạn có chắc muốn xóa tất cả?',
-        text: 'Hành động này không thể hoàn tác!',
+        title: 'Are you sure that you want to delete all?',
+        text: 'This action can not be undone!',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Xóa',
-        cancelButtonText: 'Hủy'
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Exit'
     });
     if (result.isConfirmed) {
         try{
@@ -139,19 +139,19 @@ watch(currentPage, () => {
     <div class="app-container">
         <div class="page mt-3">
             <div class="d-flex my-3 align-items-center mb-3 filter-bar">
-                <h4 class="mb-0">Thực đơn &nbsp;<i class="fas fa-book-open"></i></h4>
-                <InputSearch v-model="searchText" class="search-bar" />
+                <h4 class="mb-0">Menu Information &nbsp;<i class="fas fa-book-open"></i></h4>
+                <InputSearch v-model="searchText" class="search-bar" style="height: 40px;"/>
                 <div class="filter-group">
-                    <select id="statusFilter" class="form-control" v-model="selectedStatus">
-                        <option value="">Lọc theo trạng thái</option>
-                        <option value="1">Còn sẵn</option>
-                        <option value="0">Hết</option>
+                    <select id="statusFilter" class="form-control" v-model="selectedStatus" style="height: 40px; width: 150px;">
+                        <option value="">All Status</option>
+                        <option value="1">Available</option>
+                        <option value="0">Sold Out</option>
                     </select>
                 </div>
 
                 <div class="filter-group">
-                    <select id="typeFilter" class="form-control" v-model="selectedType">
-                        <option value="">Lọc theo loại món</option>
+                    <select id="typeFilter" class="form-control" v-model="selectedType" style="height: 40px; width: 150px;">
+                        <option value="">All Type</option>
                         <option value="Course">Course</option>
                         <option value="Salad">Salad</option>
                         <option value="Soup">Soup</option>
@@ -167,20 +167,20 @@ watch(currentPage, () => {
 
                 <div class="action-buttons ms-3">
                     <button class="btn btn-sm btn-primary me-2" @click="fetchItems">
-                        <i class="fas fa-redo"></i> Làm mới
+                        <i class="fas fa-redo"></i> Refresh
                     </button>
                     <button class="btn btn-sm btn-success me-2" @click="goToAddItem">
-                        <i class="fas fa-plus"></i> Thêm mới
+                        <i class="fas fa-plus"></i> New Item
                     </button>
                     <button class="btn btn-sm btn-danger" @click="onDeleteItems">
-                        <i class="fas fa-trash"></i> Xóa tất cả
+                        <i class="fas fa-trash"></i> Delete All
                     </button>
                 </div>
             </div>
 
             <ItemList v-if="filteredItems.length > 0" :items="filteredItems" v-model:selectedIndex="selectedIndex" />
             <p v-else>
-                Hệ thống đang tìm món...
+                Finding menu item ...
             </p>
 
             <div class="mt-4 d-flex justify-content-center align-items-center">
@@ -243,6 +243,8 @@ button.btn-primary {
     color: #EAE7DC;
     font-size: 16px;
     font-weight: 500;
+    height: 40px;
+    width: 100px;
 }
 
 button.btn-primary:hover {
@@ -255,6 +257,8 @@ button.btn-success {
     color: #EAE7DC;
     font-size: 16px;
     font-weight: 500;
+    height: 40px;
+    width: 120px;
 }
 
 button.btn-success:hover {
@@ -267,6 +271,8 @@ button.btn-danger {
     color: #EAE7DC;
     font-size: 16px;
     font-weight: 500;
+    height: 40px;
+    width: 120px;
 }
 
 button.btn-danger:hover {

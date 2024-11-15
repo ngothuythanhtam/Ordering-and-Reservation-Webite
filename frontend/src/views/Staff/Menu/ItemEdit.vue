@@ -40,8 +40,8 @@ const fetchItemMutation = useMutation({
 function showSuccessMessage() {
     Swal.fire({
         icon: 'success',
-        title: 'Thành công!',
-        text: 'Cập nhật món ăn thành công!',
+        title: 'Success!',
+        text: 'This item has been updated!',
         timer: 2000,
         showConfirmButton: false
     });
@@ -50,8 +50,8 @@ function showSuccessMessage() {
 function showErrorMessage(error) {
     Swal.fire({
         icon: 'error',
-        title: 'Lỗi',
-        text: `Có lỗi xảy ra: ${error.message || 'Không rõ lỗi'}`,
+        title: 'Error',
+        text: `Error: ${error.message || 'Unknown Error'}`,
         timer: 3000,
         showConfirmButton: false
     });
@@ -83,20 +83,20 @@ const deleteItemMutation = useMutation({
     router.push({ name: 'menu' });
   },
   onError: (error) => {
-    console.error('Failed to delete contact:', error);
+    console.error('Failed to delete item:', error);
   }
 });
 
 async function onDeleteItem() {
     const result = await Swal.fire({
-        title: 'Bạn có chắc muốn xóa?',
-        text: 'Hành động này không thể hoàn tác!',
+        title: 'Do you want to delete this item?',
+        text: 'This action can not be undone!',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Xóa',
-        cancelButtonText: 'Hủy'
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Exit'
     });
     if (result.isConfirmed) {
         try {
@@ -122,7 +122,7 @@ onMounted(() => {
         <p>Loading...</p>
     </div>
     <div v-else-if="isError" class="page">
-        <p>Error loading contact.</p>
+        <p>Error loading item.</p>
     </div>
     <div v-else="item" class="page mt-5" >
         <ItemForm :item="item" @submit:item="onUpdateItem" @delete:item="onDeleteItem" />

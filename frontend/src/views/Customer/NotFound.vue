@@ -1,10 +1,10 @@
 <template>
     <div class="page">
         <p>
-            Xin lỗi vì bất tiện này vui lòng trở về 
+            Sorry for any inconvenience please return 
             <router-link to="/">
-                trang chủ.
-            </router-link>
+                Home Page
+            </router-link>.
         </p>
     </div>
 </template>

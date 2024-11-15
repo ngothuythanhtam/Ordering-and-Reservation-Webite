@@ -11,28 +11,28 @@
     </div>
     <div class="card-content">
       <div class="p-1">
-        <strong>Tên:</strong>
+        <strong>Name:</strong>
         {{ item.item_name }}
       </div>
 
       <div class="p-1">
-        <strong>Thể loại:</strong>
+        <strong>Type:</strong>
         {{ item.item_type }}
       </div>
 
       <div class="p-1 describe">
-        <strong>Mô tả:</strong>
+        <strong>Brief Description:</strong>
         {{ item.item_description }}
       </div>
 
       <div class="p-1">
-        <strong>Giá:</strong>
-        {{ item.item_price }}
+        <strong>Price:</strong>
+        {{ item.item_price }}$
       </div>
 
       <div class="p-1">
-        <strong>Trạng thái:&nbsp;</strong>
-        <span v-if="item.item_status === 1">Có sẵn</span>
+        <strong>Status:&nbsp;</strong>
+        <span v-if="item.item_status === 1">Available</span>
         <span v-else>Tạm hết</span>
       </div>
     </div>

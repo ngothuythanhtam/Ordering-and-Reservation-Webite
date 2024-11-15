@@ -10,7 +10,7 @@
     <input
       type="text"
       class="form-control px-3"
-      placeholder="Search..."
+      placeholder="Type here to search"
       v-model="model"
     />
     <button

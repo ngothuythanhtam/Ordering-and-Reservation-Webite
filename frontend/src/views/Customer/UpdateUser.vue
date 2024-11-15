@@ -39,10 +39,10 @@ const updateUserMutation = useMutation({
   mutationFn: (updatedUser) => UserService.updateUser(updatedUser),
   onSuccess: () => {
     queryClient.invalidateQueries(['user', props.userid]);
-    message.value = 'You updated successfully';  
+    message.value = 'Your information updated successfully!';  
   },
   onError: () => {
-    message.value = 'You updated fail';
+    message.value = 'Can not update your information!';
   }
 });
 
@@ -64,7 +64,7 @@ async function onUpdateUser(user) {
 }
 
 async function onDeleteUser() {
-  if (confirm('Are you sure you want to delete this account? This action cannot be undone.')) {
+  if (confirm('Are you sure that you want to delete this account? This action cannot be undone.')) {
     deleteUserMutation.mutate();
   }
 }
@@ -88,7 +88,12 @@ onMounted(() => {
       @submit:user="onUpdateUser"
       @delete:user="onDeleteUser"
     />
-    <div v-if="message" class="alert alert-success mt-3" style="display: flex; align-items: center; justify-content: center;">
+    <div v-if="message" class="alert alert-success mt-3" 
+    style="display: flex; 
+    align-items: center; 
+    justify-content: center;
+    max-width: 560px;
+    margin-left: 370px;">
       {{ message }}
     </div>
   </div>

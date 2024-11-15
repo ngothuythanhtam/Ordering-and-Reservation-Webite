@@ -124,7 +124,7 @@ const formatDate = (date) => {
     
     <!-- Show order button if items are available -->
     <div class="order-button-container" v-if="items?.length > 0 || table?.table_number">
-      <button class="order-button" @click="Order">Đặt hàng</button>
+      <button class="order-button" @click="Order">Order Now</button>
     </div>
   </div>
 </template>

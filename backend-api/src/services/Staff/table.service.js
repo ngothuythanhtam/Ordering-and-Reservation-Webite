@@ -29,12 +29,12 @@ async function createTable(payload) {
             .first();
         if (existingTable) {
             return {
-                message: 'Tên bàn đã tồn tại, vui lòng nhập tên khác!'
+                message: 'The table name already exists, please enter another name!'
             };
         }
         const [tableId] = await trx('restaurant_table').insert(table);
         return {
-            message: 'Bàn đã được tạo thành công!',
+            message: 'The table has been created successfully!',
             data: { tableId, ...table }
         };
     });

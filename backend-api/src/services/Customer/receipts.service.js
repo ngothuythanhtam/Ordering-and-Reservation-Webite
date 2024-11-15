@@ -145,7 +145,7 @@ async function addItemToReceipt(id, payload) {
             .where('order_id', user.order_id)
             .update({ total_price: total_price.total });
 
-        return { success: true, message: 'Thêm vào giỏ hàng thành công!' };
+        return { success: true, message: 'Added to cart successfully!' };
     });
 }
 //Xóa món khỏi giỏ hàng
@@ -191,7 +191,7 @@ async function deleteItemFromReceipt(id, payload) {
             .first();
         if (itemCount.count === 0 && receipt.reservation_id === null) {
             await trx('receipt').where('order_id', order_id).del();
-            return { success: true, message: 'Không có mặt hàng nào trong giỏ hàng.' };
+            return { success: true, message: 'There are no items in the cart.' };
         }
         //Cập nhật tổng số tiền
         const total_price = await trx('order_item')
@@ -202,7 +202,7 @@ async function deleteItemFromReceipt(id, payload) {
             .where('order_id', order_id)
             .update({ total_price: total_price.total });
 
-        return { success: true, message: 'Cập nhật thành công' };
+        return { success: true, message: 'Updated successfully' };
     });
     return updatedItem;
 }
@@ -235,9 +235,6 @@ async function createReservation(id, payload) {
             .andWhereNot({ status: 'canceled' }) // Loại bỏ các đặt bàn đã hủy
             .first();
         
-        // if (existingReservation) {
-        //     throw new Error('Table is already booked for the selected date.');
-        // }
         if (existingReservation) {
             // Nếu đã có đặt bàn, kiểm tra trạng thái của reservation và receipt
             const existingReceipt = await trx('receipt')

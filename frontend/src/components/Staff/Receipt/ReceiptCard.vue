@@ -49,8 +49,8 @@ function formatDate(dateString) {
 function showSuccessMessage() {
     Swal.fire({
         icon: 'success',
-        title: 'Thành công!',
-        text: 'Thành công! Làm mới lại trang.',
+        title: 'Success!',
+        text: 'Please refresh page!',
         timer: 2000,
         showConfirmButton: false
     });
@@ -59,8 +59,8 @@ function showSuccessMessage() {
 function showErrorMessage(error) {
     Swal.fire({
         icon: 'error',
-        title: 'Lỗi',
-        text: `Có lỗi xảy ra: ${error.message}`,
+        title: 'Error',
+        text: `Error: ${error.message}`,
         timer: 3000,
         showConfirmButton: false
     });
@@ -75,26 +75,26 @@ const updateReceiptMutation = useMutation({
         emit('submit:item');
     },
     onError: (error) => {
-        console.error('Failed to update status receipt:', error);
+        console.error('Failed to update:', error);
         showErrorMessage(error);
     }
 });
 
 async function onUpdateReceipt(status) {
     if (props.receipt.status !== 'Ordered') {
-        showErrorMessage("Chỉ có thể cập nhật trạng thái khi trạng thái hiện tại là 'Ordered'.");
+        showErrorMessage("Status can only be updated when the current status is 'Ordered'.");
         return;
     }
     try {
         const result = await Swal.fire({
-            title: `Xác nhận "${status === 'Canceled' ? 'hủy' : 'hoàn thành'}"?`,
-            text: `${status === 'Canceled' ? 'Hóa đơn hủy sẽ không thể hoàn tác!' : 'Hoàn thành hóa đơn này!'}`,
+            title: `Verify "${status === 'Canceled' ? 'Cancel' : 'Complete'}"?`,
+            text: `${status === 'Canceled' ? 'Cancellation receipts cannot be undone!' : 'Complete this receipt!'}`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Đồng ý',
-            cancelButtonText: 'Thoát'
+            confirmButtonText: 'OK',
+            cancelButtonText: 'Exit'
         });
         
         if (result.isConfirmed) {
@@ -128,40 +128,40 @@ function changeCurrentPage(page) {
     <div class="card">
         <div class="card-body">
             <h5 class="card-title">
-                Mã hóa đơn: {{ receipt.order_id }} &nbsp;
+                ID #{{ receipt.order_id }} &nbsp;
                 <button @click="openModal" class="btn btn-info"><i class="fa-solid fa-eye"></i> &nbsp;
-                    Xem chi tiết 
+                    View details
                 </button>
                 <div v-if="isOpen" class="modal-overlay" >
                     <div class="modal-content">
                         <button class="close-button" @click="closeModal"><i class="fa-solid fa-xmark"></i></button>
                         <div class="content-inner">
                             <h5 class="card-title">
-                                Mã hóa đơn: {{ receipt.order_id }} &nbsp;
+                                ID #{{ receipt.order_id }} &nbsp;
                             </h5>
-                            <h3 class="mt-4">Tổng tiền: {{ receipt.total_price }}</h3>
+                            <h3 class="mt-4">Total Amount: {{ receipt.total_price }}</h3>
                             <table v-if="receiptDetails.order_items && receiptDetails.order_items.length" class="table table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Mã món</th>
-                                        <th>Tên món</th>
-                                        <th>Đơn giá</th>
-                                        <th>Số lượng</th>
-                                        <th>Thành tiền</th>
+                                        <th>Item ID</th>
+                                        <th>Item Name</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th>Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="item in paginatedItems" :key="item.order_item_id">
                                         <td>{{ item.item_id }}</td>
                                         <td>{{ item.item_name }}</td>
-                                        <td>{{ item.item_price }}</td>
+                                        <td>{{ item.item_price }}$</td>
                                         <td>{{ item.quantity }}</td>
-                                        <td>{{ item.price }}</td>
+                                        <td>{{ item.price }}$</td>
                                     </tr>
                                 </tbody>
                             </table>
                             
-                            <p v-else>Không có món ăn nào trong hóa đơn này.</p>
+                            <p v-else>No item found in this receipt.</p>
                             <MainPagination :total-pages="totalPages" :current-page="currentPage"
                             @update:current-page="changeCurrentPage" />
                         </div>
@@ -169,28 +169,28 @@ function changeCurrentPage(page) {
                 </div>
 
             </h5>
-            <p class="card-text">Mã khách hàng: {{ receipt.userid }}</p>
-            <p class="card-text">Tên khách hàng: {{ receiptDetails.user_name }}</p>
-            <p class="card-text">Mã nhân viên xử lý đơn hàng: {{ receipt.staff_id }}</p>
-            <p class="card-text">Tên nhân viên: {{ receiptDetails.staff_name }}</p>
-            <p class="card-text">Bàn đặt: {{ receiptDetails.table_number }}</p>
-            <p class="card-text">Thời gian tạo hóa đơn: {{ formatDate(receipt.order_date) }}</p>
-            <p class="card-text">Tổng số tiền của đơn hàng: {{ receipt.total_price }}</p>
-            <p class="card-text">Trạng thái của đơn hàng: {{ receipt.status }}</p>
+            <p class="card-text">Customer ID: {{ receipt.userid }}</p>
+            <p class="card-text">Customer Name: {{ receiptDetails.user_name }}</p>
+            <p class="card-text">Staff ID:  {{ receipt.staff_id }}</p>
+            <p class="card-text">Staff Name: {{ receiptDetails.staff_name }}</p>
+            <p class="card-text">Table: {{ receiptDetails.table_number }}</p>
+            <p class="card-text">Create At: {{ formatDate(receipt.order_date) }}</p>
+            <p class="card-text">Total Amount: {{ receipt.total_price }}$</p>
+            <p class="card-text">Receipt Status: {{ receipt.status }}</p>
 
             <div class="buttons mt-3" v-if="receipt.status==='Ordered'">
                 <div>
                     <button class="btn btn-danger" @click="onUpdateReceipt('Canceled')">
-                        <i class="fas fa-times"></i> Hủy
+                        <i class="fas fa-times"></i> Cancel
                     </button>
                     <button class="btn btn-success" @click="onUpdateReceipt('Completed')">
-                        <i class="fas fa-check"></i> Hoàn thành
+                        <i class="fas fa-check"></i> Complete
                     </button>
                 </div>
 
-                <button v-if="receiptDetails.table_number && receipt.total_price > 0" class="btn btn-success" @click="onUpdateReceipt('Completed')">
+                <!-- <button v-if="receiptDetails.table_number && receipt.total_price > 0" class="btn btn-success" @click="onUpdateReceipt('Completed')">
                     <i class="fas fa-check"></i> Hoàn thành
-                </button>
+                </button> -->
             </div>
         </div>
     </div>

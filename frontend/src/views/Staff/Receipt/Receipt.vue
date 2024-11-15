@@ -106,31 +106,31 @@ onMounted(() => {
         <div class="page mb-5">
                 <div class="top-controls">
                 <h4>Receipt Information &nbsp;<i class="fas fa-receipt"></i></h4>
-                <input id="ReceiptFilter" type="number" class="form-control" v-model="ReceiptFilter" min="1" placeholder="Nhập ID hóa đơn" style="width: 180px;"/>
-                <input id="userFilter" type="number" class="form-control" v-model="UserFilter" min="1" placeholder="Nhập ID khách hàng" style="width: 180px;"/>
+                <input id="ReceiptFilter" type="number" class="form-control" v-model="ReceiptFilter" min="1" placeholder="Search By Receipt ID" style="width: 200px;"/>
+                <input id="userFilter" type="number" class="form-control" v-model="UserFilter" min="1" placeholder="Search By Customer ID" style="width: 200px;"/>
 
-                <select id="statusFilter" class="form-control" v-model="selectedStatus">
-                    <option value="">Tất cả trạng thái</option>
+                <select id="statusFilter" class="form-control" v-model="selectedStatus" style="width: 120px;">
+                    <option value="">All Status</option>
                     <option value="Pending">Pending</option>
                     <option value="Ordered">Ordered</option>
                     <option value="Completed">Completed</option>
                     <option value="Canceled">Canceled</option>
                 </select>
 
-                <button class="btn btn-sm btn-primary" @click="retrieveReceipts(currentPage)"><i class="fas fa-redo"></i>&nbsp;Làm mới </button>
+                <button class="btn btn-sm btn-primary" @click="retrieveReceipts(currentPage)"><i class="fas fa-redo"></i>&nbsp;Refresh </button>
                 </div>
 
 
                 <div class="main-content">
                     <div class="reserv-list">
-                        <h5>Danh sách hóa đơn</h5>
+                        <h5>Receipt List</h5>
                         <ReceiptList v-if="filteredReceipts.length > 0" :receipts="filteredReceipts" v-model:selectedIndex="selectedIndex" />
-                        <p v-else>Không có hóa đơn nào.</p>
+                        <p v-else>No receipt found.</p>
                     </div>
 
                     <div class="reserv-card">
-                        <h5>Chi tiết hóa đơn &nbsp;<i class="fas fa-receipt"></i></h5>
-                        <p v-if="!selectedReceipt">Click vào mã hóa đơn để xem chi tiết</p>
+                        <h5>Receipt Information <i class="fas fa-receipt"></i></h5>
+                        <p v-if="!selectedReceipt">Click here for more details</p>
                         <ReceiptCard v-if="selectedReceipt" :receipt="selectedReceipt" />
                     </div>
                 </div>
@@ -295,6 +295,8 @@ button.btn-primary {
     color: #EAE7DC;
     font-size: 16px;
     font-weight: 500;
+    height: 40px;
+    width: 100px;
 }
 
 button.btn-primary:hover {

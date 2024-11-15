@@ -49,16 +49,16 @@ function formatDateUse(dateString) {
 <template>
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Mã đơn: {{ reservation.reservation_id }}</h5>
-            <p class="card-text">ID khách hàng: {{ reservation.userid }}</p>
-            <p class="card-text">Tên khách hàng: {{ reservationDetails.username }}</p>
-            <p class="card-text">Email khách hàng: {{ reservationDetails.useremail }}</p>
-            <p class="card-text">Số điện thoại khách hàng: {{ reservationDetails.userphone }}</p>
-            <p class="card-text">Số bàn: {{ reservationDetails.table_number }}</p>
-            <p class="card-text">Thời gian sử dụng: {{ formatDateUse(reservation.reservation_date) }}</p>
-            <p class="card-text">Yêu cầu: {{ reservation.special_request }}</p>
-            <p class="card-text">Thời gian đặt: {{ formatDate(reservation.create_at) }}</p>
-            <p class="card-text">Trạng thái: {{ reservation.status }}</p>
+            <h5 class="card-title">ID #{{ reservation.reservation_id }}</h5>
+            <p class="card-text">Customer ID: {{ reservation.userid }}</p>
+            <p class="card-text">Customer Name: {{ reservationDetails.username }}</p>
+            <p class="card-text">Customer Email: {{ reservationDetails.useremail }}</p>
+            <p class="card-text">Customer Phone: {{ reservationDetails.userphone }}</p>
+            <p class="card-text">Table: {{ reservationDetails.table_number }}</p>
+            <p class="card-text">Date to use: {{ formatDateUse(reservation.reservation_date) }}</p>
+            <p class="card-text">Requirement: {{ reservation.special_request }}</p>
+            <p class="card-text">Reservation Date: {{ formatDate(reservation.create_at) }}</p>
+            <p class="card-text">Status: {{ reservation.status }}</p>
         </div>
     </div>
 </template>

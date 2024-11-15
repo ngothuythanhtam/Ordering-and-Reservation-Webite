@@ -18,7 +18,7 @@ async function handleItemClick(reservation_id, index) {
         <li class="list-group-item px-3" v-for="(reservation, index) in reservations"
             :class="{ active: index === selectedIndex }" :key="reservation.reservation_id"
             @click="handleItemClick(reservation.reservation_id, index)">
-            ID: {{ reservation.reservation_id }}
+            ID #{{ reservation.reservation_id }}
         </li>
     </ul>
     </div>

@@ -131,12 +131,12 @@ watch(currentPageTable, () => {
         <i class="fas fa-hamburger" style="margin-left: 10px;font-size: 30px;"></i> </h4>
       <div class="my-3"> <InputSearch v-model="searchText" /> </div>
       <ItemList v-if="filteredItems.length > 0" :items="filteredItems" v-model:selected-index="selectedIndex"/>
-      <p v-else>Hệ thống đang tìm món...</p>
+      <p v-else>Finding menu item ...</p>
       <div class="mt-3 d-flex ">
         <MainPagination :total-pages="totalNumberOfPages" :current-page="currentPage" @update:current-page="navigateToPage"/>
         <div class="w-100">
           <button class="btn btn-sm btn-primary"  id = "reset" @click="fetchItems">
-            <i class="fas fa-redo"></i> Làm mới
+            <i class="fas fa-redo"></i> Refresh
           </button>
         </div>
       </div>
@@ -153,7 +153,7 @@ watch(currentPageTable, () => {
         <i class="fas fa-glass-cheers" style="margin-left: 10px;font-size: 30px;"></i> </h4>
       <div class="my-3"> <TableSearch v-model="searchTextTable" /> </div>
       <TableList v-if="filteredTables.length > 0" :tables="filteredTables" v-model:selected-index="selectedIndexTable"/>
-      <p v-else>Không có bàn nào trống.</p>
+      <p v-else>There are no available table.</p>
       <div class="mt-3 d-flex">
         <MainPagination :total-pages="totalNumberOfPagesTable" :current-page="currentPageTable" @update:current-page="navigateToPageTable"/>
       </div>

@@ -5,7 +5,7 @@ const JSend = require('../../jsend');
 
 async function staffVerifyReceipt(req, res, next) {
     if (!req.session.user) {
-        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        return next(new ApiError(401, 'Please log in'));
     }
 
     const userId = req.session.user.userid;
@@ -13,14 +13,14 @@ async function staffVerifyReceipt(req, res, next) {
     const userRole = await usersService.checkRole(userId);
     
     if (userRole !== 2) {
-        return next(new ApiError(403, 'Forbidden: Bạn không có quyền chỉnh sửa thông tin này!'));
+        return next(new ApiError(403, 'Forbidden: You do not have permission to edit this information!'));
     }
 
     const { order_id } = req.params;
     const status = req.body.status; // Read directly from body
 
     if (!status) {
-        return next(new ApiError(400, 'Chọn trạng thái để thay đổi!'));
+        return next(new ApiError(400, 'Select status to change!'));
     }
 
     if (!['Completed', 'Canceled'].includes(status)) {
@@ -30,9 +30,9 @@ async function staffVerifyReceipt(req, res, next) {
     try {
         const result = await receiptsService.staffVerifyReceipt(order_id, userId, status);
         if (result && result.success) {
-            return res.json(JSend.success({ message: 'Cập nhật trạng thái hóa đơn thành công!' }));
+            return res.json(JSend.success({ message: 'Update invoice status successfully!' }));
         } else {
-            return next(new ApiError(404, 'Không tìm thấy hóa đơn nào!'));
+            return next(new ApiError(404, 'No receipts found!'));
         }
     } catch (error) {
         return next(new ApiError(400, error.message));
@@ -41,7 +41,7 @@ async function staffVerifyReceipt(req, res, next) {
 
 async function staffGetReceiptsByFilter(req, res, next) {
     if (!req.session.user) {
-        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        return next(new ApiError(401, 'Please log in!'));
     }
 
     const userId = req.session.user.userid;
@@ -49,7 +49,7 @@ async function staffGetReceiptsByFilter(req, res, next) {
     const userRole = await usersService.checkRole(userId);
     
     if (userRole !== 2) {
-        return next(new ApiError(403, 'Forbidden: Bạn không có quyền chỉnh sửa thông tin này!'));
+        return next(new ApiError(403, 'Forbidden: You do not have permission to edit this information!'));
     }
 
     let result = {
@@ -79,7 +79,7 @@ async function staffGetReceiptsByFilter(req, res, next) {
 
 async function staffGetReceipt(req, res, next) {
     if (!req.session.user) {
-        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        return next(new ApiError(401, 'Please log in!'));
     }
 
     const userId = req.session.user.userid;
@@ -87,7 +87,7 @@ async function staffGetReceipt(req, res, next) {
     const userRole = await usersService.checkRole(userId);
     
     if (userRole !== 2) {
-        return next(new ApiError(403, 'Forbidden: Bạn không có quyền chỉnh sửa thông tin này!'));
+        return next(new ApiError(403, 'Forbidden: You do not have permission to edit this information!'));
     }
     const { order_id } = req.params;
     console.log(order_id)

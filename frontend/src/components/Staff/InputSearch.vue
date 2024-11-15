@@ -10,7 +10,7 @@
     <input
       type="text"
       class="form-control px-2"
-      placeholder="Nhập thông tin cần tìm"
+      placeholder="Type here to search"
       v-model="model"
     />
     <button
@@ -32,14 +32,14 @@
 }
 
 .input-group .form-control{
-  height:35px;
+  height:40px;
   padding: 15px;        
   font-size: 18px;     
   border-radius: 5px; 
 }
 .input-group .btn {
   margin-top: 0px;
-  height: 35px;
+  height: 40px;
   padding: 10px 20px;    
   font-size: 16px;       
   border-radius: 5px;
@@ -48,13 +48,13 @@
 .search-btn {
   height: 30px;
   display: flex;
-  align-items: center; /* Center icon vertically */
+  align-items: center; 
   justify-content: center;
   padding: 0 10px;
 }
 
 .search-icon {
-  font-size: 16px; /* Adjust icon size if needed */
-  margin-top: -1px; /* Fine-tune vertical positioning */
+  font-size: 16px;
+  margin-top: -1px;
 }
 </style>

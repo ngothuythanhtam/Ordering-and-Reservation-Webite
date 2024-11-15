@@ -27,9 +27,9 @@ function handleDelete() {
     <table class="table mt-4" style="border-radius: 10px; overflow: hidden;">
         <thead>
             <tr>
-                <th scope="col">Mã Bàn</th>
-                <th scope="col">Tên Bàn</th>
-                <th scope="col">Chỗ Ngồi</th>
+                <th scope="col">ID</th>
+                <th scope="col">Table Name</th>
+                <th scope="col">Seating Capacity</th>
                 <th scope="col"></th>
             </tr>
         </thead>
@@ -40,13 +40,13 @@ function handleDelete() {
                 @click="$emit('update:selectedIndex', index)" 
                 style="cursor: pointer;">
 
-                <td>{{ table.table_id }}</td>
+                <td>#{{ table.table_id }}</td>
                 <td>{{ table.table_number }}</td>
                 <td>{{ table.seating_capacity }}</td>
 
                 <td>
                     <button class="btn btn-sm btn-danger" @click="handleDelete">
-                        Xóa <i class="fas fa-trash"></i>
+                        Delete <i class="fas fa-trash"></i>
                     </button>
                 </td>
             </tr>

@@ -106,7 +106,7 @@ function deleteUser() {
 
 <style scoped>
 .card-container {
-    min-width: 500px;
+    max-width: 600px;
     margin: 2rem auto;
     padding: 0 15px;
 }

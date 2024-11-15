@@ -1,4 +1,6 @@
 const reservationService = require('../../services/Staff/reservation.service');
+const receiptsService = require('../../services/Customer/receipts.service');
+
 const usersService = require('../../services/Customer/users.service');
 const ApiError = require('../../api-error');
 const JSend = require('../../jsend');
@@ -88,6 +90,11 @@ async function staffCreateReservation(req, res, next) {
         reservation_date: req.body.reservation_date,
         special_request: req.body.special_request
     };
+    const checktable = await receiptsService.checktable(table_number, reservationData.reservation_date);
+    if (checktable) {
+        return next(new ApiError(401, 'Bàn này đã có người đặt trùng thời gian. Vui lòng chọn ngày khác hoặc bàn khác!'));
+    }
+    console.log(checktable);
 
     try {
         const result = await reservationService.staffCreateReservation(useremail, table_number, reservationData);

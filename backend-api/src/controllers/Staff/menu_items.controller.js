@@ -5,7 +5,7 @@ const JSend = require('../../jsend');
 
 async function getItemsByFilter(req, res, next) {
     if (!req.session.user) {
-        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        return next(new ApiError(401, 'Please log in!'));
     }
 
     const userId = req.session.user.userid;
@@ -13,7 +13,7 @@ async function getItemsByFilter(req, res, next) {
     const userRole = await usersService.checkRole(userId);
     
     if (userRole !== 2) {
-        return next(new ApiError(403, 'Forbidden: Bạn không có quyền chỉnh sửa thông tin này!'));
+        return next(new ApiError(403, 'Forbidden: You do not have permission to edit this information!'));
     }
     let result = {
         items: [],
@@ -43,7 +43,7 @@ async function getItemsByFilter(req, res, next) {
 
 async function deleteAllItems(req, res, next) {
     if (!req.session.user) {
-        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        return next(new ApiError(401, 'Please log in!'));
     }
 
     const userId = req.session.user.userid;
@@ -51,7 +51,7 @@ async function deleteAllItems(req, res, next) {
     const userRole = await usersService.checkRole(userId);
     
     if (userRole !== 2) {
-        return next(new ApiError(403, 'Forbidden: Bạn không có quyền chỉnh sửa thông tin này!'));
+        return next(new ApiError(403, 'Forbidden: You do not have permission to edit this information!'));
     }
     try{
         await menu_itemsService.deleteAllItems();
@@ -67,7 +67,7 @@ async function deleteAllItems(req, res, next) {
 
 async function getItem(req, res, next) {
     if (!req.session.user) {
-        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        return next(new ApiError(401, 'Please log in!'));
     }
 
     const userId = req.session.user.userid;
@@ -75,7 +75,7 @@ async function getItem(req, res, next) {
     const userRole = await usersService.checkRole(userId);
     
     if (userRole !== 2) {
-        return next(new ApiError(403, 'Forbidden: Bạn không có quyền chỉnh sửa thông tin này!'));
+        return next(new ApiError(403, 'Forbidden: You do not have permission to edit this information!'));
     }
 
     const { item_id } = req.params;
@@ -105,7 +105,7 @@ async function getItem(req, res, next) {
 
 async function createItem(req, res, next) {
     if (!req.session.user) {
-        return next(new ApiError(401, 'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        return next(new ApiError(401, 'Please log in!'));
     }
 
     const userId = req.session.user.userid;
@@ -113,7 +113,7 @@ async function createItem(req, res, next) {
     const userRole = await usersService.checkRole(userId);
 
     if (userRole !== 2) {
-        return next(new ApiError(403, 'Forbidden: Bạn không có quyền chỉnh sửa thông tin này!'));
+        return next(new ApiError(403, 'Forbidden: You do not have permission to edit this information!'));
     }
     try {
 
@@ -150,7 +150,7 @@ async function createItem(req, res, next) {
 async function updateItem(req, res, next) {
     // Kiểm tra nếu session không tồn tại hoặc không có userid
     if (!req.session.user) {
-        return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        return next(new ApiError(401,'Please log in!'));
     }
     console.log(req.session.user.userid);
 
@@ -209,7 +209,7 @@ async function updateItem(req, res, next) {
 async function deleteItem(req, res, next) {
     // Kiểm tra nếu session không tồn tại hoặc không có userid
     if (!req.session.user) {
-        return next(new ApiError(401,'Vui lòng đăng nhập để xem thông tin của bạn!'));
+        return next(new ApiError(401,'Please log in!'));
     }
     console.log(req.session.user.userid);
 

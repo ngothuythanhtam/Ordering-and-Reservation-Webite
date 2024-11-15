@@ -21,14 +21,14 @@ async function staffVerifyReceipt(order_id, staffId, status) {
   const receiptData = await receiptRepository().where({ order_id: order_id_int }).first();
   console.log(receiptData)
   
-  if (!receiptData) throw new Error('Không tìm thấy hóa đơn nào!');
+  if (!receiptData) throw new Error('No receipts found!');
 
   const receipt = readReceipt(receiptData);
   
   try {
     // Hóa đơn ở trạng thái Ordered mới được xác nhận
     if (receipt.status !== 'Ordered') {
-      throw new Error('Không thể xác nhận nếu hóa đơn chưa được Ordered!');
+      throw new Error('Cannot confirm if receipt has not been Ordered!');
     }
 
     // Xác nhật trạng thái hóa đơn "Hủy" hoặc "Hoàn thành"
@@ -62,9 +62,9 @@ async function staffVerifyReceipt(order_id, staffId, status) {
       await trx.commit();
     });
 
-    return { success: true, message: `Hóa đơn được cập nhật trạng thái là ${status} thành công!` };
+    return { success: true, message: `Receipt status updated as ${status} successfully!` };
   } catch (error) {
-    console.error("Có lỗi khi thay đổi trạng thái hóa đơn:", error);
+    console.error("Error when changing receipt status:", error);
     throw new Error(error.message);
   }
 }
