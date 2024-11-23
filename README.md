@@ -1,5 +1,3 @@
-# CT313H: WEB TECHNOLOGIES AND SERVICES
-
 ## Project Name: Savorly - Restaurant Ordering & Reservation Website
 
 Semester 1, Academic year: 2024-2025
